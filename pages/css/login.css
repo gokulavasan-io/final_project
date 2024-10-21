@@ -34,22 +34,6 @@ body {
     border-radius: 30px;
 }
 
-/*------------ For small screens------------*/
-@media only screen and (max-width: 768px) {
-    .box-area {
-        margin: 0 10px;
-    }
-
-    .left-box {
-        height: 100px;
-        overflow: hidden;
-    }
-
-    .right-box {
-        padding: 20px;
-    }
-}
-
 
 .img-cont {
     background: #103cbe;
@@ -66,5 +50,34 @@ body {
 
 .img-cont small {
     width: 17rem;
-    font-family: 'Courier New', Courier, monospace
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+.popup {
+    display: none;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+.show {
+    display: block;
+}
+
+.popup-message {
+    background-color: #f44336;
+    color: white;
+    padding: 15px;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    border-radius: 5px;
+    display: none;
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Login</title>
 
     <link rel="stylesheet" href="./pages/css/login.css" />
     <!-- Bootstrap links -->
@@ -15,31 +15,26 @@
     />
   </head>
   <body>
-    <!----------------------- Main Container -------------------------->
     <div
       class="container d-flex justify-content-center align-items-center min-vh-100"
     >
-      <!----------------------- Login Container -------------------------->
       <div class="row border rounded-5 p-3 bg-white shadow box-area">
-        <!--------------------------- Left Box ----------------------------->
         <div
           class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box img-cont"
         >
           <div class="featured-image mb-3">
-            <img src="./assets/images/login_img/1.png" class="img-fluid" />
+            <img src="./assets/images/login_img/users-login.png" class="img-fluid" />
           </div>
           <p class="text-white fs-2 img-para">Be Verified</p>
           <small class="text-white text-wrap text-center"
             >Hi teachers, Please login
           </small>
         </div>
-        <!-------------------- ------ Right Box ---------------------------->
-
         <div class="col-md-6 right-box">
           <div class="row align-items-center">
             <div class="header-text mb-4">
-              <h2>Hello,Again</h2>
-              <p>We are happy to have you back.</p>
+              <h2 class="text-center"> <img src="./assets/images/login_img/ic_fw.png" height="50" width="50"> Hello, Sir / Madam</h2>
+              <p class="text-center ms-5">We are happy to have you...</p>
             </div>
             <form id="login">
               <div class="input-group mb-3">
@@ -68,6 +63,15 @@
         </div>
       </div>
     </div>
+
+    <div id="successMessage" class="popup">
+      Successfully Logged In
+  </div>
+  <div id="error-message" class="popup-message">
+    Invalid email or password. Please try again.
+</div>
+
+  
 
     <script type="module" src="./pages/scripts/login.js"></script>
   </body>

@@ -29,17 +29,33 @@ document.getElementById("login").addEventListener("submit", function() {
     
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      // Signed in 
       const user = userCredential.user;
       console.log(user);
-    //   alert(user.email+" Login successfully!!!");
-      window.location.href = "pages/html/main_page.html"
+
+      showSuccessMessage();
+        setTimeout(() => {
+            window.location.href = "pages/html/home.html";
+        }, 3000);
     
     })
     .catch((error) => {
-      const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorMessage);
-      alert(errorMessage);
+
+      const errorPopup = document.getElementById("error-message");
+      errorPopup.style.display = "block";
+      setTimeout(() => {
+          errorPopup.style.display = "none";
+      }, 3000);
+
     });		  		  
 });
+
+
+function showSuccessMessage() {
+  const message = document.getElementById("successMessage");
+  message.classList.add("show");
+  setTimeout(() => {
+      message.classList.remove("show");
+  }, 3000); // Display for 3 seconds
+}
