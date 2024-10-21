@@ -33,7 +33,7 @@ document.getElementById("login").addEventListener("submit", function() {
       const user = userCredential.user;
       console.log(user);
     //   alert(user.email+" Login successfully!!!");
-      window.location.href = "../../pages/html/main_page.html"
+      window.location.href = "pages/html/main_page.html"
     
     })
     .catch((error) => {
