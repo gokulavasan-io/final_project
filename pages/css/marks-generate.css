@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+*,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+
+}
+
+.buttons{
+    position: fixed;
+    top: 10%;
+    right: 2%;
+}
+#page-name {
+    position: fixed;
+    top: 10%;
+    left: 7%;
+    z-index: -10;
+    font-weight: bolder;
+    font-family: poppins;
+    color: var(--primary-color);
+}
+
+#handsontable{
+    position: absolute;
+    top: 15%;
+    left: 30%;
+    z-index: -10;
+}

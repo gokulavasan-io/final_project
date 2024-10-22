@@ -41,7 +41,7 @@ document.getElementById("yes").addEventListener("click", function() {
 
     setTimeout(() => {
         window.location.href = "../../index.html";
-    }, 3000);
+    }, 500);
 
 
   }).catch((error) => {
@@ -73,5 +73,6 @@ function showLogoutMessage() {
   message.classList.add("show");
   setTimeout(() => {
       message.classList.remove("show");
-  }, 3000); 
+  }, 500); 
 }
+
