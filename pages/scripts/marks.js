@@ -32,7 +32,8 @@ function getQueryParameter(param) {
 // Fetch and display data in Handsontable
 function fetchAndDisplayData(datasetName) {
     const pageTitle = getQueryParameter('pageTitle'); 
-    const dataPath = `studentMarks/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for the path
+    const section = getQueryParameter('section'); 
+    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for the path
 
     const dbRef = ref(database);
     document.getElementById("renameDatasetInput").placeholder = datasetName;
@@ -67,7 +68,8 @@ function fetchAndDisplayData(datasetName) {
 // Update Firebase data
 function updateDataInFirebase(datasetName) {
     const pageTitle = getQueryParameter('pageTitle') ; // Get the page title or use default
-    const dataPath = `studentMarks/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for path
+    const section = getQueryParameter('section'); 
+    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for path
     const updatedData = hot.getData(); // Get updated data from Handsontable
 
     const datasetRef = ref(database, dataPath);
@@ -147,14 +149,15 @@ function renameDataset() {
     const oldDatasetName = getDatasetNameFromURL(); // Get the current dataset name from the URL
     const newDatasetName = document.getElementById('renameDatasetInput').value.trim(); // Get the new name from the input field
     const pageTitle = getQueryParameter('pageTitle') ; // Get the page title or use default
+    const section = getQueryParameter('section'); 
 
     if (!newDatasetName) {
         alert("Please enter a new dataset name.");
         return;
     }
 
-    const oldDataPath = `studentMarks/${pageTitle}/${oldDatasetName}`;
-    const newDataPath = `studentMarks/${pageTitle}/${newDatasetName}`;
+    const oldDataPath = `studentMarks/${section}/${pageTitle}/${oldDatasetName}`;
+    const newDataPath = `studentMarks/${section}/${pageTitle}/${newDatasetName}`;
 
     const dbRef = ref(database);
     

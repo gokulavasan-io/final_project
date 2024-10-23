@@ -76,3 +76,23 @@ function showLogoutMessage() {
   }, 500); 
 }
 
+
+
+
+function getQueryParameter(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+const section = getQueryParameter('section'); 
+const allAs=document.querySelectorAll(".sidebar-item a");
+const allSubjects=document.querySelectorAll(".subjects-container a")
+
+for(let i=1;i<allAs.length;i++){
+  allAs[i].href+=`&section=${section}`
+}
+for(let i=0;i<allSubjects.length;i++){
+  allSubjects[i].href+=`&section=${section}`
+}
+
+allAs[0].href+=`?section=${section}`

@@ -18,10 +18,11 @@ const database = getDatabase(app);
 
 // Function to get all dataset names from Firebase and render them
 function getAllData() {
-const subject_name=document.getElementById("page-name").innerText.split(" ").join("").toString();
+const subject_name=document.getElementById("page-name").innerText;
+const section=getQueryParameter('section');
     
     const dbRef = ref(database);
-    const dataPath = `studentMarks/${subject_name}`;
+    const dataPath = `studentMarks/${section}/${subject_name}`;
     
     // Get the delete button
     const deleteBtn = document.getElementById('delete-btn');
@@ -56,7 +57,7 @@ const subject_name=document.getElementById("page-name").innerText.split(" ").joi
                 div.addEventListener('click', function (e) {
                     if (!deleteMode && e.target !== checkbox) {
                         // Navigate to the dataset details page
-                        window.location.href = `marks.html?dataset=${encodeURIComponent(name)}&pageTitle=${subject_name}`;
+                        window.location.href = `marks.html?dataset=${encodeURIComponent(name)}&pageTitle=${subject_name}&section=${section}`;
                     }
                 });
 
@@ -126,14 +127,16 @@ function confirmDeletion() {
 
 // Function to delete selected datasets
 function deleteSelectedDatasets() {
-const subject_name=document.getElementById("page-name").innerText.split(" ").join("").toString();
+const subject_name=document.getElementById("page-name").innerText;
+const section=getQueryParameter('section');
+
 
     const selectedCheckboxes = document.querySelectorAll('.dataset-checkbox:checked');
     const dbRef = ref(database);
 
     selectedCheckboxes.forEach(checkbox => {
         const datasetName = checkbox.value;
-        const datasetRef = ref(database, `studentMarks/${subject_name}/${datasetName}`);
+        const datasetRef = ref(database, `studentMarks/${section}/${subject_name}/${datasetName}`);
 
         // Remove the dataset from Firebase
         remove(datasetRef).then(() => {
@@ -149,9 +152,10 @@ const subject_name=document.getElementById("page-name").innerText.split(" ").joi
 // change the pagetitle and pagename
 document.addEventListener("DOMContentLoaded", function () {
     const pageTitle = getQueryParameter('pageTitle'); 
+    const section=getQueryParameter('section');
     document.getElementById("page-title").innerText=pageTitle;
     document.getElementById("page-name").innerText=pageTitle;
-    document.getElementById("new").href=`./mark-generate.html?pageTitle=${pageTitle}`;
+    document.getElementById("new").href=`./mark-generate.html?pageTitle=${pageTitle}&section=${section}`;
     getAllData();
 });
 

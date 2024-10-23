@@ -22,12 +22,109 @@ function getQueryParameter(param) {
     return urlParams.get(param);
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
     // Extract page title from URL
-    const pageTitle = getQueryParameter('pageTitle') || 'EnglishMarks'; // Default to 'EnglishMarks' if no title is provided
+    const pageTitle = getQueryParameter('pageTitle') ; 
+    const section = getQueryParameter('section'); 
+    
+
 
     const container = document.getElementById('handsontable');
-    const data = [['', '']]; // Initial data
+    let data ;
+      if(section=="ClassA"){
+        data=[
+            ["Abinaya M", ""],
+            ["Hari Krishnan B", ""],
+            ["Harish Karthick", ""],
+            ["Joshitha", ""],
+            ["Jumana H", ""],
+            ["K Balamurugan", ""],
+            ["Karthikeyan Sakthivel", ""],
+            ["Kavinisha Kannan", ""],
+            ["Keerthika", ""],
+            ["KISHORE M", ""],
+            ["Madasamy", ""],
+            ["Mohamed Vaseem Ismail", ""],
+            ["Muthamizhan", ""],
+            ["Muthujothi", ""],
+            ["Parkavi M", ""],
+            ["Pugazhenthi S", ""],
+            ["Rama Subbu N A", ""],
+            ["Saravanan", ""],
+            ["Sankar K", ""],
+            ["Senthilnathan", ""],
+            ["Shalini R", ""],
+            ["Sridhar", ""],
+            ["Sutharsan", ""],
+            ["Vajesh Babu", ""],
+            ["Yuva Ganesh", ""],
+            ["Gowtham", ""]
+        ]
+        
+      }
+      else if(section=="ClassB"){
+        data=[
+            ["Arumuga Kani", ""],
+            ["DB Shriram", ""],
+            ["Gokulavasan G", ""],
+            ["Gopika V", ""],
+            ["Guna P", ""],
+            ["Jeevanantham R", ""],
+            ["Kamalika A", ""],
+            ["Karthikeyan M", ""],
+            ["Kottai Samy K", ""],
+            ["Krishna Moorthy", ""],
+            ["Logesh Muthu", ""],
+            ["Malarvizhi k", ""],
+            ["Maruthamuthu G", ""],
+            ["Mohamed Mohideen Thayub", ""],
+            ["Naveen S", ""],
+            ["Pestica M", ""],
+            ["Pranesh", ""],
+            ["Ramalakshmi T", ""],
+            ["Mohammed sheriff", ""],
+            ["Sandhiya P", ""],
+            ["Santhosh Raja Ramesh", ""],
+            ["Sham L", ""],
+            ["Sivaraman R", ""],
+            ["Suprasanna A", ""],
+            ["Udhaya S", ""],
+            ["Venkatesh S", ""],
+            ["Zahid Hussain", ""]
+          ]
+      }
+      else if(section=="ClassC"){
+        data=[
+            ["Abdul Kalam S", ""],
+            ["Brinda", ""],
+            ["Chandhru G. S", ""],
+            ["Deepak V", ""],
+            ["Devika S", ""],
+            ["Dhanasri V", ""],
+            ["Dharani Sri A", ""],
+            ["Harini Ragavi", ""],
+            ["Harishmugi", ""],
+            ["Jeshin Daniel", ""],
+            ["Kaleeshwari K", ""],
+            ["Mohamed Ibrahim", ""],
+            ["Mohamed J", ""],
+            ["Musharaf S", ""],
+            ["Naveen Kumar", ""],
+            ["Rajesh R", ""],
+            ["Rakesh Raj", ""],
+            ["Rithishmuthu", ""],
+            ["Sathish Kumar", ""],
+            ["Shanmugavel", ""],
+            ["Sivaperumal B", ""],
+            ["Sudharsan S", ""],
+            ["Swathi", ""],
+            ["Teena Morin", ""],
+            ["Thirupathi", ""],
+            ["Vanitha N", ""]
+        ]
+        
+      }
 
     // Initialize Handsontable
     const hot = new Handsontable(container, {
@@ -62,8 +159,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const tableData = hot.getData(); // Get data from Handsontable
 
         const dbRef = ref(database);
-        const dataPath = `studentMarks/${pageTitle}/${customName}`; // Use dynamic pageTitle for the path
-
+        const dataPath = `studentMarks/${section}/${pageTitle}/${customName}`; // Use dynamic pageTitle for the path
+//
         // Save the data to Firebase
         set(ref(database, dataPath), tableData)
             .then(() => {
@@ -77,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add an event listener for beforeunload to save data before reloading or closing the page
     window.addEventListener('beforeunload', (event) => {
-        const customName = document.getElementById('datasetName').value.trim(); // Get dataset name from input field
+        const customName = document.getElementById('datasetName').value.trim().split("/").join("-");
 
         if (customName !== "") {
             saveDataToFirebase(customName); // Save data automatically with the dataset name
@@ -87,7 +184,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Manual save button
     document.getElementById('saveToFirebase').addEventListener('click', function() {
-        const customName = document.getElementById('datasetName').value.trim(); // Get dataset name from input field
+        const customName = document.getElementById('datasetName').value.trim().split("/").join("-");
 
         if (customName === "") {
             alert("Please enter a valid dataset name.");

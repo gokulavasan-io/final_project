@@ -24,8 +24,9 @@ const auth = getAuth();
 
 document.getElementById("login").addEventListener("submit", function () {
   event.preventDefault();
-  var email = document.getElementById("email").value;
-  var password = document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const selectedClass = document.querySelector('input[name="sectionName"]:checked').id;
 
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -34,7 +35,7 @@ document.getElementById("login").addEventListener("submit", function () {
 
       showSuccessMessage();
       setTimeout(() => {
-        window.location.href = "pages/html/home.html";
+        window.location.href = `pages/html/home.html?section=${selectedClass}`;
       }, 100);
     })
     .catch((error) => {
