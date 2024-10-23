@@ -35,7 +35,7 @@ function fetchAndDisplayData(datasetName) {
     const dataPath = `studentMarks/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for the path
 
     const dbRef = ref(database);
-    document.getElementById("newDatasetName").placeholder = datasetName;
+    document.getElementById("renameDatasetInput").placeholder = datasetName;
 
     // Fetch the dataset by name
     get(child(dbRef, dataPath)).then((snapshot) => {
@@ -66,7 +66,7 @@ function fetchAndDisplayData(datasetName) {
 
 // Update Firebase data
 function updateDataInFirebase(datasetName) {
-    const pageTitle = getQueryParameter('pageTitle') || 'English'; // Get the page title or use default
+    const pageTitle = getQueryParameter('pageTitle') ; // Get the page title or use default
     const dataPath = `studentMarks/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for path
     const updatedData = hot.getData(); // Get updated data from Handsontable
 
@@ -141,3 +141,56 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+
+// Function to rename the dataset
+function renameDataset() {
+    const oldDatasetName = getDatasetNameFromURL(); // Get the current dataset name from the URL
+    const newDatasetName = document.getElementById('renameDatasetInput').value.trim(); // Get the new name from the input field
+    const pageTitle = getQueryParameter('pageTitle') ; // Get the page title or use default
+
+    if (!newDatasetName) {
+        alert("Please enter a new dataset name.");
+        return;
+    }
+
+    const oldDataPath = `studentMarks/${pageTitle}/${oldDatasetName}`;
+    const newDataPath = `studentMarks/${pageTitle}/${newDatasetName}`;
+
+    const dbRef = ref(database);
+    
+    // Get the current dataset
+    get(child(dbRef, oldDataPath)).then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            
+            // Set the new dataset with the new name
+            set(ref(database, newDataPath), data)
+                .then(() => {
+                    // Remove the old dataset
+                    set(ref(database, oldDataPath), null)
+                        .then(() => {
+                            alert("Dataset renamed successfully!");
+                            // Update the URL to reflect the new dataset name
+                            const newUrl = window.location.href.replace(oldDatasetName, newDatasetName);
+                            window.history.replaceState(null, null, newUrl);
+                            document.getElementById("newDatasetName").placeholder = newDatasetName; // Update the placeholder
+                        })
+                        .catch((error) => {
+                            console.error("Error deleting old dataset:", error);
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error renaming dataset:", error);
+                    alert("Failed to rename the dataset.");
+                });
+        } else {
+            alert("Dataset does not exist.");
+        }
+    }).catch((error) => {
+        console.error("Error fetching data from Firebase:", error);
+        alert("Failed to fetch data.");
+    });
+}
+
+// Event listener for Rename button
+document.getElementById('renameDataset').addEventListener('click', renameDataset);

@@ -17,9 +17,11 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 // Function to get all dataset names from Firebase and render them
-function getAllLifeSkillsNames() {
+function getAllData() {
+const subject_name=document.getElementById("page-name").innerText.split(" ").join("").toString();
+    
     const dbRef = ref(database);
-    const dataPath = "studentMarks/LifeSkills";
+    const dataPath = `studentMarks/${subject_name}`;
     
     // Get the delete button
     const deleteBtn = document.getElementById('delete-btn');
@@ -54,8 +56,7 @@ function getAllLifeSkillsNames() {
                 div.addEventListener('click', function (e) {
                     if (!deleteMode && e.target !== checkbox) {
                         // Navigate to the dataset details page
-                        const pageTitle = document.title;
-                        window.location.href = `marks.html?dataset=${encodeURIComponent(name)}&pageTitle=${encodeURIComponent(pageTitle)}`;
+                        window.location.href = `marks.html?dataset=${encodeURIComponent(name)}&pageTitle=${subject_name}`;
                     }
                 });
 
@@ -88,12 +89,12 @@ function getAllLifeSkillsNames() {
                 }
             });
         } else {
-            console.log("No data available in LifeSkillsMarks.");
+            console.log("No data available in that data");
             const container = document.querySelector('.marks-container');
             const div = document.createElement('div');
             div.classList.add('marks-detail');
             const pElement = document.createElement('p');
-            pElement.innerText = "No data available";
+            pElement.innerText = "No data";
             container.appendChild(pElement);
             div.appendChild(pElement);
             container.appendChild(div);
@@ -125,12 +126,14 @@ function confirmDeletion() {
 
 // Function to delete selected datasets
 function deleteSelectedDatasets() {
+const subject_name=document.getElementById("page-name").innerText.split(" ").join("").toString();
+
     const selectedCheckboxes = document.querySelectorAll('.dataset-checkbox:checked');
     const dbRef = ref(database);
 
     selectedCheckboxes.forEach(checkbox => {
         const datasetName = checkbox.value;
-        const datasetRef = ref(database, `studentMarks/LifeSkills/${datasetName}`);
+        const datasetRef = ref(database, `studentMarks/${subject_name}/${datasetName}`);
 
         // Remove the dataset from Firebase
         remove(datasetRef).then(() => {
@@ -143,6 +146,17 @@ function deleteSelectedDatasets() {
 }
 
 // Call the function when the page is loaded to fetch and display the dataset names
+// change the pagetitle and pagename
 document.addEventListener("DOMContentLoaded", function () {
-    getAllLifeSkillsNames();
+    const pageTitle = getQueryParameter('pageTitle'); 
+    document.getElementById("page-title").innerText=pageTitle;
+    document.getElementById("page-name").innerText=pageTitle;
+    document.getElementById("new").href=`./mark-generate.html?pageTitle=${pageTitle}`;
+    getAllData();
 });
+
+
+function getQueryParameter(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
