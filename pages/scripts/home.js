@@ -41,7 +41,7 @@ document.getElementById("yes").addEventListener("click", function() {
 
     setTimeout(() => {
         window.location.href = "../../index.html";
-    }, 500);
+    }, 100);
 
 
   }).catch((error) => {

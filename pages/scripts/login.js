@@ -35,7 +35,7 @@ document.getElementById("login").addEventListener("submit", function () {
       showSuccessMessage();
       setTimeout(() => {
         window.location.href = "pages/html/home.html";
-      }, 500);
+      }, 100);
     })
     .catch((error) => {
       const errorMessage = error.message;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">English</title>
+    <title id="page-title">New Marks</title>
 
     <link rel="stylesheet" href="../css/marks-generate.css">
     <link rel="stylesheet" href="../css/home.css">
@@ -115,12 +115,16 @@
     </div>
 
 
-    <div id ="page-name">Marks</div>
+    <div class="page-name">New Marks</div>
 
 
     <div id="handsontable"></div>
     
-
+    <div class="file-name">
+        <label for="datasetName" class="form-label">File Name:</label>
+        <input type="text" id="datasetName" class="form-control" placeholder="dd-mm-yy <name>" />
+    </div>
+    
     <div class="buttons">
         <button class="btn btn-success" id="saveToFirebase">Save </button>
         <button class="btn btn-primary" id="addRow">new Row</button> 

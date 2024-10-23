@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">ProblemSolving</title>
+    <title id="page-title">Marks</title>
 
-    <link rel="stylesheet" href="../css/ps.css">
-    <link rel="stylesheet" href="../css/english.css">
+    <link rel="stylesheet" href="../css/marks-generate.css">
     <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/marks.css">
      <!-- Bootstrap links -->
      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- line-icons css and font awesome -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-</head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.js"></script>
+
+    </head>
 <body>
      <!-- aside bar -->
      <aside id="sidebar">
@@ -111,20 +114,28 @@
         Successfully Logged Out
     </div>
 
-
-    <div id ="page-name">Problem Solving</div>
-    <button id="delete-btn" class="btn btn-danger ">Delete</button>
-
-    <div class="marks-container">
-        <a href="./mark-generate.html?pageTitle=ProblemSolving" id="new" class="new-marks-detail">
-            <i class="fa fa-plus"></i>
-            <p>New Mark</p>
-        </a>
+    <div class="page-name">
+            <p>File name : </p>
+            <input type="text" id="newDatasetName"  />
+        <button id="renameDataset" class="btn btn-info " >Rename</button>
     </div>
 
+    
+
+
+
+    <div id="handsontable"></div>
+    <div class="buttons">
+    <button class="btn btn-success" id="updateData">Update</button> 
+    <button class="btn btn-primary" id="addRow">Add Row</button> 
+    <button class="btn btn-danger" id="deleteLastRow">Delete Last Row</button> 
+    </div>
+
+   
 
 <script type="module" src="../scripts/home.js"></script>
-<script type="module" src="../scripts/ps.js"></script>
+<script type="module" src="../scripts/marks.js"></script>
+
 
  <!-- bootstrap link -->
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

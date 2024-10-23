@@ -58,20 +58,23 @@
 
 .marks-detail{
     color: var(--font-color);
-    background-color: rgba(0, 145, 255, 0.597);
+    background-color: rgb(3, 177, 3);
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 1rem;
     border-radius: 10px;
     gap: 1rem;
     transition: 300ms all ease;
     height: 6rem;
     width: 8rem;
+
 }
 .marks-detail:hover{
-    background-color: rgb(25, 110, 255);
+    background-color: rgb(8, 114, 2);
     transform: scale(.97);
+    cursor: pointer;
 }
 
 .marks-container i{
@@ -81,3 +84,22 @@
     font-weight: bolder;  
     margin-bottom: 0;  
 }
+
+.dataset-checkbox{
+    align-self: self-end;
+}
+
+input[type="checkbox"].dataset-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+}
+
+#delete-btn{
+    position: fixed;
+    top: 10%;
+    right: 2%;
+}
+
