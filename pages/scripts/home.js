@@ -1,6 +1,5 @@
 // hamburger menu
 const hamBurger = document.querySelector(".toggle-btn");
-
 hamBurger.addEventListener("click", function () {
   document.querySelector("#sidebar").classList.toggle("expand");
 });
@@ -36,10 +35,8 @@ document.getElementById("logout").addEventListener("click", function () {
 document.getElementById("yes").addEventListener("click", function () {
   signOut(auth)
     .then(() => {
-      console.log("Sign-out successful.");
-
+      deleteCookie("userLoggedIn");
       showLogoutMessage();
-
       setTimeout(() => {
         window.location.href = "../../index.html";
       }, 100);
@@ -50,6 +47,9 @@ document.getElementById("yes").addEventListener("click", function () {
 
   document.getElementById("logout-warning").style.display = "none";
 });
+function deleteCookie(name) {
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
 
 document.getElementById("no").addEventListener("click", function () {
   document.getElementById("logout-warning").style.display = "none";

@@ -202,12 +202,15 @@ header a i{
     display: none;
 }
 
-#userName{
+#name{
     font-size: 1.3rem;
     font-weight: bolder;
+    align-self: center;
 }
 #teacher{
     font-size: .9rem;
+    font-weight: bold;
+    align-self: center;
 }
 
 #logout{
