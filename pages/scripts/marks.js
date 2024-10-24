@@ -45,17 +45,45 @@ function fetchAndDisplayData(datasetName) {
 
             // Initialize Handsontable with fetched data
             const container = document.getElementById('handsontable');
-            hot = new Handsontable(container, {
-                data: data,  // Set fetched data to Handsontable
-                colHeaders: ['Student Name', 'Marks'],
-                columns: [
-                    { data: 0, type: 'text' },
-                    { data: 1, type: 'numeric' }
-                ],
-                rowHeaders: true,
-                colWidths: [200, 100],
-                licenseKey: 'non-commercial-and-evaluation'
-            });
+            if(pageTitle=="Attendance"){
+                document.getElementById("css-for-table").href="../css/attendance.css";
+                hot = new Handsontable(container, {
+                    data: data,
+                    colHeaders: ['Student Name', ...Array.from({ length: 31 }, (_, i) => `Day ${i + 1}`)],
+                    columns: [
+                        { data: 0, type: 'text' },  // Student Name
+                        ...Array.from({ length: 31 }, (_, i) => ({ data: i + 1, type: 'text' }))  // Attendance columns
+                    ],
+                    rowHeaders: true,
+                    colWidths: [200, ...Array(31).fill(50)],  // Set widths for each column
+                    fixedColumnsLeft: 1,
+                    licenseKey: 'non-commercial-and-evaluation',
+                    width: '83%', 
+                    height: '100%', 
+                    stretchH: 'all', 
+                    overflow: 'hidden', 
+                    autoColumnSize: false, 
+                    autoRowSize: true, 
+                });
+                
+            }
+            else{
+                hot = new Handsontable(container, {
+                    data: data,  // Set fetched data to Handsontable
+                    colHeaders: ['Student Name', 'Marks'],
+                    columns: [
+                        { data: 0, type: 'text' },
+                        { data: 1, type: 'numeric' }
+                    ],
+                    rowHeaders: true,
+                    colWidths: [200, 100],
+                    licenseKey: 'non-commercial-and-evaluation'
+                });
+            }
+
+
+
+            
         } else {
             alert("No data found for the selected dataset.");
         }

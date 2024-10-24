@@ -155,7 +155,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const section=getQueryParameter('section');
     document.getElementById("page-title").innerText=pageTitle;
     document.getElementById("page-name").innerText=pageTitle;
-    document.getElementById("new").href=`./mark-generate.html?pageTitle=${pageTitle}&section=${section}`;
+    if(pageTitle=="Attendance"){
+        document.getElementById("new-mark").innerText=`New`;
+        document.getElementById("new").href=`./attendance.html?pageTitle=${pageTitle}&section=${section}`;
+    }
+    else{
+        document.getElementById("new").href=`./mark-generate.html?pageTitle=${pageTitle}&section=${section}`;
+    }
+
     getAllData();
 });
 

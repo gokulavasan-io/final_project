@@ -85,14 +85,22 @@ function getQueryParameter(param) {
 }
 
 const section = getQueryParameter('section'); 
-const allAs=document.querySelectorAll(".sidebar-item a");
-const allSubjects=document.querySelectorAll(".subjects-container a")
+const allAs=document.querySelectorAll(".subjects a");
+const allSubjects=document.querySelectorAll(".subjects-container a");
 
-for(let i=1;i<allAs.length;i++){
+for(let i=0;i<allAs.length;i++){
   allAs[i].href+=`&section=${section}`
 }
 for(let i=0;i<allSubjects.length;i++){
   allSubjects[i].href+=`&section=${section}`
 }
 
-allAs[0].href+=`?section=${section}`
+
+const attendance=document.getElementsByClassName("attendance");
+for(let i=0;i<attendance.length;i++){
+  attendance[i].addEventListener("click", function() {
+    window.location.href = `../../pages/html/subjects.html?section=${section}&pageTitle=Attendance`;
+  });
+}
+
+document.getElementsByClassName("home")[0].href+=`?section=${section}`
