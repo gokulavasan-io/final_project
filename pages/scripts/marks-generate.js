@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+
 
 // Your web app's Firebase configuration (replace with your project details)
 const firebaseConfig = {
@@ -15,6 +17,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const firestore = getFirestore(app);
 
 // Function to get query parameter (to extract page title)
 function getQueryParameter(param) {
@@ -23,119 +26,69 @@ function getQueryParameter(param) {
 }
 
 
-document.addEventListener("DOMContentLoaded", function () {
-    // Extract page title from URL
-    const pageTitle = getQueryParameter('pageTitle') ; 
+document.addEventListener("DOMContentLoaded", async function () {
+    // Extract page title and section from URL
+    const pageTitle = getQueryParameter('pageTitle'); 
     const section = getQueryParameter('section'); 
-    
-
 
     const container = document.getElementById('handsontable');
-    let data ;
-      if(section=="ClassA"){
-        data=[
-            ["Abinaya M", ""],
-            ["Hari Krishnan B", ""],
-            ["Harish Karthick", ""],
-            ["Joshitha", ""],
-            ["Jumana H", ""],
-            ["K Balamurugan", ""],
-            ["Karthikeyan Sakthivel", ""],
-            ["Kavinisha Kannan", ""],
-            ["Keerthika", ""],
-            ["KISHORE M", ""],
-            ["Madasamy", ""],
-            ["Mohamed Vaseem Ismail", ""],
-            ["Muthamizhan", ""],
-            ["Muthujothi", ""],
-            ["Parkavi M", ""],
-            ["Pugazhenthi S", ""],
-            ["Rama Subbu N A", ""],
-            ["Saravanan", ""],
-            ["Sankar K", ""],
-            ["Senthilnathan", ""],
-            ["Shalini R", ""],
-            ["Sridhar", ""],
-            ["Sutharsan", ""],
-            ["Vajesh Babu", ""],
-            ["Yuva Ganesh", ""],
-            ["Gowtham", ""]
-        ]
-        
-      }
-      else if(section=="ClassB"){
-        data=[
-            ["Arumuga Kani", ""],
-            ["DB Shriram", ""],
-            ["Gokulavasan G", ""],
-            ["Gopika V", ""],
-            ["Guna P", ""],
-            ["Jeevanantham R", ""],
-            ["Kamalika A", ""],
-            ["Karthikeyan M", ""],
-            ["Kottai Samy K", ""],
-            ["Krishna Moorthy", ""],
-            ["Logesh Muthu", ""],
-            ["Malarvizhi k", ""],
-            ["Maruthamuthu G", ""],
-            ["Mohamed Mohideen Thayub", ""],
-            ["Naveen S", ""],
-            ["Pestica M", ""],
-            ["Pranesh", ""],
-            ["Ramalakshmi T", ""],
-            ["Mohammed sheriff", ""],
-            ["Sandhiya P", ""],
-            ["Santhosh Raja Ramesh", ""],
-            ["Sham L", ""],
-            ["Sivaraman R", ""],
-            ["Suprasanna A", ""],
-            ["Udhaya S", ""],
-            ["Venkatesh S", ""],
-            ["Zahid Hussain", ""]
-          ]
-      }
-      else if(section=="ClassC"){
-        data=[
-            ["Abdul Kalam S", ""],
-            ["Brinda", ""],
-            ["Chandhru G. S", ""],
-            ["Deepak V", ""],
-            ["Devika S", ""],
-            ["Dhanasri V", ""],
-            ["Dharani Sri A", ""],
-            ["Harini Ragavi", ""],
-            ["Harishmugi", ""],
-            ["Jeshin Daniel", ""],
-            ["Kaleeshwari K", ""],
-            ["Mohamed Ibrahim", ""],
-            ["Mohamed J", ""],
-            ["Musharaf S", ""],
-            ["Naveen Kumar", ""],
-            ["Rajesh R", ""],
-            ["Rakesh Raj", ""],
-            ["Rithishmuthu", ""],
-            ["Sathish Kumar", ""],
-            ["Shanmugavel", ""],
-            ["Sivaperumal B", ""],
-            ["Sudharsan S", ""],
-            ["Swathi", ""],
-            ["Teena Morin", ""],
-            ["Thirupathi", ""],
-            ["Vanitha N", ""]
-        ]
-        
-      }
+    let data = [];
+    let Students = [];
+
+    // Fetch student names from Firestore based on section
+    async function fetchStudentNames(classSection) {
+        try {
+            const docRef = doc(firestore, 'school/classes'); // Document reference to the classes document
+            const docSnap = await getDoc(docRef);
+    
+            if (docSnap.exists()) {
+                const studentNames = docSnap.data()[classSection] || []; // Default to an empty array if undefined
+                
+                if (Array.isArray(studentNames) && studentNames.length > 0) {
+                    console.log("Student names fetched successfully:", studentNames);
+                    Students = studentNames;
+                } else {
+                    console.error("No student names found for the selected class.");
+                    alert("No student names found for the selected class.");
+                    return [];
+                }
+            } else {
+                console.log("No such document!");
+                alert("No such document for the selected class.");
+                return [];
+            }
+        } catch (error) {
+            console.error("Error fetching document:", error);
+            alert("Error fetching student names.");
+            return [];
+        }
+    }
+    
+    // Determine which class to fetch data for
+    if (section === "ClassA") {
+        await fetchStudentNames("classA");
+    } else if (section === "ClassB") {
+        await fetchStudentNames("classB");
+    } else if (section === "ClassC") {
+        await fetchStudentNames("classC");
+    }
+
+    // Generate data for students and marks (empty initially)
+    for (let i = 0; i < Students.length; i++) {
+        let row = [`${Students[i]}`, ''];  // First column is the student name, second is empty marks
+        data.push(row);
+    }
 
     // Initialize Handsontable
     const hot = new Handsontable(container, {
         data: data,
-        colHeaders: ['Student Name', 'Marks'],
+        colHeaders: ['Student Name', 'Marks'], // Two columns: Student Name and Marks
         columns: [
-            { data: 0, type: 'text' },
-            { data: 1, type: 'numeric' }
+            { data: 0, type: 'text' },  // Student Name
+            { data: 1, type: 'numeric' }  // Marks column, can be numeric
         ],
         rowHeaders: true,
-        colWidths: [200, 100],
+        colWidths: [200, 100], // Widths for each column
         licenseKey: 'non-commercial-and-evaluation'
     });
 
