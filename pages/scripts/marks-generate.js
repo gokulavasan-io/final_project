@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Save the data to Firebase
         set(ref(database, dataPath), tableData)
             .then(() => {
-                alert("File saved successfully!"); // Show alert on successful save
+                showSuccessMessage();
             })
             .catch((error) => {
                 console.error("Error saving data:", error);
@@ -179,6 +179,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (customName !== "") {
             saveDataToFirebase(customName); // Save data automatically with the dataset name
             event.returnValue = "Are you sure you want to leave? Your data will be saved."; // Standard message may not show in all browsers
+            showSuccessMessage("File Saved successfully !");
         }
     });
 
@@ -194,3 +195,12 @@ document.addEventListener("DOMContentLoaded", function () {
         saveDataToFirebase(customName); // Save data manually
     });
 });
+
+
+function showSuccessMessage() {
+    const message = document.getElementById("successMessage");
+    message.classList.add("show");
+    setTimeout(() => {
+      message.classList.remove("show");
+    }, 1000);
+  }

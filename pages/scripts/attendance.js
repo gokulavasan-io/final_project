@@ -185,7 +185,7 @@ const hot = new Handsontable(container, {
         // Save the data to Firebase
         set(ref(database, dataPath), tableData)
             .then(() => {
-                alert("File saved successfully!"); // Show alert on successful save
+                showSuccessMessage("File Saved Successfully")
             })
             .catch((error) => {
                 console.error("Error saving data:", error);
@@ -219,3 +219,11 @@ const hot = new Handsontable(container, {
 
 
 
+function showSuccessMessage(str) {
+    const message = document.getElementById("successMessage");
+    message.innerText=str;
+    message.classList.add("show");
+    setTimeout(() => {
+      message.classList.remove("show");
+    }, 1000);
+  }

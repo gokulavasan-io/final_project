@@ -41,12 +41,8 @@ document.getElementById("login").addEventListener("submit", function () {
     .catch((error) => {
       const errorMessage = error.message;
       console.log(errorMessage);
-
-      const errorPopup = document.getElementById("error-message");
-      errorPopup.style.display = "block";
-      setTimeout(() => {
-        errorPopup.style.display = "none";
-      }, 500);
+      showErrorMessage();
+      
     });
 });
 
@@ -55,5 +51,13 @@ function showSuccessMessage() {
   message.classList.add("show");
   setTimeout(() => {
     message.classList.remove("show");
+  }, 500);
+}
+
+function showErrorMessage(){
+  const errorPopup = document.getElementById("error-message");
+  errorPopup.style.display = "block";
+  setTimeout(() => {
+    errorPopup.style.display = "none";
   }, 500);
 }

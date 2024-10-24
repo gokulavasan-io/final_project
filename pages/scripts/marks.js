@@ -105,7 +105,7 @@ function updateDataInFirebase(datasetName) {
     // Save updated data back to Firebase
     set(datasetRef, updatedData)
         .then(() => {
-            alert("Data updated successfully!");
+            showSuccessMessage("Dataset Updated successfully!")
         })
         .catch((error) => {
             console.error("Error updating data in Firebase:", error);
@@ -158,8 +158,11 @@ window.addEventListener('beforeunload', function() {
     const datasetName = getDatasetNameFromURL();
     if (datasetName && hot) {
         updateDataInFirebase(datasetName); // Save current data to Firebase
+        event.returnValue = "Are you sure you want to leave? Your data will be saved.";
+        showSuccessMessage("File Saved successfully !");
     }
 });
+
 
 // Get the dataset name from the URL and fetch the corresponding data
 document.addEventListener("DOMContentLoaded", function () {
@@ -200,7 +203,7 @@ function renameDataset() {
                     // Remove the old dataset
                     set(ref(database, oldDataPath), null)
                         .then(() => {
-                            alert("Dataset renamed successfully!");
+                            showSuccessMessage("Dataset renamed successfully!")
                             // Update the URL to reflect the new dataset name
                             const newUrl = window.location.href.replace(oldDatasetName, newDatasetName);
                             window.history.replaceState(null, null, newUrl);
@@ -225,3 +228,13 @@ function renameDataset() {
 
 // Event listener for Rename button
 document.getElementById('renameDataset').addEventListener('click', renameDataset);
+
+
+function showSuccessMessage(str) {
+    const message = document.getElementById("successMessage");
+    message.innerText=str;
+    message.classList.add("show");
+    setTimeout(() => {
+      message.classList.remove("show");
+    }, 1000);
+  }
