@@ -41,6 +41,14 @@
                 <input
                   type="text"
                   class="form-control form-control-lg bg-light fs-6"
+                  placeholder="Username"
+                  id="userName"
+                />
+              </div>
+              <div class="input-group mb-3">
+                <input
+                  type="text"
+                  class="form-control form-control-lg bg-light fs-6"
                   placeholder="Email address"
                   id="email"
                 />
@@ -53,7 +61,7 @@
                   id="password"
                 />
               </div>
-              <div class="d-flex justify-content-around">
+              <div class="d-flex justify-content-around mt-4">
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="sectionName" id="ClassA" required>
                   <label class="form-check-label" for="classA">
@@ -73,8 +81,28 @@
                   </label>
                 </div>
               </div>
+              <div class="d-flex justify-content-around mt-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="role" id="Tech" required>
+                  <label class="form-check-label" for="Tech">
+                    Tech
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="role" id="Els" required>
+                  <label class="form-check-label" for="Els">
+                    ELS
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="role" id="others" required>
+                  <label class="form-check-label" for="others">
+                    Head Coach/Management
+                  </label>
+                </div>
+              </div>
               <div class="input-group mb-3 mt-5">
-                <button type="submit" id="login" class="btn btn-lg btn-primary w-100 fs-6">
+                <button type="submit"  class="btn btn-lg btn-primary w-100 fs-6">
                   Login
                 </button>
               </div>

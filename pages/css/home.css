@@ -202,7 +202,7 @@ header a i{
     display: none;
 }
 
-#name{
+#userName{
     font-size: 1.3rem;
     font-weight: bolder;
 }
@@ -314,3 +314,30 @@ header a i{
 .attendance-container{
     cursor: pointer;
 }
+
+#classNow{
+    font-weight: bolder;
+    font-family: 'Poppins', sans-serif;
+    background-color: white;
+    padding: .5rem .9rem;
+    border-radius: 50%;
+}
+
+
+#showClassesForLead{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+    background-color: var(--primary-color);
+    color: var(--font-color);
+    padding: 1rem 3rem;
+    font-weight: bold;
+    border-radius: 10px;
+    align-items: center;
+    width: 300px;
+    gap: 1rem;
+    display: none;
+}
+

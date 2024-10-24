@@ -26,7 +26,11 @@ document.getElementById("login").addEventListener("submit", function () {
   event.preventDefault();
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const selectedClass = document.querySelector('input[name="sectionName"]:checked').id;
+  const selectedClass = document.querySelector(
+    'input[name="sectionName"]:checked'
+  ).id;
+  const role = document.querySelector('input[name="role"]:checked').id;
+  const userName = document.getElementById("userName").value;
 
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -35,14 +39,13 @@ document.getElementById("login").addEventListener("submit", function () {
 
       showSuccessMessage();
       setTimeout(() => {
-        window.location.href = `pages/html/home.html?section=${selectedClass}`;
+        window.location.href = `pages/html/home.html?section=${selectedClass}&name=${userName}&role=${role}`;
       }, 100);
     })
     .catch((error) => {
       const errorMessage = error.message;
       console.log(errorMessage);
       showErrorMessage();
-      
     });
 });
 
@@ -54,7 +57,7 @@ function showSuccessMessage() {
   }, 500);
 }
 
-function showErrorMessage(){
+function showErrorMessage() {
   const errorPopup = document.getElementById("error-message");
   errorPopup.style.display = "block";
   setTimeout(() => {
