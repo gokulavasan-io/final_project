@@ -192,6 +192,7 @@ header a i{
     align-items: center;
     border-radius: 10px;
     justify-content: space-between;
+    z-index: 100;
 }
 
 .user-info a{
