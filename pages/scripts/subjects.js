@@ -128,7 +128,7 @@ function confirmDeletion() {
   if (selectedCheckboxes.length > 0) {
     // Show confirmation dialog
     const confirmation = confirm(
-      "Are you sure you want to delete the selected datasets?"
+      "Are you sure you want to delete the selected Marks?"
     );
 
     if (confirmation) {
@@ -139,7 +139,7 @@ function confirmDeletion() {
       console.log("Deletion canceled.");
     }
   } else {
-    console.log("No datasets selected for deletion.");
+    alert("No Marks selected for deletion.");
   }
 }
 
