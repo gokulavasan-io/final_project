@@ -110,15 +110,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }`;
   if (role == "others") {
     document.getElementById("teacher").textContent = "FSSA";
+    document.getElementById("changeClass").style.display = "block";
   } else {
     document.getElementById("teacher").textContent = `${role} Coach`;
-  }
-
-  if (role == "others") {
-    document.getElementById("changeClass").style.display = "block";
-    document.getElementById("classNow").textContent = `${
-      section.split("s")[2]
-    }`;
   }
 });
 
@@ -137,3 +131,7 @@ document.querySelectorAll("#showClassesForLead button").forEach((button) => {
     }
   });
 });
+
+document.getElementById("classNow").textContent = `${
+  section.split("s")[2]
+}`;
