@@ -47,7 +47,7 @@ function changePageToMonthly() {
   for (let i = 0; i < allSubjects.length; i++) {
     allSubjects[
       i
-    ].href = `../../pages/html/monthlySubject.html?section=${section}&name=${userName}&role=${role}&subject=${allSubjects[i].querySelector("p").innerText}&month=${month}`;
+    ].href = `../../pages/html/monthlySubject.html?section=${section}&name=${userName}&role=${role}&subject=${allSubjects[i].querySelector("p").innerText.split(" ").join("")}&month=${month}`;
   }
   document.getElementById("pageTitleForMonthlySubject").style.display = "block";
   document.getElementById("seeButtons").style.display = "flex";

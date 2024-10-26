@@ -222,8 +222,11 @@ document.addEventListener("DOMContentLoaded", fetchMarksForDisplay);
 
 const selectedForSee= document.getElementsByClassName("selectedForSee");
 document.getElementById("seeMarks").addEventListener("click",()=>{
-    if(selectedForSee.length>1){
-        alert("cannot open more than 1 file for see result !!!")
+    if(selectedForSee.length<1){
+        alert("Please select atleast one mark !!!")
+    }
+    else if(selectedForSee.length>1){
+        alert("cannot open more than 1 file for result!!! try analysis ")
     }
     else{
         const dataForMark=selectedForSee[0].textContent;
