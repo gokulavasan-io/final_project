@@ -62,25 +62,21 @@ function getAllData() {
           div.appendChild(checkbox);
           div.appendChild(pElement);
 
-          // Add click event listener to the div for navigation when not in delete mode
+          // Add click event listener to the div
           div.addEventListener("click", function (e) {
             if (!deleteMode && e.target !== checkbox) {
               // Navigate to the dataset details page
               window.location.href = `marks.html?dataset=${encodeURIComponent(
                 name
               )}&pageTitle=${subject_name}&section=${section}&name=${userName}&role=${role}`;
+            } else if (deleteMode) {
+              // Toggle the checkbox state and background color in delete mode
+              checkbox.checked = !checkbox.checked;
+              div.style.backgroundColor = checkbox.checked ? "#e73232" : "";
             }
           });
 
-          // Listen for changes on the checkbox to toggle background color
-          checkbox.addEventListener("change", function () {
-            if (checkbox.checked) {
-              div.style.backgroundColor = "#e73232";
-            } else {
-              div.style.backgroundColor = "";
-            }
-          });
-
+          // Append the div to the container
           container.appendChild(div);
         });
 
@@ -90,13 +86,6 @@ function getAllData() {
             // Enter delete mode: show checkboxes and change button text
             deleteMode = true;
             deleteBtn.innerText = "Delete Selected";
-
-            // Show the checkboxes
-            document
-              .querySelectorAll(".dataset-checkbox")
-              .forEach((checkbox) => {
-                checkbox.style.display = "inline-block";
-              });
           } else {
             // If in delete mode, confirm before deleting
             confirmDeletion();
@@ -135,7 +124,6 @@ function confirmDeletion() {
       // If user confirms, proceed to delete
       deleteSelectedDatasets();
     } else {
-      // If user cancels, log a message (optional)
       console.log("Deletion canceled.");
     }
   } else {

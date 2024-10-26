@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">New Marks</title>
+    <title id="page-title">Attendance</title>
 
     <link rel="stylesheet" href="../css/marks-generate.css">
     <link rel="stylesheet" href="../css/home.css">
@@ -26,7 +26,7 @@
             
         <ul class="sidebar-nav mt-5">
             <li class="sidebar-item">
-                <a href="../html/home.html" class="sidebar-link home">
+                <a href="../html/home.html" class="sidebar-link" id="home">
                     <i class="lni lni-home"></i>
                     <span>Home</span>
                 </a>
@@ -55,9 +55,15 @@
             </li>
             
             <li class="sidebar-item">
-                <a  class="sidebar-link attendance" >
-                    <i class="fa fa-table"></i>
+                <a  class="sidebar-link" href="./subjects.html?pageTitle=Attendance" id="attendance">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
                     <span>Attendance</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a  class="sidebar-link " id="monthlyReport" href="./monthlyHome.html">
+                    <i class="fa fa-list-alt" aria-hidden="true"></i>
+                    <span>Monthly report</span>
                 </a>
             </li>
             <li class="sidebar-item">
@@ -138,8 +144,8 @@
     
 
 
-    <script type="module" src="../scripts/home.js"></script>
     <script type="module" src="../scripts/attendance.js"></script>
+    <script type="module" src="../scripts/generalScript.js"></script>
  <!-- bootstrap link -->
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 

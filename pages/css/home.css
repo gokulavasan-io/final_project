@@ -256,10 +256,24 @@ header a{
     color: white;
     padding: 15px;
     position: fixed;
-    top: 20px;
-    right: 20px;
+    left: 45%;
     border-radius: 5px;
     z-index: 1000;
+    animation: slide 1s ease;
+}
+
+@keyframes slide {
+    0%{
+        top: 0%;
+    }
+    50%{
+        top: 10%;
+        transform: scale(1.1);
+    }
+    100%{
+        top: 0%;
+    }
+
 }
 
 .show {
@@ -273,6 +287,8 @@ header a{
     left: 13%;
     width: 80%;
     z-index: -100;
+    font-family: 'Poppins', sans-serif;
+
 }
 
 .main-container img{
@@ -345,3 +361,31 @@ header a{
     display: none;
 }
 
+
+
+
+/* for Monthly Subjects */
+
+#pageTitleForMonthlySubject{
+    position: fixed;
+    top: 13%;
+    left: 13%;
+    font-size: 1.5rem;
+    font-weight: bolder;
+    z-index: -10;
+    font-family: 'Poppins', sans-serif;
+    color:red;
+    display: none;
+}
+
+#seeButtons{
+    position: fixed;
+    bottom: 5%;
+    right: 2%;
+    gap: 1rem;
+    display: none;
+}
+#whichMonth{
+    font-size: 1.5rem;
+    color: rgb(208, 0, 255);
+}
