@@ -227,7 +227,7 @@ document.getElementById("seeMarks").addEventListener("click",()=>{
     }
     else{
         const dataForMark=selectedForSee[0].textContent;
-        window.location.href = `marks.html?dataset=${dataForMark}&pageTitle=${subject}&section=${section}&name=${userName}&role=${role}`;
+        window.location.href = `../../pages/html/marks.html?dataset=${dataForMark}&pageTitle=${subject}&section=${section}&name=${userName}&role=${role}`;
     }
 });
 
