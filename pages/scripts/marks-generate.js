@@ -99,23 +99,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     licenseKey: "non-commercial-and-evaluation",
   });
 
-  // Function to add a new row
-  document.getElementById("addRow").addEventListener("click", function () {
-    hot.alter("insert_row"); // Inserts a new empty row at the end
-  });
-
-  // Function to delete the last row
-  document
-    .getElementById("deleteLastRow")
-    .addEventListener("click", function () {
-      const rowCount = hot.countRows(); // Get the total number of rows
-      if (rowCount > 0) {
-        // Check if there is at least one row
-        hot.alter("remove_row", rowCount - 1); // Remove the last row
-      } else {
-        alert("No rows to delete."); // Alert if there are no rows
-      }
-    });
 
   // Function to save data to Firebase
   function saveDataToFirebase(customName) {

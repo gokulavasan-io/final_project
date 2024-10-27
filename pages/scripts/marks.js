@@ -124,34 +124,6 @@ document.getElementById('updateData').addEventListener('click', function() {
     }
 });
 
-// Function to add a new row in Handsontable
-function addNewRow() {
-    if (hot) {
-        hot.alter('insert_row', hot.countRows()); // Inserts a new empty row at the end
-    } else {
-        alert("Handsontable is not initialized.");
-    }
-}
-
-// Event listener for Add Row button
-document.getElementById('addRow').addEventListener('click', addNewRow);
-
-// Function to delete the last row in Handsontable
-function deleteLastRow() {
-    if (hot) {
-        const rowCount = hot.countRows(); // Get the total number of rows
-        if (rowCount > 0) { // Check if there is at least one row
-            hot.alter('remove_row', rowCount - 1); // Remove the last row
-        } else {
-            alert("No rows to delete."); // Alert if there are no rows
-        }
-    } else {
-        alert("Handsontable is not initialized.");
-    }
-}
-
-// Event listener for Delete Last Row button
-document.getElementById('deleteLastRow').addEventListener('click', deleteLastRow);
 
 // Auto-save data to Firebase when the page is closed or reloaded
 window.addEventListener('beforeunload', function() {

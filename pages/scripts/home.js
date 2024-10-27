@@ -50,7 +50,7 @@ function changePageToMonthly() {
     ].href = `../../pages/html/monthlySubject.html?section=${section}&name=${userName}&role=${role}&subject=${allSubjects[i].querySelector("p").innerText.split(" ").join("")}&month=${month}`;
   }
   document.getElementById("pageTitleForMonthlySubject").style.display = "block";
-  document.getElementById("seeButtons").style.display = "flex";
+  document.getElementById("seeButtons").style.display = "block";
   document.querySelector(".main-container").style.top = "20%";
   document.getElementById("whichMonth").innerText = month;
   document.getElementById(
@@ -90,3 +90,6 @@ document.querySelectorAll("#showClassesForLead button").forEach((button) => {
   });
 });
 
+document.getElementById("seeResult").addEventListener("click",()=>{
+  window.location.href = `../../pages/html/monthlyResult.html?section=${section}&name=${userName}&role=${role}&month=${month}`;
+})
