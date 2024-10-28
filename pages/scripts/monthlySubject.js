@@ -228,7 +228,8 @@ document.getElementById("seeMarks").addEventListener("click",()=>{
     }
     else{
         const dataForMark=selectedForSee[0].textContent;
-        localStorage.setItem("dataSet",dataForMark);
+        localStorage.setItem("dataSet",dataForMark)
+        localStorage.setItem("pageTitle",subject)
         window.location.href = "../../pages/html/marks.html";
     }
 });
