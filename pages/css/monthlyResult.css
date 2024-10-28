@@ -19,8 +19,10 @@
     position: fixed;
     bottom: 5%;
     right: 2%;
-    display: flex;
+    display: none;
     gap: 1rem;
+    z-index: 100;
+
 }
 
 #saveResult{

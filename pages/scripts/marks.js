@@ -15,24 +15,15 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-let hot; // Declare a variable to hold Handsontable instance
+let hot; 
+const datasetName = localStorage.getItem("dataSet");
+const section = localStorage.getItem("section");
+const pageTitle = localStorage.getItem("pageTitle");
 
-// Function to get the dataset name from the URL
-function getDatasetNameFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('dataset'); // Get the 'dataset' query parameter
-}
 
-// Function to get the pageTitle and dataset from the URL
-function getQueryParameter(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-}
 
 // Fetch and display data in Handsontable
 function fetchAndDisplayData(datasetName) {
-    const pageTitle = getQueryParameter('pageTitle'); 
-    const section = getQueryParameter('section'); 
     const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for the path
 
     const dbRef = ref(database);
@@ -95,8 +86,6 @@ function fetchAndDisplayData(datasetName) {
 
 // Update Firebase data
 function updateDataInFirebase(datasetName) {
-    const pageTitle = getQueryParameter('pageTitle') ; // Get the page title or use default
-    const section = getQueryParameter('section'); 
     const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for path
     const updatedData = hot.getData(); // Get updated data from Handsontable
 
@@ -116,7 +105,6 @@ function updateDataInFirebase(datasetName) {
 
 // Event listener for Update button
 document.getElementById('updateData').addEventListener('click', function() {
-    const datasetName = getDatasetNameFromURL();
     if (datasetName) {
         updateDataInFirebase(datasetName); // Update data in Firebase
     } else {
@@ -127,7 +115,6 @@ document.getElementById('updateData').addEventListener('click', function() {
 
 // Auto-save data to Firebase when the page is closed or reloaded
 window.addEventListener('beforeunload', function() {
-    const datasetName = getDatasetNameFromURL();
     if (datasetName && hot) {
         updateDataInFirebase(datasetName); // Save current data to Firebase
         event.returnValue = "Are you sure you want to leave? Your data will be saved.";
@@ -138,7 +125,6 @@ window.addEventListener('beforeunload', function() {
 
 // Get the dataset name from the URL and fetch the corresponding data
 document.addEventListener("DOMContentLoaded", function () {
-    const datasetName = getDatasetNameFromURL(); // Get dataset name from URL
     if (datasetName) {
         fetchAndDisplayData(datasetName); // Fetch and display data
     } else {
@@ -149,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Function to rename the dataset
 function renameDataset() {
-    const oldDatasetName = getDatasetNameFromURL(); // Get the current dataset name from the URL
+    const oldDatasetName = localStorage.getItem("dataSet")
     const newDatasetName = document.getElementById('renameDatasetInput').value.trim(); // Get the new name from the input field
     const pageTitle = getQueryParameter('pageTitle') ; // Get the page title or use default
     const section = getQueryParameter('section'); 

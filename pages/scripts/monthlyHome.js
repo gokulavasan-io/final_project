@@ -22,9 +22,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-const section = getQueryParameter("section");
-const userName = getQueryParameter("name");
-const role = getQueryParameter("role");
+const section = localStorage.getItem("section");
 
 // Function to get all existing months from Firebase and render them
 function getAllData() {
@@ -82,12 +80,11 @@ function appendMonthToUI(monthName, container, showCheckbox) {
       checkbox.checked = !checkbox.checked;
       div.style.backgroundColor = checkbox.checked ? "#e73232" : "";
     } else {
-      // Navigate to monthlyReport.html if not in delete mode
-      const month = checkbox.value;
-      window.location.href = `../../pages/html/home.html?section=${section}&name=${userName}&role=${role}&month=${month}&forMonthly=yes`;
+      localStorage.setItem("month",checkbox.value);
+      localStorage.setItem("monthly",true);
+      window.location.href = "../../pages/html/home.html";
     }
   });
-  // Append the new month div to the marks-container
   container.appendChild(div);
 }
 
@@ -180,9 +177,4 @@ function showSuccessMessage(str) {
 
 function capitalizeFirstLetter(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
-}
-
-function getQueryParameter(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
 }

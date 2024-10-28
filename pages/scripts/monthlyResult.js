@@ -15,7 +15,8 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
 
-let isDataChanged = false; // Track if there are unsaved changes
+let isDataChanged = false;
+
 
 async function fetchStudentNames(classSection) {
   try {
@@ -44,8 +45,8 @@ async function fetchResultData(path) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving"];
-  const month = getQueryParameter("month");
-  const section=getQueryParameter("section");
+  const month = localStorage.getItem("month");
+  const section=localStorage.getItem("section");
 
   const resultPath = `/studentMarks/${section}/months/${month}/result`;
   let tableData = [];
@@ -57,6 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     tableData = resultData;
     saveButton.textContent = "Update Result";
     saveButton.style.display = "block";
+    document.querySelector(".seebuttons").style.display = "flex";
   } else {
     const studentNames = await fetchStudentNames(section);
     const studentData = {};
@@ -190,14 +192,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("month").textContent=month;
 
+  document.getElementById("seeAnalysis").addEventListener("click",()=>{
+    localStorage.setItem("month",month);
+    window.location.href ="../../pages/html/analysis.html";
+  })
 
 });
 
-
-
-function getQueryParameter(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-  }
 
 

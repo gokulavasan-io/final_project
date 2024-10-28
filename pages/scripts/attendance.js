@@ -25,17 +25,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
+const section=localStorage.getItem("section");
+const pageTitle=localStorage.getItem("pageTitle");
 
-// Function to get query parameter (to extract page title)
-function getQueryParameter(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
 
 document.addEventListener("DOMContentLoaded", async function () {
-  // Extract page title and section from URL
-  const pageTitle = getQueryParameter("pageTitle");
-  const section = getQueryParameter("section");
 
   const container = document.getElementById("handsontable");
   let data = [];
@@ -73,14 +67,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  // Determine which class to fetch data for
-  if (section === "ClassA") {
-    await fetchStudentNames("classA");
-  } else if (section === "ClassB") {
-    await fetchStudentNames("classB");
-  } else if (section === "ClassC") {
-    await fetchStudentNames("classC");
-  }
+  await fetchStudentNames(section);
 
   // Generate sample data for 10 students (you can adjust the number)
   for (let i = 0; i < Students.length; i++) {

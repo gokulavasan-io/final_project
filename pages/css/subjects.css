@@ -123,3 +123,9 @@
     font-family: poppins;
     color: var(--primary-color);
 }
+
+#backButton{
+    position: fixed;
+    top: 10%;
+    left: 20%;
+}

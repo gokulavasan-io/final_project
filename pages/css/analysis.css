@@ -15,6 +15,16 @@
     --border-left: #3b7ddd;
 }
 
+body{
+    z-index: -100;
+}
+aside{
+    z-index: 100;
+}
+header{
+    z-index: 101;
+}
+
 .selectButtons {
     position: fixed;
     top: 10%;
@@ -22,14 +32,16 @@
     width: 80%;
     display: flex;
     gap: 5rem;
-    z-index: -10;
+    z-index: 1;
 
 }
 
-#graphType {
+#buttonsForGraph {
     position: fixed;
     top: 10%;
     right: 3%;
+    display: flex;
+    gap: 1rem;
 }
 
 .suggestionBox {
@@ -96,8 +108,7 @@
 }
 
 #myChart{
-    overflow-x: scroll;
     margin-left: 5%;
-    margin-top: 8%;
+    margin-top:6%;
     z-index: -100;
 }

@@ -22,13 +22,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+const pageTitle=localStorage.getItem("pageTitle")
+const section=localStorage.getItem("section");
+const userName = localStorage.getItem("name");
+const role = localStorage.getItem("role");
+
 // Function to get all dataset names from Firebase and render them
 function getAllData() {
   const subject_name = document.getElementById("page-name").innerText;
-  const section = getQueryParameter("section");
-  const userName = getQueryParameter("name");
-  const role = getQueryParameter("role");
-
+  
   const dbRef = ref(database);
   const dataPath = `studentMarks/${section}/${subject_name}`;
 
@@ -66,9 +68,8 @@ function getAllData() {
           div.addEventListener("click", function (e) {
             if (!deleteMode && e.target !== checkbox) {
               // Navigate to the dataset details page
-              window.location.href = `marks.html?dataset=${encodeURIComponent(
-                name
-              )}&pageTitle=${subject_name}&section=${section}&name=${userName}&role=${role}`;
+              localStorage.setItem("dataSet",div.innerText)
+              window.location.href = "marks.html";
             } else if (deleteMode) {
               // Toggle the checkbox state and background color in delete mode
               checkbox.checked = !checkbox.checked;
@@ -134,7 +135,7 @@ function confirmDeletion() {
 // Function to delete selected datasets
 function deleteSelectedDatasets() {
   const subject_name = document.getElementById("page-name").innerText;
-  const section = getQueryParameter("section");
+  const section = localStorage.getItem("section");
 
   const selectedCheckboxes = document.querySelectorAll(
     ".dataset-checkbox:checked"
@@ -161,26 +162,21 @@ function deleteSelectedDatasets() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const pageTitle = getQueryParameter("pageTitle");
-  const section = getQueryParameter("section");
-  const userName = getQueryParameter("name");
-  const role = getQueryParameter("role");
+  const pageTitle=localStorage.getItem("pageTitle");
   document.getElementById("page-title").innerText = pageTitle;
   document.getElementById("page-name").innerText = pageTitle;
   if (pageTitle == "Attendance") {
     document.getElementById("new-mark").innerText = `New`;
     document.getElementById(
       "new"
-    ).href = `./attendance.html?pageTitle=${pageTitle}&section=${section}&name=${userName}&role=${role}`;
+    ).href = `./attendance.html`;
+    localStorage.setItem("pageTitle",pageTitle);
   } else {
     document.getElementById(
       "new"
-    ).href = `./mark-generate.html?pageTitle=${pageTitle}&section=${section}&name=${userName}&role=${role}`;
+    ).href = `./mark-generate.html`;
+    localStorage.setItem("pageTitle",pageTitle);
   }
   getAllData();
 });
 
-function getQueryParameter(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}

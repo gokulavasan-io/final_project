@@ -191,7 +191,7 @@ header a{
     align-items: center;
     border-radius: 10px;
     justify-content: space-between;
-    z-index: 100;
+    z-index: 200;
 }
 
 .user-info a{
@@ -236,6 +236,7 @@ header a{
     font-weight: bold;
     border-radius: 10px;
     display: none;
+    z-index: 200;
 
 }
 
@@ -390,4 +391,9 @@ header a{
 #whichMonth{
     font-size: 1.5rem;
     color: rgb(208, 0, 255);
+}
+
+
+#analysisNav{
+    display: none;
 }

@@ -26,16 +26,11 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
 
-// Function to get query parameter (to extract page title)
-function getQueryParameter(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
 
 document.addEventListener("DOMContentLoaded", async function () {
-  // Extract page title and section from URL
-  const pageTitle = getQueryParameter("pageTitle");
-  const section = getQueryParameter("section");
+  const pageTitle = localStorage.getItem("pageTitle");
+  const section = localStorage.getItem("section");
+
   document.querySelector(".page-name").textContent = `New ${pageTitle} Mark`;
 
   const container = document.getElementById("handsontable");
@@ -71,15 +66,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  // Determine which class to fetch data for
-  if (section === "ClassA") {
-    await fetchStudentNames("classA");
-  } else if (section === "ClassB") {
-    await fetchStudentNames("classB");
-  } else if (section === "ClassC") {
-    await fetchStudentNames("classC");
-  }
-
+  await fetchStudentNames(section);
   // Generate data for students and marks (empty initially)
   for (let i = 0; i < Students.length; i++) {
     let row = [`${Students[i]}`, ""]; // First column is the student name, second is empty marks

@@ -23,56 +23,56 @@ const analytics = getAnalytics(app);
 const auth = getAuth();
 
 const allSubjects = document.querySelectorAll(".subjects-container a");
+const month = localStorage.getItem("month");
+localStorage.setItem("pageTitle", "Attendance");
 
-// to find the parameter is found in url or not
-function hasQueryParameter(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.has(param);
-}
-
-const month = getQueryParameter("month");
-const section = getQueryParameter("section");
-const userName = getQueryParameter("name");
-const role = getQueryParameter("role");
 
 document.addEventListener("DOMContentLoaded", function () {
-  if (hasQueryParameter("forMonthly")) {
+  const monthly = localStorage.getItem("monthly") === "true";
+
+  if (monthly) {
+    localStorage.setItem("monthly",false);
     changePageToMonthly();
+    allSubjects.forEach(x => {
+      x.addEventListener("click", () => {
+        localStorage.setItem("subject",x.id)
+        window.location.href = "../../pages/html/monthlySubject.html";
+      });
+    });
+
+
   } else {
     changePageToHome();
+    allSubjects.forEach(x => {
+      x.addEventListener("click", () => {
+        localStorage.setItem("pageTitle", x.id);
+        window.location.href = "../../pages/html/subjects.html";
+      });
+    });
   }
 });
 
+
+
 function changePageToMonthly() {
-  for (let i = 0; i < allSubjects.length; i++) {
-    allSubjects[
-      i
-    ].href = `../../pages/html/monthlySubject.html?section=${section}&name=${userName}&role=${role}&subject=${allSubjects[i].querySelector("p").innerText.split(" ").join("")}&month=${month}`;
-  }
   document.getElementById("pageTitleForMonthlySubject").style.display = "block";
   document.getElementById("seeButtons").style.display = "block";
   document.querySelector(".main-container").style.top = "20%";
   document.getElementById("whichMonth").innerText = month;
   document.getElementById(
     "attendanceMarks"
-  ).href = `../../pages/html/marks.html?pageTitle=Attendance&section=${section}&name=${userName}&role=${role}&dataset=${month}`;
+  ).href = "../../pages/html/marks.html";
+ 
+ 
 }
 
 function changePageToHome() {
-  for (let i = 0; i < allSubjects.length; i++) {
-    allSubjects[i].href += `&section=${section}&name=${userName}&role=${role}`;
-  }
   document.getElementById(
     "attendanceMarks"
-  ).href = `../../pages/html/subjects.html?pageTitle=Attendance&section=${section}&name=${userName}&role=${role}`;
+  ).href = "../../pages/html/subjects.html";
   document.getElementById("changeClass").style.display="flex";
-
 }
 
-function getQueryParameter(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
 
 document.getElementById("changeClass").addEventListener("click", function () {
   document.getElementById("showClassesForLead").style.display = "flex";
@@ -81,15 +81,16 @@ document.getElementById("changeClass").addEventListener("click", function () {
 document.querySelectorAll("#showClassesForLead button").forEach((button) => {
   button.addEventListener("click", (event) => {
     if (event.target.id == "forA") {
-      window.location.href = `../../pages/html/home.html?section=ClassA&name=${userName}&role=${role}`;
+      localStorage.setItem("section","ClassA");
     } else if (event.target.id == "forB") {
-      window.location.href = `../../pages/html/home.html?section=ClassB&name=${userName}&role=${role}`;
+      localStorage.setItem("section","ClassB");
     } else {
-      window.location.href = `../../pages/html/home.html?section=ClassC&name=${userName}&role=${role}`;
+      localStorage.setItem("section","ClassC");
     }
+    window.location.href = "../../pages/html/home.html";
   });
 });
 
 document.getElementById("seeResult").addEventListener("click",()=>{
-  window.location.href = `../../pages/html/monthlyResult.html?section=${section}&name=${userName}&role=${role}&month=${month}`;
+  window.location.href = "../../pages/html/monthlyResult.html";
 })

@@ -27,13 +27,11 @@ const addButton = document.getElementById("add-btn");
 const deleteButton = document.getElementById("delete-btn");
 const addMarksContainer = document.querySelector(".addMarksContainer");
 const marksContainer = document.querySelector(".marks-container");
-const section=getQueryParameter("section");
-const subject=getQueryParameter("subject");
-const month=getQueryParameter("month");
-const userName=getQueryParameter("name");
-const role=getQueryParameter("role");
+const section=localStorage.getItem("section");
+const subject=localStorage.getItem("subject");
+const month=localStorage.getItem("month");
 
-
+document.getElementById("pageName").textContent=subject;
 
 let deleteMode = false; // Flag to track delete mode
 
@@ -230,12 +228,7 @@ document.getElementById("seeMarks").addEventListener("click",()=>{
     }
     else{
         const dataForMark=selectedForSee[0].textContent;
-        window.location.href = `../../pages/html/marks.html?dataset=${dataForMark}&pageTitle=${subject}&section=${section}&name=${userName}&role=${role}`;
+        localStorage.setItem("dataSet",dataForMark);
+        window.location.href = "../../pages/html/marks.html";
     }
 });
-
-
-function getQueryParameter(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-  }

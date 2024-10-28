@@ -3,7 +3,6 @@ const hamBurger = document.querySelector(".toggle-btn");
 hamBurger.addEventListener("click", function () {
   document.querySelector("#sidebar").classList.toggle("expand");
 });
-
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
@@ -27,6 +26,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth();
+
+const subjectsAside=document.querySelectorAll(".subjectsAside a");
+subjectsAside.forEach(x=>{
+  x.addEventListener("click",()=>{
+    localStorage.setItem("pageTitle",x.textContent.split(" ").join(""));
+    window.location.href="../../pages/html/subjects.html"
+  })
+});
+document.getElementById("attendance").addEventListener("click",()=>{
+   localStorage.setItem("pageTitle","Attendance");
+  window.location.href="../../pages/html/subjects.html"
+})
+
 
 document.getElementById("logout").addEventListener("click", function () {
   document.getElementById("logout-warning").style.display = "block";
@@ -75,33 +87,18 @@ function showLogoutMessage() {
   }, 500);
 }
 
-function getQueryParameter(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
+
+const section = localStorage.getItem("section");
+const userName = localStorage.getItem("name");
+const role = localStorage.getItem("role");
+
+document.getElementById("name").textContent = `${
+  userName.charAt(0).toUpperCase() + userName.slice(1)
+}`;
+
+if (role == "others") {
+  document.getElementById("teacher").textContent = "FSSA";
+} else {
+  document.getElementById("teacher").textContent = `${role} Coach`;
 }
-
-const section = getQueryParameter("section");
-const userName = getQueryParameter("name");
-const role = getQueryParameter("role");
-const allAs = document.querySelectorAll(".subjects a");
-for (let i = 0; i < allAs.length; i++) {
-  allAs[i].href += `&section=${section}&name=${userName}&role=${role}`;
-}
-
-
-    document.getElementById("name").textContent = `${
-        userName.charAt(0).toUpperCase() + userName.slice(1)
-      }`;
-      if (role == "others") {
-        document.getElementById("teacher").textContent = "FSSA";
-      } else {
-        document.getElementById("teacher").textContent = `${role} Coach`;
-      }
-    
-      document.getElementById("attendance").href+= `&section=${section}&name=${userName}&role=${role}`;
-      document.getElementById("monthlyReport").href+=`?section=${section}&name=${userName}&role=${role}`
-      document.getElementById("home").href += `?section=${section}&name=${userName}&role=${role}`;
-      document.getElementById("classNow").textContent = `${section.split("s")[2]}`;
-
-    
-    
+document.getElementById("classNow").textContent = `${section.split("s")[2]}`;
