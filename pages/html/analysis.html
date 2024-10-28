@@ -12,6 +12,8 @@
     <!-- line-icons css and font awesome -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     </head>
 <body>
      <!-- aside bar -->
@@ -138,42 +140,11 @@
             <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
               <button class="dropdown-item" type="button" id="selectAllStudent">All</button>
               <button class="dropdown-item" type="button" id="selectIndividual">Individual</button>
-              <button class="dropdown-item" type="button" id="selectNoStudent">No Student</button>
             </div>
         </div>
         <div class="suggestionBox">
             <input type="text" id="searchBox" placeholder="Search student..." class="form-control mb-3" oninput="showSuggestions(this.value)">
             <div id="suggestions" class="list-group"></div> 
-        </div>
-        <div class="dropdown" id="selectSubject">
-            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Subjects
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-              <button class="dropdown-item" type="button" id="classsAllSubject">All</button>
-              <button class="dropdown-item" type="button" id="selectTech">Tech</button>
-              <button class="dropdown-item" type="button" id="selectEls">ELS</button>
-              <button class="dropdown-item" type="button" id="selectPS">Problem Solving</button>
-            </div>
-        </div>
-    
-        <div class="dropdown" id="selectMark">
-            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Marks
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-              <button class="dropdown-item" type="button" id="selectAllMark">All</button>
-              <button class="dropdown-item" type="button" id="selectMarks">Selected</button>
-            </div>
-        </div>
-        <div class="dropdown" id="selectMarksType">
-            <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Marks Type
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-              <button class="dropdown-item" type="button" id="showIndividual">one by one</button>
-              <button class="dropdown-item" type="button" id="showAverage">Average</button>
-            </div>
         </div>
     </div>
     <div class="dropdown" id="graphType">
@@ -186,12 +157,9 @@
         </div>
     </div>
 
-    <div class="marks-container">
-        <div class="ConfirmButton">
-        <button class="btn btn-warning">cancel</button>
-        <button class="btn btn-success">confirm</button>
-        </div>
-    </div>
+    <canvas id="myChart" ></canvas>
+
+
 
     
 
@@ -199,7 +167,7 @@
 
     
 
-<script type="module" src="../scripts/home.js"></script>
+<script type="module" src="../scripts/generalScript.js"></script>
 <script type="module" src="../scripts/analysis.js"></script>
 
  <!-- bootstrap link -->

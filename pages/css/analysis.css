@@ -22,6 +22,7 @@
     width: 80%;
     display: flex;
     gap: 5rem;
+    z-index: -10;
 
 }
 
@@ -92,4 +93,11 @@
     right: 2rem;
     display: flex;
     gap: 1rem;
+}
+
+#myChart{
+    overflow-x: scroll;
+    margin-left: 5%;
+    margin-top: 8%;
+    z-index: -100;
 }
