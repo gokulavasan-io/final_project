@@ -22,10 +22,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-const pageTitle=localStorage.getItem("pageTitle")
+const pageTitle=localStorage.getItem("pageTitle");
 const section=localStorage.getItem("section");
-const userName = localStorage.getItem("name");
-const role = localStorage.getItem("role");
 
 // Function to get all dataset names from Firebase and render them
 function getAllData() {
@@ -162,7 +160,6 @@ function deleteSelectedDatasets() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const pageTitle=localStorage.getItem("pageTitle");
   document.getElementById("page-title").innerText = pageTitle;
   document.getElementById("page-name").innerText = pageTitle;
   if (pageTitle == "Attendance") {
