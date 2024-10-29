@@ -153,3 +153,7 @@ document.getElementById("sortProblemSolving").addEventListener("click", () => {
   createChart();
 });
 
+document.getElementById("backButton").addEventListener("click",()=>{
+  localStorage.setItem("monthly",true);
+  window.history.back();
+});

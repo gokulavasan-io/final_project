@@ -21,6 +21,10 @@ window.onload = function () {
   const name = getCookie("name");
   const role = getCookie("role");
   const email = getCookie("email");
+  localStorage.setItem("section",selectedClass);
+  localStorage.setItem("name",userName);
+  localStorage.setItem("role",role);
+  localStorage.setItem("email",email);
 
   if (userToken && section && name && role && email) {
     window.location.href = "pages/html/home.html";
@@ -47,10 +51,10 @@ document.getElementById("login").addEventListener("submit", function (event) {
       setCookie("role", role, 30);
       setCookie("email", email, 30);
 
-      createItem("section",selectedClass);
-      createItem("name",userName);
-      createItem("role",role);
-      createItem("email",email);
+      localStorage.setItem("section",selectedClass);
+      localStorage.setItem("name",userName);
+      localStorage.setItem("role",role);
+      localStorage.setItem("email",email);
 
       showSuccessMessage();
       setTimeout(() => {
@@ -92,8 +96,4 @@ function showErrorMessage() {
   setTimeout(() => {
     errorPopup.style.display = "none";
   }, 500);
-}
-
-function createItem(item,value){
-    localStorage.setItem(item,value);
 }

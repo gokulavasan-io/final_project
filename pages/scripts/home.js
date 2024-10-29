@@ -24,6 +24,7 @@ const auth = getAuth();
 
 const allSubjects = document.querySelectorAll(".subjects-container a");
 const month = localStorage.getItem("month");
+const role=localStorage.getItem("role");
 localStorage.setItem("pageTitle", "Attendance");
 
 
@@ -62,7 +63,7 @@ function changePageToMonthly() {
   document.getElementById(
     "attendanceMarks"
   ).href = "../../pages/html/marks.html";
- 
+  document.getElementById("backMonthlyHome").style.display="inline-block";
  
 }
 
@@ -70,7 +71,9 @@ function changePageToHome() {
   document.getElementById(
     "attendanceMarks"
   ).href = "../../pages/html/subjects.html";
-  document.getElementById("changeClass").style.display="flex";
+  if(role=="others"){
+    document.getElementById("changeClass").style.display="flex";
+  }
 }
 
 

@@ -102,3 +102,7 @@ if (role == "others") {
   document.getElementById("teacher").textContent = `${role} Coach`;
 }
 document.getElementById("classNow").textContent = `${section.split("s")[2]}`;
+
+document.getElementById("backButton").addEventListener("click",()=>{
+       window.history.back();
+});

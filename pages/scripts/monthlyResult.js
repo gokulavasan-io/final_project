@@ -140,10 +140,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     ],
     columns: [
       { data: "student" },
-      { data: "English", type: "numeric" },
-      { data: "LifeSkills", type: "numeric" },
-      { data: "Tech", type: "numeric" },
-      { data: "ProblemSolving", type: "numeric" },
+      { data: "English", type: "numeric" , readOnly: true},
+      { data: "LifeSkills", type: "numeric", readOnly: true },
+      { data: "Tech", type: "numeric", readOnly: true },
+      { data: "ProblemSolving", type: "numeric", readOnly: true },
       { data: "Total", type: "numeric", readOnly: true },
       { data: "Attendance" },
       { data: "Behavior" }
@@ -200,4 +200,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-
+document.getElementById("backButton").addEventListener("click",()=>{
+  localStorage.setItem("monthly",true);
+  window.history.back();
+});
