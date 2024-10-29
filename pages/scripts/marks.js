@@ -35,7 +35,7 @@ function fetchAndDisplayData(datasetName) {
             const container = document.getElementById('handsontable');
             hot = new Handsontable(container, {
                 data: firebaseData.students,
-                colHeaders: ['Student Name', 'Marks', "Average", "Remarks"],
+                colHeaders: ['Student Name', 'Marks', "Percentage", "Remarks"],
                 columns: [
                     { data: 0, type: 'text', readOnly: true },
                     { data: 1, type: 'numeric' },
