@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import { getDatabase, ref, get, child, set } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
-
 // Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
@@ -15,66 +14,75 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-let hot; 
+let hot;
+let isEdited = false;
 const datasetName = localStorage.getItem("dataSet");
 const section = localStorage.getItem("section");
 const pageTitle = localStorage.getItem("pageTitle");
 
-
-
-// Fetch and display data in Handsontable
 function fetchAndDisplayData(datasetName) {
-    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for the path
-
+    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
     const dbRef = ref(database);
-    document.getElementById("renameDatasetInput").placeholder = datasetName;
+    const renameDatasetInput = document.getElementById("renameDatasetInput");
+    const totalMarksInput = document.getElementById("totalMarks");
+
+    if (renameDatasetInput) renameDatasetInput.placeholder = datasetName;
 
     // Fetch the dataset by name
     get(child(dbRef, dataPath)).then((snapshot) => {
         if (snapshot.exists()) {
-            const data = snapshot.val();
-
-            // Initialize Handsontable with fetched data
+            const firebaseData = snapshot.val();
             const container = document.getElementById('handsontable');
-            if(pageTitle=="Attendance"){
-                document.getElementById("css-for-table").href="../css/attendance.css";
-                hot = new Handsontable(container, {
-                    data: data,
-                    colHeaders: ['Student Name', ...Array.from({ length: 31 }, (_, i) => `Day ${i + 1}`)],
-                    columns: [
-                        { data: 0, type: 'text' },  // Student Name
-                        ...Array.from({ length: 31 }, (_, i) => ({ data: i + 1, type: 'text' }))  // Attendance columns
-                    ],
-                    rowHeaders: true,
-                    colWidths: [200, ...Array(31).fill(50)],  // Set widths for each column
-                    fixedColumnsLeft: 1,
-                    licenseKey: 'non-commercial-and-evaluation',
-                    width: '83%', 
-                    height: '100%', 
-                    stretchH: 'all', 
-                    overflow: 'hidden', 
-                    autoColumnSize: false, 
-                    autoRowSize: true, 
-                });
-                
-            }
-            else{
-                hot = new Handsontable(container, {
-                    data: data,  // Set fetched data to Handsontable
-                    colHeaders: ['Student Name', 'Marks'],
-                    columns: [
-                        { data: 0, type: 'text' },
-                        { data: 1, type: 'numeric' }
-                    ],
-                    rowHeaders: true,
-                    colWidths: [200, 100],
-                    licenseKey: 'non-commercial-and-evaluation'
-                });
-            }
+            hot = new Handsontable(container, {
+                data: firebaseData.students,
+                colHeaders: ['Student Name', 'Marks', "Average", "Remarks"],
+                columns: [
+                    { data: 0, type: 'text', readOnly: true },
+                    { data: 1, type: 'numeric' },
+                    { data: 2, type: 'numeric', readOnly: true },
+                    { data: 3, type: 'text' },
+                ],
+                rowHeaders: true,
+                colWidths: [200, 100, 100, 100],
+                licenseKey: 'non-commercial-and-evaluation',
+                afterChange: (changes, source) => {
+                    if (source === 'edit') {
+                        isEdited = true; // Set edited flag to true
+                        const totalMarks = parseFloat(totalMarksInput.value);
 
+                        if (!isNaN(totalMarks) && totalMarks > 0) {
+                            changes.forEach(([row, prop]) => {
+                                if (prop === 1) { // Only trigger when "Marks" column is edited
+                                    const marks = hot.getDataAtCell(row, 1);
+                                    if (marks > totalMarks) {
+                                        hot.setCellMeta(row, 1, 'className', 'error'); // Apply error class
+                                    } else {
+                                        hot.setCellMeta(row, 1, 'className', null); // Clear error class if marks are valid
+                                        const average = (marks / totalMarks) * 100;
+                                        hot.setDataAtCell(row, 2, average.toFixed(2)); // Update average column
+                                        updateCellColor(row, average); // Update cell color based on average
+                                    }
+                                }
+                            });
+                            hot.render();
+                        } else {
+                            alert("Please enter a valid total marks value.");
+                        }
+                    }
+                },
+            });
 
-
-            
+            const totalMarks = firebaseData.totalMarks || 100;
+            firebaseData.students.forEach((student, row) => {
+                const marks = student[1];
+                if (!isNaN(marks) && totalMarks > 0) {
+                    const average = (marks / totalMarks) * 100;
+                    hot.setDataAtCell(row, 2, average.toFixed(2));
+                    updateCellColor(row, average);
+                }
+            });
+            hot.render();
+            totalMarksInput.value = totalMarks;
         } else {
             alert("No data found for the selected dataset.");
         }
@@ -84,17 +92,34 @@ function fetchAndDisplayData(datasetName) {
     });
 }
 
+// Function to update cell color based on average
+function updateCellColor(row, average) {
+    if (average < 51) {
+        hot.setCellMeta(row, 2, 'className', 'red');
+    } else if (average < 81) {
+        hot.setCellMeta(row, 2, 'className', 'yellow');
+    } else {
+        hot.setCellMeta(row, 2, 'className', 'green');
+    }
+}
+
 // Update Firebase data
 function updateDataInFirebase(datasetName) {
-    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`; // Use dynamic pageTitle for path
-    const updatedData = hot.getData(); // Get updated data from Handsontable
+    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
+    if (!hot) return;
+    const updatedData = hot.getData();
+    const totalMarksInput = document.getElementById("totalMarks").value;
 
     const datasetRef = ref(database, dataPath);
+    const saveData = {
+        totalMarks: totalMarksInput,
+        students: updatedData
+    };
 
-    // Save updated data back to Firebase
-    set(datasetRef, updatedData)
+    set(datasetRef, saveData)
         .then(() => {
-            showSuccessMessage("Dataset Updated successfully!")
+            isEdited = false; // Reset edited flag after successful update
+            showSuccessMessage("Dataset Updated successfully!");
         })
         .catch((error) => {
             console.error("Error updating data in Firebase:", error);
@@ -102,97 +127,75 @@ function updateDataInFirebase(datasetName) {
         });
 }
 
+// Function to recalculate averages based on updated total marks
+function recalculateAverages(totalMarks) {
+    if (!hot || isNaN(totalMarks) || totalMarks <= 0) return;
 
-// Event listener for Update button
-document.getElementById('updateData').addEventListener('click', function() {
-    if (datasetName) {
-        updateDataInFirebase(datasetName); // Update data in Firebase
-    } else {
-        alert("No dataset name provided in the URL.");
-    }
-});
-
-
-// Auto-save data to Firebase when the page is closed or reloaded
-window.addEventListener('beforeunload', function() {
-    if (datasetName && hot) {
-        updateDataInFirebase(datasetName); // Save current data to Firebase
-        event.returnValue = "Are you sure you want to leave? Your data will be saved.";
-        showSuccessMessage("File Saved successfully !");
-    }
-});
-
-
-// Get the dataset name from the URL and fetch the corresponding data
-document.addEventListener("DOMContentLoaded", function () {
-    if (datasetName) {
-        fetchAndDisplayData(datasetName); // Fetch and display data
-    } else {
-        alert("No dataset name provided in the URL.");
-    }
-});
-
-
-// Function to rename the dataset
-function renameDataset() {
-    const oldDatasetName = localStorage.getItem("dataSet")
-    const newDatasetName = document.getElementById('renameDatasetInput').value.trim(); // Get the new name from the input field
-    const pageTitle = getQueryParameter('pageTitle') ; // Get the page title or use default
-    const section = getQueryParameter('section'); 
-
-    if (!newDatasetName) {
-        alert("Please enter a new dataset name.");
-        return;
-    }
-
-    const oldDataPath = `studentMarks/${section}/${pageTitle}/${oldDatasetName}`;
-    const newDataPath = `studentMarks/${section}/${pageTitle}/${newDatasetName}`;
-
-    const dbRef = ref(database);
-    
-    // Get the current dataset
-    get(child(dbRef, oldDataPath)).then((snapshot) => {
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            
-            // Set the new dataset with the new name
-            set(ref(database, newDataPath), data)
-                .then(() => {
-                    // Remove the old dataset
-                    set(ref(database, oldDataPath), null)
-                        .then(() => {
-                            showSuccessMessage("Dataset renamed successfully!")
-                            // Update the URL to reflect the new dataset name
-                            const newUrl = window.location.href.replace(oldDatasetName, newDatasetName);
-                            window.history.replaceState(null, null, newUrl);
-                            document.getElementById("newDatasetName").placeholder = newDatasetName; // Update the placeholder
-                        })
-                        .catch((error) => {
-                            console.error("Error deleting old dataset:", error);
-                        });
-                })
-                .catch((error) => {
-                    console.error("Error renaming dataset:", error);
-                    alert("Failed to rename the dataset.");
-                });
-        } else {
-            alert("Dataset does not exist.");
+    hot.getData().forEach((row, rowIndex) => {
+        const marks = row[1];
+        if (!isNaN(marks)) {
+            const average = (marks / totalMarks) * 100;
+            hot.setDataAtCell(rowIndex, 2, average.toFixed(2));
+            updateCellColor(rowIndex, average);
         }
-    }).catch((error) => {
-        console.error("Error fetching data from Firebase:", error);
-        alert("Failed to fetch data.");
+    });
+    hot.render();
+}
+
+// Event listener for the "Update Total Marks" button
+const updateTotalMarksButton = document.getElementById("updateTotalMarks");
+if (updateTotalMarksButton) {
+    updateTotalMarksButton.addEventListener("click", () => {
+        const totalMarks = parseFloat(document.getElementById("totalMarks").value);
+        if (!isNaN(totalMarks) && totalMarks > 0) {
+            recalculateAverages(totalMarks);
+        } else {
+            alert("Please enter a valid number for total marks.");
+        }
     });
 }
 
-// Event listener for Rename button
-document.getElementById('renameDataset').addEventListener('click', renameDataset);
+// Event listener for the "Update Data" button
+const updateDataButton = document.getElementById('updateData');
+if (updateDataButton) {
+    updateDataButton.addEventListener('click', function () {
+        if (datasetName) {
+            updateDataInFirebase(datasetName);
+        } else {
+            alert("No dataset name provided in the URL.");
+        }
+    });
+}
 
+// Auto-save data to Firebase when the page is closed or reloaded
+window.addEventListener('beforeunload', function (event) {
+    if (isEdited && datasetName && hot) {
+        const totalMarksInput = document.getElementById("totalMarks").value;
+        if (totalMarksInput) {
+            event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        } else {
+            event.returnValue = "Total marks value is missing. Please enter a value before leaving.";
+        }
+    }
+});
 
-function showSuccessMessage(str) {
-    const message = document.getElementById("successMessage");
-    message.innerText=str;
-    message.classList.add("show");
-    setTimeout(() => {
-      message.classList.remove("show");
-    }, 1000);
-  }
+// Fetch data when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+    if (datasetName) {
+        fetchAndDisplayData(datasetName);
+    } else {
+        alert("No dataset name provided in the URL.");
+    }
+});
+
+// Function to show success message
+function showSuccessMessage(message) {
+    const successMessageDiv = document.getElementById("successMessage");
+    if (successMessageDiv) {
+        successMessageDiv.innerText = message;
+        successMessageDiv.style.display = "block";
+        setTimeout(() => {
+            successMessageDiv.style.display = "none";
+        }, 3000);
+    }
+}

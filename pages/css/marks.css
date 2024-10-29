@@ -16,3 +16,25 @@
 .page-name p{
     margin-bottom: 0;
 }
+
+.exceeding-marks {
+    background-color: #ffcccc; /* Light red color */
+  }
+
+.markGreatThanTotal{
+    background-color: red !important;
+    color: white;
+}
+
+.error{
+    background-color: brown;
+}
+.red {
+    background-color: red !important;
+}
+.yellow {
+    background-color: yellow !important;
+}
+.green {
+    background-color: green !important;
+}

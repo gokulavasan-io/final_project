@@ -50,3 +50,21 @@
     color: var(--primary-color);
     z-index: -10;
 }
+
+.error {
+    background-color: rgb(90, 1, 1) !important; /* Change background to red */
+    color: white; /* Optional: Change text color for better visibility */
+  }
+  
+.red{
+    background-color: red !important;
+    color: white !important;
+}
+.yellow{
+    background-color: yellow !important;
+    color: rgb(0, 0, 0) !important;
+}
+.green{
+    background-color: green !important;
+    color: white !important;
+}
