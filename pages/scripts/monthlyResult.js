@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Behavior"
     ],
     columns: [
-      { data: "student" },
+      { data: "student", readOnly: true },
       { data: "English", type: "numeric" , readOnly: true},
       { data: "LifeSkills", type: "numeric", readOnly: true },
       { data: "Tech", type: "numeric", readOnly: true },
