@@ -4,6 +4,7 @@ import {
   getDatabase,
   ref,
   set,
+  get,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import {
   getFirestore,
@@ -11,7 +12,6 @@ import {
   getDoc,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
-// Your web app's Firebase configuration (replace with your project details)
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
   authDomain: "fir-demo-4a5b4.firebaseapp.com",
@@ -25,58 +25,100 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
-const section=localStorage.getItem("section");
-const pageTitle=localStorage.getItem("pageTitle");
-
+const section = localStorage.getItem("section");
+const pageTitle = localStorage.getItem("pageTitle");
 
 document.addEventListener("DOMContentLoaded", async function () {
-
   const container = document.getElementById("handsontable");
   let data = [];
   let Students = [];
+  const renameButton = document.getElementById("renameDataset");
+  const saveButton = document.getElementById("saveToFirebase");
+  const datasetNameInput = document.getElementById("datasetName");
+  let unsavedChanges = false; // Flag for unsaved changes
+  let datasetName = localStorage.getItem("dataSet");
 
-  // Fetch student names from Firestore based on section
+  // Function to get query parameters
+  function getQueryParameter(paramName) {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    return params.get(paramName);
+  }
+
+  const newAttendance = getQueryParameter("new");
+
+  // Fetch student names from Firestore
   async function fetchStudentNames(classSection) {
     try {
-      // Adjust the document reference to match the uploaded path
-      const docRef = doc(firestore, "school/classes"); // Document reference to the classes document
+      const docRef = doc(firestore, "school/classes");
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        // Access the correct class data based on classSection
-        const studentNames = docSnap.data()[classSection] || []; // Default to an empty array if undefined
-
-        // Check if studentNames is an array and not empty
+        const studentNames = docSnap.data()[classSection] || [];
         if (Array.isArray(studentNames) && studentNames.length > 0) {
           console.log("Student names fetched successfully:", studentNames);
           Students = studentNames;
         } else {
           console.error("No student names found for the selected class.");
           alert("No student names found for the selected class.");
-          return []; // Return an empty array
+          return [];
         }
       } else {
         console.log("No such document!");
         alert("No such document for the selected class.");
-        return []; // Return an empty array
+        return [];
       }
     } catch (error) {
       console.error("Error fetching document:", error);
       alert("Error fetching student names.");
-      return []; // Return an empty array
+      return [];
     }
   }
 
+  // Fetch student names before creating the table
   await fetchStudentNames(section);
 
-  // Generate sample data for 10 students (you can adjust the number)
-  for (let i = 0; i < Students.length; i++) {
-    let row = [`${Students[i]}`]; // First column is the student name
-
-    for (let j = 0; j < 31; j++) {
-      row.push(" ");
+  if (newAttendance === "yes") {
+    document.getElementById("renameDataset").style.display = "none";
+    if (Students.length > 0) {
+      // Generate sample data for students with empty cells
+      for (let i = 0; i < Students.length; i++) {
+        let row = [`${Students[i]}`]; // First column is the student name
+        for (let j = 0; j < 31; j++) {
+          row.push(""); // Create empty cells
+        }
+        data.push(row);
+      }
+    } else {
+      console.error("No students to create attendance for.");
+      alert("No students found to create the attendance table.");
+      return;
     }
-    data.push(row);
+  } else {
+    // Logic for fetching existing attendance data
+    const dataPath = `studentMarks/${section}/Attendance/${datasetName}`;
+    const dbRef = ref(database, dataPath);
+    try {
+      const snapshot = await get(dbRef); // Fetch data
+      if (snapshot.exists()) {
+        data = snapshot.val(); // Load existing data
+        console.log("Existing data fetched successfully:", data);
+      } else {
+        console.error("No data found at the specified path.");
+        alert("No data found for the specified dataset.");
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching data from Firebase:", error);
+      alert("Error fetching data from Firebase.");
+      return;
+    }
+  }
+
+  // Set dataset name in input field if not newAttendance
+  if (newAttendance !== "yes") {
+    datasetNameInput.value = datasetName; // Populate input with dataset name
+    saveButton.innerText = "Update"; // Change button text to Update
   }
 
   // Initialize Handsontable
@@ -87,11 +129,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       ...Array.from({ length: 31 }, (_, i) => `Day ${i + 1}`),
     ],
     columns: [
-      { data: 0, type: "text" }, // Student Name
-      ...Array.from({ length: 31 }, (_, i) => ({ data: i + 1, type: "text" })), // Attendance columns
+      { data: 0, type: "text" },
+      ...Array.from({ length: 31 }, (_, i) => ({ data: i + 1, type: "text" })),
     ],
     rowHeaders: true,
-    colWidths: [200, ...Array(31).fill(50)], // Set widths for each column
+    colWidths: [200, ...Array(31).fill(50)],
     fixedColumnsLeft: 1,
     licenseKey: "non-commercial-and-evaluation",
     width: "85%",
@@ -100,83 +142,132 @@ document.addEventListener("DOMContentLoaded", async function () {
     overflow: "hidden",
     autoColumnSize: false,
     autoRowSize: true,
-  });
-
-  // Function to add a new row
-  document.getElementById("addRow").addEventListener("click", function () {
-    hot.alter("insert_row"); // Inserts a new empty row at the end
-  });
-
-  // Function to delete the last row
-  document
-    .getElementById("deleteLastRow")
-    .addEventListener("click", function () {
-      const rowCount = hot.countRows(); // Get the total number of rows
-      if (rowCount > 0) {
-        // Check if there is at least one row
-        hot.alter("remove_row", rowCount - 1); // Remove the last row
-      } else {
-        alert("No rows to delete."); // Alert if there are no rows
+    afterChange: (changes, source) => {
+      if (source !== "loadData") {
+        unsavedChanges = true; // Set the flag when any actual changes are made to the table
       }
-    });
+    },
+  });
 
-  // Function to save data to Firebase
-  function saveDataToFirebase(customName) {
-    const tableData = hot.getData(); // Get data from Handsontable
+  // Set unsavedChanges to false initially, after loading data
+  unsavedChanges = false;
 
-    const dbRef = ref(database);
-    const dataPath = `studentMarks/${section}/${pageTitle}/${customName}`; // Use dynamic pageTitle for the path
-    //
-    // Save the data to Firebase
-    set(ref(database, dataPath), tableData)
-      .then(() => {
-        showSuccessMessage("File Saved Successfully");
-      })
-      .catch((error) => {
-        console.error("Error saving data:", error);
-        alert("Error saving file."); // Show alert on error
-      });
+  // Monitor input changes
+  datasetNameInput.addEventListener("input", () => {
+    unsavedChanges = true; // Set the flag when the input changes
+  });
+
+  // Function to rename the dataset and save data
+  async function renameAndSaveDataset(newName) {
+    const oldPath = `studentMarks/${section}/Attendance/${datasetName}`;
+    const newPath = `studentMarks/${section}/Attendance/${newName}`;
+
+    try {
+      const snapshot = await get(ref(database, oldPath));
+      if (snapshot.exists()) {
+        await set(ref(database, newPath), snapshot.val()); // Copy existing data to new path
+        await set(ref(database, oldPath), null); // Remove old dataset
+
+        // Update localStorage and button text
+        localStorage.setItem("dataSet", newName);
+        datasetName = newName; // Update the variable
+        saveButton.innerText = "Update"; // Change button text to Update
+      } else {
+        alert("No dataset found to rename.");
+      }
+    } catch (error) {
+      console.error("Error renaming dataset:", error);
+      alert("Error renaming dataset.");
+    }
   }
 
-  // Add an event listener for beforeunload to save data before reloading or closing the page
-  window.addEventListener("beforeunload", (event) => {
-    const customName = document
-      .getElementById("datasetName")
-      .value.trim()
-      .split("/")
-      .join("-");
+  // Function to save data to Firebase
+  async function saveDataToFirebase(customName) {
+    const tableData = hot.getData(); // Get data from Handsontable
+    const dataPath = `studentMarks/${section}/${pageTitle}/${customName}`; // Use dynamic pageTitle for the path
 
-    if (customName !== "") {
-      saveDataToFirebase(customName); // Save data automatically with the dataset name
-      event.returnValue =
-        "Are you sure you want to leave? Your data will be saved."; // Standard message may not show in all browsers
+    try {
+      await set(ref(database, dataPath), tableData);
+      unsavedChanges = false; // Reset the flag on successful save
+      showSuccessMessage("Data saved successfully.");
+    } catch (error) {
+      console.error("Error saving data:", error);
+      alert("Error saving data.");
+    }
+  }
+
+  // Manual save button event listener
+  saveButton.addEventListener("click", async function () {
+    const newName = datasetNameInput.value.trim().split("/").join("-");
+    if (newAttendance === "yes") {
+      // When creating new attendance dataset
+      if (newName === "") {
+        alert("Please enter a valid dataset name.");
+        return;
+      }
+
+      // Save the new dataset to Firebase
+      const dataPath = `studentMarks/${section}/Attendance/${newName}`;
+      try {
+        await set(ref(database, dataPath), data); // Save new attendance data
+        datasetName = newName; // Update dataset name
+        localStorage.setItem("dataSet", datasetName); // Update localStorage
+        showSuccessMessage("New attendance dataset created successfully!");
+        unsavedChanges = false; // Reset unsaved changes after save
+      } catch (error) {
+        console.error("Error saving new attendance data:", error);
+        alert("Error saving new attendance data.");
+      }
+    }
+     else {
+      // For existing datasets
+      if (unsavedChanges) {
+        if (newName != datasetName) {
+          await renameAndSaveDataset(newName); // Rename the dataset if there are unsaved changes
+        }
+        await saveDataToFirebase(newName); // Then save the data
+      } else {
+        await saveDataToFirebase(datasetName); // Save with current dataset name if no changes
+        showSuccessMessage("File saved successfully!");
+      }
     }
   });
 
-  // Manual save button
-  document
-    .getElementById("saveToFirebase")
-    .addEventListener("click", function () {
-      const customName = document
-        .getElementById("datasetName")
-        .value.trim()
-        .split("/")
-        .join("-");
+  // Rename button event listener
+  renameButton.addEventListener("click", async function () {
+    const newName = datasetNameInput.value.trim().split("/").join("-");
+    if (newName === "") {
+      alert("Please enter a valid dataset name.");
+      return;
+    }
 
-      if (customName === "") {
-        alert("Please enter a valid dataset name.");
-        return; // Exit if the dataset name is empty
-      }
+    // Check if the new name is different from the current dataset name
+    if (newName === datasetName) {
+      alert("No changes made to the dataset name."); // Notify the user
+      return; // Exit the function early if the names are the same
+    }
 
-      saveDataToFirebase(customName); // Save data manually
-    });
+    await renameAndSaveDataset(newName); // Rename the dataset
+    showSuccessMessage("Renamed successfully!");
+  });
+
+  // Add beforeunload event listener to warn about unsaved changes
+  window.addEventListener("beforeunload", (event) => {
+    if (unsavedChanges) {
+      // Show alert only if there are unsaved changes and not saving
+      event.preventDefault();
+      event.returnValue =
+        "You have unsaved changes. Are you sure you want to leave?";
+    }
+  });
 });
 
+// Function to show success message
 function showSuccessMessage(str) {
   const message = document.getElementById("successMessage");
   message.innerText = str;
   message.classList.add("show");
   setTimeout(() => {
     message.classList.remove("show");
-  }, 1000);
+  }, 3000); // Display message for 3 seconds
 }
