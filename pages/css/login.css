@@ -132,7 +132,19 @@ label {
     display: none;
     justify-content: space-between;
     font-family: 'Poppins', sans-serif;
+    animation: come .3s ease-in-out;
 
+}
+
+
+@keyframes come{
+    0%{
+        transform: translate(-50%, -50%) scale(0);
+    }
+    100%{
+        transform: translate(-50%, -50%) scale(1);
+
+    }
 }
 
 #close a {

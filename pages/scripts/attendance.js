@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         await set(ref(database, dataPath), data); // Save new attendance data
         datasetName = newName; // Update dataset name
         localStorage.setItem("dataSet", datasetName); // Update localStorage
-        showSuccessMessage("New attendance dataset created successfully!");
+        showSuccessMessage("New attendance created successfully!");
         unsavedChanges = false; // Reset unsaved changes after save
       } catch (error) {
         console.error("Error saving new attendance data:", error);
