@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
@@ -14,48 +14,50 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 
-// On page load, check if the user is already logged in and retrieve URL parameters from cookies
+// Check if the user is already logged in on page load
 window.onload = function () {
-  const userToken = getCookie("userLoggedIn");
-  const section = getCookie("section");
-  const name = getCookie("name");
-  const role = getCookie("role");
-  const email = getCookie("email");
-  localStorage.setItem("section",selectedClass);
-  localStorage.setItem("name",userName);
-  localStorage.setItem("role",role);
-  localStorage.setItem("email",email);
-
-  if (userToken && section && name && role && email) {
-    window.location.href = "pages/html/home.html";
-  }
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // Redirect if the user is already logged in
+      window.location.href = "pages/html/home.html";
+    } else {
+      console.log("User is not logged in.");
+    }
+  });
 };
 
+// Handle login form submission
 document.getElementById("login").addEventListener("submit", function (event) {
   event.preventDefault();
+  
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const selectedClass = document.querySelector('input[name="sectionName"]:checked').id;
   const role = document.querySelector('input[name="role"]:checked').id;
   const userName = document.getElementById("userName").value;
 
-  // Sign in the user using Firebase Auth
-  signInWithEmailAndPassword(auth, email, password)
+  // Set persistence to 'local' to keep the user logged in
+  setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+      return signInWithEmailAndPassword(auth, email, password);
+    })
     .then((userCredential) => {
       const user = userCredential.user;
       console.log(user);
 
+      // Save user info in cookies and localStorage
       setCookie("userLoggedIn", true, 30); 
       setCookie("section", selectedClass, 30);
-      setCookie("nameUser", userName, 30);
+      setCookie("name", userName, 30);
       setCookie("role", role, 30);
       setCookie("email", email, 30);
 
-      localStorage.setItem("section",selectedClass);
-      localStorage.setItem("name",userName);
-      localStorage.setItem("role",role);
-      localStorage.setItem("email",email);
+      localStorage.setItem("section", selectedClass);
+      localStorage.setItem("name", userName);
+      localStorage.setItem("role", role);
+      localStorage.setItem("email", email);
 
+      // Show success message and redirect after a delay
       showSuccessMessage();
       setTimeout(() => {
         window.location.href = "pages/html/home.html";
@@ -67,12 +69,13 @@ document.getElementById("login").addEventListener("submit", function (event) {
     });
 });
 
-// Helper functions to handle cookies
+// Helper function to set cookies
 function setCookie(name, value, days) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
   document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/";
 }
 
+// Helper function to get cookies
 function getCookie(name) {
   return document.cookie.split("; ").reduce((r, v) => {
     const parts = v.split("=");
