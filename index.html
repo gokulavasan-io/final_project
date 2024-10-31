@@ -13,6 +13,7 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   </head>
   <body>
     <div
@@ -30,10 +31,10 @@
             >Hi teachers, Please login
           </small>
         </div>
-        <div class="col-md-6 right-box">
+        <div class="col-md-6 right-box details">
           <div class="row align-items-center">
             <div class="header-text mb-4">
-              <h2 class="text-center"> <img src="./assets/images/login_img/ic_fw.png" height="50" width="50"> Hello, Sir / Madam</h2>
+              <h2 class="text-center fw-bold"> <img src="./assets/images/login_img/ic_fw.png" height="50" width="50"> Hello, Sir / Madam</h2>
               <p class="text-center ms-5">We are happy to have you...</p>
             </div>
             <form id="login">
@@ -107,6 +108,7 @@
                 </button>
               </div>
             </form>
+            <a id="forget">forget Password</a>
           </div>
         </div>
       </div>
@@ -119,6 +121,13 @@
     Invalid email or password. Please try again.
 </div>
 
+  <div id="forgetPassword" class=" flex-column gap-2">
+    <div id="close" ><a href="#"><i class="fa fa-close"></i></a></div>
+    <div class="d-flex flex-column gap-1 align-items-center">
+      <input type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Enter Email address" id="forgetEmail" required/>
+      <button id="getEmail" class="btn btn-success w-20">Get Recovery Email</button>
+    </div>
+  </div>
   
 
     <script type="module" src="./pages/scripts/login.js"></script>

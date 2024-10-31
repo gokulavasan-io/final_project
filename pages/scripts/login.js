@@ -1,5 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+} from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
@@ -29,10 +36,12 @@ window.onload = function () {
 // Handle login form submission
 document.getElementById("login").addEventListener("submit", function (event) {
   event.preventDefault();
-  
+
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const selectedClass = document.querySelector('input[name="sectionName"]:checked').id;
+  const selectedClass = document.querySelector(
+    'input[name="sectionName"]:checked'
+  ).id;
   const role = document.querySelector('input[name="role"]:checked').id;
   const userName = document.getElementById("userName").value;
 
@@ -80,3 +89,35 @@ function showErrorMessage() {
     errorPopup.style.display = "none";
   }, 500);
 }
+
+
+
+document.getElementById("forget").addEventListener("click", () => {
+  document.getElementById("forgetPassword").style.display = "flex";
+});
+
+function forgotPassword(email) {
+  sendPasswordResetEmail(auth, email)
+    .then(() => {
+      console.log("Password reset email sent successfully!");
+      showSuccessMessage("Password reset email sent. Please check your inbox");
+    })
+    .catch((error) => {
+      console.error("Error sending password reset email:", error.message);
+      alert("Error: " + error.message);
+    });
+  document.getElementById("forgetPassword").style.display = "flex";
+}
+
+document.getElementById("getEmail").addEventListener("click", () =>{
+  const email = document.getElementById("forgetEmail").value;
+  if (email === "") {
+    alert("Enter a valid email");
+  } else {
+    forgotPassword(email);
+  }
+});
+
+document.getElementById("close").addEventListener("click",()=>{
+  document.getElementById("forgetPassword").style.display = "none";
+})
