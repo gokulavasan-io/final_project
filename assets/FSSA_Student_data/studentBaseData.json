@@ -1,0 +1,716 @@
+{
+    "ClassA": [
+        {
+            "section": "A",
+            "name": "Abinaya Murugan",
+            "age": 19,
+            "category": "C+",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "Gowtham Lakshamanan",
+            "age": 18,
+            "category": "B",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Hari Krishnan Balasubramanian",
+            "age": 19,
+            "category": "D",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Harish Karthick Maheswaran",
+            "age": 17,
+            "category": "E",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Joshitha",
+            "age": 17,
+            "category": "A",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "Jumana H",
+            "age": 17,
+            "category": "B",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "K Balamurugan",
+            "age": 18,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Karthikeyan",
+            "age": 20,
+            "category": "C+",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Kavinisha Kannan",
+            "age": 21,
+            "category": "B",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "Kishore M",
+            "age": 17,
+            "category": "E",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Madasamy A",
+            "age": 21,
+            "category": "E",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Mohamed Vaseem Ismail",
+            "age": 17,
+            "category": "C+",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Muthamizhan",
+            "age": 18,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Muthujothi",
+            "age": 19,
+            "category": "D",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "Parkavi M",
+            "age": 17,
+            "category": "E",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "Pugazhenthi S",
+            "age": 20,
+            "category": "D",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "R Keerthika",
+            "age": 19,
+            "category": "C+",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "Rama Subbu N A",
+            "age": 20,
+            "category": "A",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Sankar K",
+            "age": 18,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Saravanan",
+            "age": 20,
+            "category": "D",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Senthilnathan",
+            "age": 17,
+            "category": "E",
+            "school": "Govt",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Shalini R",
+            "age": 17,
+            "category": "C+",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "A",
+            "name": "Sridhar",
+            "age": 21,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Sudharsan H",
+            "age": 18,
+            "category": "C+",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Vajesh Babu H",
+            "age": 18,
+            "category": "C+",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "A",
+            "name": "Yuva Ganesh A",
+            "age": 18,
+            "category": "E",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        }
+    ],
+    "ClassB": [
+        {
+            "section": "B",
+            "name": "Arumuga Kani",
+            "age": 20,
+            "category": "C+",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "DB Shriram",
+            "age": 17,
+            "category": "C+",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Gokulavasan G",
+            "age": 18,
+            "category": "A",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Gopika",
+            "age": 17,
+            "category": "E",
+            "school": "Govt",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "Guna P",
+            "age": 19,
+            "category": "D",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Jeevanantham R",
+            "age": 20,
+            "category": "B",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Kamalika",
+            "age": 18,
+            "category": "C+",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Female"
+        }, {
+            "section": "B",
+            "name": "Karthikeyan M",
+            "age": 17,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Kottai Samy K",
+            "age": 21,
+            "category": "C+",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Krishna Moorthy",
+            "age": 17,
+            "category": "E",
+            "school": "Govt",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Logesh Muthu",
+            "age": 18,
+            "category": "D",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Malarvizhi k",
+            "age": 19,
+            "category": "E",
+            "school": "Govt",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "Maruthamuthu G",
+            "age": 21,
+            "category": "E",
+            "school": "Govt",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Mohamed Mohideen Thayub",
+            "age": 19,
+            "category": "D",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Naveen S",
+            "age": 20,
+            "category": "D",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Pestica M",
+            "age": 18,
+            "category": "B",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "Pranesh",
+            "age": 20,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "RAMALAKSHMI T",
+            "age": 17,
+            "category": "C+",
+            "school": "Govt",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "S.Mohammed sheriff",
+            "age": 19,
+            "category": "E",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Sandhiya P",
+            "age": 17,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "Santhosh Raja Ramesh",
+            "age": 18,
+            "category": "B",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Sham L",
+            "age": 20,
+            "category": "C+",
+            "school": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Sivaraman R",
+            "age": 21,
+            "category": "E",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Suprasanna A",
+            "age": 18,
+            "category": "C+",
+            "school": "Govt",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "Udhaya S",
+            "age": 18,
+            "category": "B",
+            "school": "Govt",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "B",
+            "name": "Venkatesh S",
+            "age": 17,
+            "category": "A",
+            "school": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "B",
+            "name": "Zahid Hussain",
+            "age": 19,
+            "category": "C+",
+            "school": "Private",
+            "medium": "English",
+            "gender": "Male"
+        }
+    ],
+    "ClassC": [
+        {
+            "section": "C",
+            "name": "Abdul Kalam S",
+            "age": 21,
+            "grade": "E",
+            "school_type": "Govt",
+            "medium": "Malayalam",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Brindha",
+            "age": 19,
+            "grade": "D",
+            "school_type": "Govt",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "Deepak V",
+            "age": 20,
+            "grade": "C+",
+            "school_type": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Devika S",
+            "age": 17,
+            "grade": "E",
+            "school_type": "Govt",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "Dhanasri V",
+            "age": 18,
+            "grade": "D",
+            "school_type": "Govt",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "Dharani Sri A",
+            "age": 17,
+            "grade": "A",
+            "school_type": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "G S Chandhru",
+            "age": 17,
+            "grade": "C+",
+            "school_type": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Harini Ragavi",
+            "age": 18,
+            "grade": "C+",
+            "school_type": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "Jeshin Daniel",
+            "age": 18,
+            "grade": "B",
+            "school_type": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Kaleeshwari",
+            "age": 20,
+            "grade": "D",
+            "school_type": "Govt",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "Mohamed Ibrahim",
+            "age": 18,
+            "grade": "A",
+            "school_type": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Mohammed J",
+            "age": 20,
+            "grade": "B",
+            "school_type": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        }, {
+            "section": "C",
+            "name": "Musharaf S",
+            "age": 18,
+            "grade": "E",
+            "school_type": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Naveen Kumar",
+            "age": 20,
+            "grade": "C+",
+            "school_type": "Govtaided",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "R.Rajesh",
+            "age": 21,
+            "grade": "C+",
+            "school_type": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Rakesh Raj",
+            "age": 21,
+            "grade": "C+",
+            "school_type": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Rithishmutu",
+            "age": 17,
+            "grade": "B",
+            "school_type": "Govtaided",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Sathish Kumar",
+            "age": 20,
+            "grade": "C+",
+            "school_type": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Shanmugavel",
+            "age": 19,
+            "grade": "E",
+            "school_type": "Govt",
+            "medium": "Tamil",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Sivaperumal B",
+            "age": 18,
+            "grade": "C+",
+            "school_type": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Sudharsan S",
+            "age": 18,
+            "grade": "E",
+            "school_type": "Private",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Swathi",
+            "age": 18,
+            "grade": "B",
+            "school_type": "Govt",
+            "medium": "Tamil",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "T. Harishmugi",
+            "age": 17,
+            "grade": "B",
+            "school_type": "Govt",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Teena Morin",
+            "age": 18,
+            "grade": "E",
+            "school_type": "Govtaided",
+            "medium": "English",
+            "gender": "Female"
+        },
+        {
+            "section": "C",
+            "name": "Thirupathi",
+            "age": 17,
+            "grade": "E",
+            "school_type": "Govt",
+            "medium": "English",
+            "gender": "Male"
+        },
+        {
+            "section": "C",
+            "name": "Vanitha N",
+            "age": 17,
+            "grade": "B",
+            "school_type": "Govt",
+            "medium": "English",
+            "gender": "Female"
+        }]    
+}

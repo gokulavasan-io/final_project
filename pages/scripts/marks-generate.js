@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Fetch student names from Firestore based on section
   async function fetchStudentNames(classSection) {
     try {
-      const docRef = doc(firestore, "school/classes"); // Document reference to the classes document
+      const docRef = doc(firestore, "FSSA/studentNames"); // Document reference to the classes document
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {

@@ -20,7 +20,7 @@ let isDataChanged = false;
 
 async function fetchStudentNames(classSection) {
   try {
-    const docRef = doc(firestore, "school/classes");
+    const docRef = doc(firestore, "FSSA/studentNames");
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
