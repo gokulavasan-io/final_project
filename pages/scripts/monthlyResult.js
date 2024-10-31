@@ -81,22 +81,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       const fileRef = ref(database, monthPath);
       const markSums = {};
       const markCounts = {};
-
+    
       const fileSnapshot = await get(fileRef);
       if (fileSnapshot.exists()) {
         const fileNames = Object.keys(fileSnapshot.val());
-
+    
         await Promise.all(
           fileNames.map(async (fileName) => {
-            const marksRef = ref(database, `/studentMarks/${section}/${subject}/${fileName}`);
+            const marksRef = ref(database, `/studentMarks/${section}/${subject}/${fileName}/students`);
             const marksSnapshot = await get(marksRef);
-
+    
             if (marksSnapshot.exists()) {
               const marks = marksSnapshot.val();
               if (Array.isArray(marks)) {
-                marks.forEach(([studentName, mark]) => {
+                marks.forEach(([studentName, , mark]) => {
                   const numericMark = typeof mark === "number" && !isNaN(mark) ? mark : 0;
-
+    
                   if (studentName) {
                     markSums[studentName] = (markSums[studentName] || 0) + numericMark;
                     markCounts[studentName] = (markCounts[studentName] || 0) + 1;
@@ -107,13 +107,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           })
         );
       }
-
+    
       studentNames.forEach((studentName) => {
         const average = markCounts[studentName] ? markSums[studentName] / markCounts[studentName] : 0;
         studentData[studentName][subject] = average;
       });
     }
-
+    
     await Promise.all(subjects.map(fetchAndAverageMarks));
 
     tableData = Object.values(studentData).map(student => {
