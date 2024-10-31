@@ -45,13 +45,7 @@ document.getElementById("login").addEventListener("submit", function (event) {
       const user = userCredential.user;
       console.log(user);
 
-      // Save user info in cookies and localStorage
-      setCookie("userLoggedIn", true, 30); 
-      setCookie("section", selectedClass, 30);
-      setCookie("name", userName, 30);
-      setCookie("role", role, 30);
-      setCookie("email", email, 30);
-
+      // Save user info in localStorage if needed for other parts of the app
       localStorage.setItem("section", selectedClass);
       localStorage.setItem("name", userName);
       localStorage.setItem("role", role);
@@ -68,20 +62,6 @@ document.getElementById("login").addEventListener("submit", function (event) {
       showErrorMessage();
     });
 });
-
-// Helper function to set cookies
-function setCookie(name, value, days) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/";
-}
-
-// Helper function to get cookies
-function getCookie(name) {
-  return document.cookie.split("; ").reduce((r, v) => {
-    const parts = v.split("=");
-    return parts[0] === name ? decodeURIComponent(parts[1]) : r;
-  }, "");
-}
 
 // Function to display success message
 function showSuccessMessage() {
