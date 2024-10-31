@@ -38,3 +38,13 @@
 .green {
     background-color: green !important;
 }
+
+
+.forChart{
+    position: fixed;
+    top: 35%;
+    right: -7%;
+    height: 30%;
+    width: 30%;
+    
+}

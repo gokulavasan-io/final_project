@@ -65,9 +65,13 @@ function getAllData() {
           // Add click event listener to the div
           div.addEventListener("click", function (e) {
             if (!deleteMode && e.target !== checkbox) {
-              // Navigate to the dataset details page
-              localStorage.setItem("dataSet",div.innerText)
-              window.location.href = "marks.html";
+              if(pageTitle=="Attendance"){
+                localStorage.setItem("dataSet",div.innerText);
+                window.location.href="./attendance.html?new=no"
+              }else{
+                localStorage.setItem("dataSet",div.innerText);
+                window.location.href = "marks.html";
+              }
             } else if (deleteMode) {
               // Toggle the checkbox state and background color in delete mode
               checkbox.checked = !checkbox.checked;
@@ -166,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("new-mark").innerText = `New`;
     document.getElementById(
       "new"
-    ).href = `./attendance.html`;
+    ).href = `./attendance.html?new=yes`;
     localStorage.setItem("pageTitle",pageTitle);
   } else {
     document.getElementById(

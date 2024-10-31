@@ -161,6 +161,7 @@ if (updateDataButton) {
     updateDataButton.addEventListener('click', function () {
         if (datasetName) {
             updateDataInFirebase(datasetName);
+            createChart();
         } else {
             alert("No dataset name provided in the URL.");
         }
@@ -198,4 +199,72 @@ function showSuccessMessage(message) {
             successMessageDiv.style.display = "none";
         }, 3000);
     }
+}
+
+
+
+
+let analysisChart; // Variable to hold the chart instance
+document.addEventListener("DOMContentLoaded", () => {
+    createChart();
+});
+
+
+
+
+async function createChart() {
+    const section = localStorage.getItem("section");
+    const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0 };
+
+    // Fetch data directly from Firebase path
+    const studentsPath = `/studentMarks/${section}/${pageTitle}/${datasetName}/students`;
+    const studentsRef = ref(database, studentsPath);
+    const studentsSnapshot = await get(studentsRef);
+
+    if (studentsSnapshot.exists()) {
+        const studentsData = studentsSnapshot.val();
+
+        // Iterate over students' marks and categorize scores
+        studentsData.forEach(([, , mark]) => {
+            const numericMark = typeof mark === "number" && !isNaN(mark) ? mark : 0;
+
+            if (numericMark >= 81) scoreRanges["81-100"]++;
+            else if (numericMark >= 51) scoreRanges["51-80"]++;
+            else scoreRanges["0-50"]++;
+        });
+    }
+
+    // Destroy previous chart if it exists
+    if (analysisChart) {
+        analysisChart.destroy();
+    }
+    // Display the chart
+    const ctx = document.getElementById("myChart").getContext("2d");
+    analysisChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: ["0-50", "51-80", "81-100"],
+            datasets: [
+                {
+                    data: [scoreRanges["0-50"], scoreRanges["51-80"], scoreRanges["81-100"]],
+                    backgroundColor: ["red", "yellow", "green"]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: "top"
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.raw} students`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
