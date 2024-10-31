@@ -85,7 +85,7 @@ const fetchAndDisplayDatasetNames = async () => {
         if (!hasNewDatasets) {
             const noNewDataMessage = document.createElement("div");
             noNewDataMessage.className = "marks-detail";
-            noNewDataMessage.textContent = "All datasets are already added.";
+            noNewDataMessage.textContent = "All Mark files are already added.";
             addMarksContainer.insertBefore(noNewDataMessage, addMarksContainer.querySelector(".ConfirmButton"));
         }
 
@@ -193,7 +193,7 @@ deleteButton.addEventListener("click", function () {
     } else {
         // If in delete mode, confirm deletion
         if (selectedDivs.length > 0) {
-            const confirmation = confirm("Are you sure you want to delete the selected datasets?");
+            const confirmation = confirm("Are you sure you want to delete the selected Markfile?");
             if (confirmation) {
                 selectedDivs.forEach(async (selectedDiv) => {
                     const datasetName = selectedDiv.textContent;
@@ -208,7 +208,7 @@ deleteButton.addEventListener("click", function () {
                 });
             }
         } else {
-            alert("No datasets selected for deletion.");
+            alert("No markfile selected for deletion.");
         }
         deleteMode = false; // Reset delete mode
         this.innerText = "Delete"; // Reset button text
@@ -221,10 +221,10 @@ document.addEventListener("DOMContentLoaded", fetchMarksForDisplay);
 const selectedForSee= document.getElementsByClassName("selectedForSee");
 document.getElementById("seeMarks").addEventListener("click",()=>{
     if(selectedForSee.length<1){
-        alert("Please select atleast one mark !!!")
+        alert("Please select atleast one markfile !!!")
     }
     else if(selectedForSee.length>1){
-        alert("cannot open more than 1 file for result!!! try analysis ")
+        alert("cannot open more than 1 file for result!!! try analysis")
     }
     else{
         const dataForMark=selectedForSee[0].textContent;
