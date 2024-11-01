@@ -238,3 +238,5 @@ document.getElementById("backButton").addEventListener("click",()=>{
     localStorage.setItem("monthly",true);
     window.history.back();
 });
+
+document.getElementById("monthName").innerText=`[ ${localStorage.getItem("month")} ]`;

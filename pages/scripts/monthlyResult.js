@@ -1,3 +1,4 @@
+// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import {
   getDatabase,
@@ -11,27 +12,31 @@ import {
   getDoc,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
+// Firebase configuration and initialization
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
   authDomain: "fir-demo-4a5b4.firebaseapp.com",
   projectId: "fir-demo-4a5b4",
-  storageBucket: "fir-demo-4a5b4",
+  storageBucket: "fir-demo-4a5b4.appspot.com",
   messagingSenderId: "716679557063",
   appId: "1:716679557063:web:603a78f59045ceeaf133e2",
 };
-
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
 
+// Global variables
 let isDataChanged = false;
-let hot;
+let hot; // Handsontable instance
+const month = localStorage.getItem("month");
+const section = localStorage.getItem("section");
+let tableData = [];
 
+// Fetch student names from Firestore
 async function fetchStudentNames(classSection) {
   try {
     const docRef = doc(firestore, "FSSA/studentNames");
     const docSnap = await getDoc(docRef);
-
     if (docSnap.exists()) {
       const studentNames = docSnap.data()[classSection] || [];
       return Array.isArray(studentNames) && studentNames.length > 0
@@ -51,109 +56,139 @@ async function fetchStudentNames(classSection) {
 async function fetchResultData(path) {
   const resultRef = ref(database, path);
   const resultSnapshot = await get(resultRef);
-  return resultSnapshot.exists() ? resultSnapshot.val() : null;
+  if (resultSnapshot.exists()) {
+    const resultData = resultSnapshot.val();
+    return Object.keys(resultData).map((key) => ({
+      student: key, // Using the key as the student name
+      Attendance: resultData[key].Attendance || 0,
+      Behavior: resultData[key].Behavior || 0,
+      Project:resultData[key].Project||0,
+    }));
+  }
+  return [];
 }
 
+
+// Event listener for DOM content load
 document.addEventListener("DOMContentLoaded", async () => {
   const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving"];
   const month = localStorage.getItem("month");
+  document.getElementById("month").innerText = month;
   const section = localStorage.getItem("section");
-
   const resultPath = `/studentMarks/${section}/months/${month}/result`;
-  let tableData = [];
   const saveButton = document.getElementById("saveResult");
 
-  const resultData = await fetchResultData(resultPath);
+  // Fetch student names and initialize student data
+  const studentNames = await fetchStudentNames(section);
+  const studentData = {};
+  studentNames.forEach((studentName) => {
+    studentData[studentName] = {
+      student: studentName,
+      English: 0,
+      LifeSkills: 0,
+      Tech: 0,
+      ProblemSolving: 0,
+      AcademicOverall: 0,
+      Attendance: 0,
+      Behavior: 0,
+      Overall: 0,
+    };
+  });
 
-  if (resultData) {
-    tableData = resultData;
-    saveButton.textContent = "Update Result";
-    saveButton.style.display = "block";
-    document.querySelector(".seebuttons").style.display = "flex";
-  } else {
-    const studentNames = await fetchStudentNames(section);
-    const studentData = {};
+  // Function to fetch and average subject marks
+  async function fetchAndAverageMarks(subject) {
+    const monthPath = `/studentMarks/${section}/months/${month}/${subject}`;
+    const fileRef = ref(database, monthPath);
+    const markSums = {};
+    const markCounts = {};
 
-    studentNames.forEach((studentName) => {
-      studentData[studentName] = {
-        student: studentName,
-        English: 0,
-        LifeSkills: 0,
-        Tech: 0,
-        Projects: 0,
-        ProblemSolving: 0,
-        AcademicOverall: 0,
-        Attendance: 0,
-        Behavior: 0,
-        Overall: 0,
-      };
-    });
-
-    async function fetchAndAverageMarks(subject) {
-      const monthPath = `/studentMarks/${section}/months/${month}/${subject}`;
-      const fileRef = ref(database, monthPath);
-      const markSums = {};
-      const markCounts = {};
-
-      const fileSnapshot = await get(fileRef);
-      if (fileSnapshot.exists()) {
-        const fileNames = Object.keys(fileSnapshot.val());
-
-        await Promise.all(
-          fileNames.map(async (fileName) => {
-            const marksRef = ref(
-              database,
-              `/studentMarks/${section}/${subject}/${fileName}/students`
-            );
-            const marksSnapshot = await get(marksRef);
-
-            if (marksSnapshot.exists()) {
-              const marks = marksSnapshot.val();
-              if (Array.isArray(marks)) {
-                marks.forEach(([studentName, , mark]) => {
-                  const numericMark =
-                    typeof mark === "number" && !isNaN(mark) ? mark : 0;
-
-                  if (studentName) {
-                    markSums[studentName] =
-                      (markSums[studentName] || 0) + numericMark;
-                    markCounts[studentName] =
-                      (markCounts[studentName] || 0) + 1;
-                  }
-                });
-              }
+    const fileSnapshot = await get(fileRef);
+    if (fileSnapshot.exists()) {
+      const fileNames = Object.keys(fileSnapshot.val());
+      await Promise.all(
+        fileNames.map(async (fileName) => {
+          const marksRef = ref(
+            database,
+            `/studentMarks/${section}/${subject}/${fileName}/students`
+          );
+          const marksSnapshot = await get(marksRef);
+          if (marksSnapshot.exists()) {
+            const marks = marksSnapshot.val();
+            if (Array.isArray(marks)) {
+              marks.forEach(([studentName, , mark]) => {
+                const numericMark =
+                  typeof mark === "number" && !isNaN(mark) ? mark : 0;
+                if (studentName) {
+                  markSums[studentName] =
+                    (markSums[studentName] || 0) + numericMark;
+                  markCounts[studentName] = (markCounts[studentName] || 0) + 1;
+                }
+              });
             }
-          })
-        );
-      }
-
-      studentNames.forEach((studentName) => {
-        const average = markCounts[studentName]
-          ? markSums[studentName] / markCounts[studentName]
-          : 0;
-        studentData[studentName][subject] = average;
-      });
+          }
+        })
+      );
     }
 
-    await Promise.all(subjects.map(fetchAndAverageMarks));
-
-    tableData = Object.values(studentData).map((student) => {
-      student.AcademicOverall = parseFloat(
-        (
-          (student.English +
-            student.LifeSkills +
-            student.Tech +
-            student.ProblemSolving) /
-          subjects.length
-        ).toFixed(1)
-      );
-      return student;
+    // Calculate averages for each student
+    studentNames.forEach((studentName) => {
+      const average = markCounts[studentName]
+        ? markSums[studentName] / markCounts[studentName]
+        : 0;
+      studentData[studentName][subject] = average;
     });
-
-    saveButton.textContent = "Save Result";
-    saveButton.style.display = "block";
   }
 
+  // Calculate marks for all subjects
+  await Promise.all(subjects.map(fetchAndAverageMarks));
+
+  // Fetch result data if exists, and populate Attendance and Behavior
+  const resultData = await fetchResultData(resultPath);
+    if (resultData) {
+    resultData.forEach((result) => {
+      const studentName = result.student;
+      if (studentData[studentName]) {
+        studentData[studentName] = {
+          ...studentData[studentName],
+          Attendance: result.Attendance || 0,
+          Behavior: result.Behavior || 0,
+          Project:result.Project||0,
+        };
+      }
+    });
+    document.querySelector(".seebuttons").style.display = "flex";
+  }
+
+  // Prepare table data with computed AcademicOverall and Overall
+  tableData = Object.values(studentData).map((student) => {
+    student.AcademicOverall = parseFloat(
+      (
+        (student.English +
+          student.LifeSkills +
+          student.Tech +
+          student.ProblemSolving) /
+        subjects.length
+      ).toFixed(1)
+    );
+
+    // Calculate Overall including Attendance and Behavior
+    const overallMarks = [
+      student.English,
+      student.LifeSkills,
+      student.Tech,
+      student.ProblemSolving,
+      student.Attendance,
+      student.Behavior,
+    ].filter((mark) => typeof mark === "number" && !isNaN(mark));
+
+    student.Overall = Math.round(
+      overallMarks.reduce((sum, mark) => sum + mark, 0) / overallMarks.length
+    );
+
+    return student;
+  });
+
+  // Initialize Handsontable instance
   const container = document.getElementById("handsontable-container");
   hot = new Handsontable(container, {
     data: tableData,
@@ -183,178 +218,127 @@ document.addEventListener("DOMContentLoaded", async () => {
     width: "100%",
     height: "auto",
     licenseKey: "non-commercial-and-evaluation",
-
-    afterChange: (changes) => {
-      if (changes) {
-        isDataChanged = true; // Mark data as changed
-        changes.forEach(([row, prop, oldValue, newValue]) => {
-          const student = tableData[row];
-
-          // Update AcademicOverall if one of the main subjects changed
-          if (
-            [
-              "English",
-              "LifeSkills",
-              "Tech",
-              "ProblemSolving",
-              "Project",
-            ].includes(prop)
-          ) {
-            const subjectsToInclude = [
-              "English",
-              "LifeSkills",
-              "Tech",
-              "ProblemSolving",
-            ];
-
-            // Check if the Project column is visible
-            if (hot.getColHeader().includes("Project")) {
-              subjectsToInclude.push("Project"); // Include Project if visible
-            }
-
-            // Calculate the Academic Overall
-            student.AcademicOverall = parseFloat(
-              (
-                subjectsToInclude.reduce(
-                  (sum, subject) => sum + student[subject],
-                  0
-                ) / subjectsToInclude.length
-              ).toFixed(1)
-            );
-            hot.setDataAtRowProp(
-              row,
-              "AcademicOverall",
-              student.AcademicOverall
-            );
-          }
-
-          // Update Overall average if any relevant field changes
-          if (
-            [
-              "English",
-              "LifeSkills",
-              "Tech",
-              "ProblemSolving",
-              "Attendance",
-              "Behavior",
-              "Project",
-            ].includes(prop)
-          ) {
-            const fields = [
-              student.English,
-              student.LifeSkills,
-              student.Tech,
-              student.ProblemSolving,
-              student.Attendance,
-              student.Behavior,
-            ];
-
-            // Include Project if it's visible
-            if (hot.getColHeader().includes("Project")) {
-              fields.push(student.Project); // Add the Project value for calculation
-            }
-
-            const validMarks = fields.filter(
-              (mark) => typeof mark === "number" && !isNaN(mark)
-            ); // Only include valid numbers
-            student.Overall = parseFloat(
-              (
-                validMarks.reduce((sum, mark) => sum + mark, 0) /
-                validMarks.length
-              ).toFixed(0)
-            );
-            hot.setDataAtRowProp(row, "Overall", student.Overall);
-          }
-        });
-      }
-    },
+    afterChange: handleAfterChange,
   });
 
-  // Warn the user if they try to leave the page without saving
+  // Check if "Project" data exists and set the checkbox accordingly
+  const hasProjectData = resultData.some((student) => student.Project != 0);
+  document.getElementById("addProject").checked = hasProjectData;
+  
+  // Trigger the toggleProjectColumn function if "Project" data exists
+  if (hasProjectData) {
+    toggleProjectColumn({ target: { checked: true } });
+  }
+
+  // Handle Project column addition/removal
+  document
+    .getElementById("addProject")
+    .addEventListener("change", toggleProjectColumn);
+
+  // Warn user before page unload if there are unsaved changes
   window.addEventListener("beforeunload", (event) => {
     if (isDataChanged) {
       saveOrUpdateResult();
     }
   });
 
-  const saveOrUpdateResult = async () => {
-    try {
-      await set(ref(database, resultPath), tableData);
-      showSuccessMessage(
-        saveButton.textContent === "Save Result"
-          ? "Result saved successfully!"
-          : "Result updated successfully!"
-      );
-      saveButton.textContent = "Update Result";
-      isDataChanged = false; // Reset change flag after saving
-    } catch (error) {
-      console.error("Error saving/updating result:", error);
-      alert("Error saving/updating result.");
-    }
-  };
-
-  saveButton.removeEventListener("click", saveOrUpdateResult);
+  // Save or Update result data on button click
   saveButton.addEventListener("click", saveOrUpdateResult);
-
-  document.getElementById("month").textContent = month;
-
-  document.getElementById("seeAnalysis").addEventListener("click", () => {
-    localStorage.setItem("month", month);
-    window.location.href = "../../pages/html/analysis.html";
-  });
 });
 
-document.getElementById("backButton").addEventListener("click", () => {
-  localStorage.setItem("monthly", true);
-  window.history.back();
-});
+function handleAfterChange(changes) {
+  if (changes) {
+    isDataChanged = true; // Mark data as changed
+    changes.forEach(([row, prop, oldValue, newValue]) => {
+      // Retrieve updated data directly from Handsontable
+      const student = hot.getSourceDataAtRow(row);
 
-// Function to show success message
-function showSuccessMessage(str) {
-  const message = document.getElementById("successMessage");
-  message.innerText = str;
-  message.classList.add("show");
-  setTimeout(() => {
-    message.classList.remove("show");
-  }, 3000); // Display message for 3 seconds
+      // Calculate AcademicOverall based on specific subjects
+      if (
+        ["English", "LifeSkills", "Tech", "ProblemSolving", "Project"].includes(
+          prop
+        )
+      ) {
+        const subjectsToInclude = [
+          "English",
+          "LifeSkills",
+          "Tech",
+          "ProblemSolving",
+        ];
+
+        // Include Project if present in the Handsontable headers
+        if (hot.getColHeader().includes("Project")) {
+          subjectsToInclude.push("Project");
+        }
+
+        // Calculate AcademicOverall
+        const academicTotal = subjectsToInclude.reduce((sum, subject) => {
+          return sum + (student[subject] || 0);
+        }, 0);
+
+        student.AcademicOverall = parseFloat(
+          (academicTotal / subjectsToInclude.length).toFixed(1)
+        );
+        hot.setDataAtRowProp(row, "AcademicOverall", student.AcademicOverall);
+      }
+
+      // Calculate Overall including additional fields (Attendance and Behavior)
+      if (
+        [
+          "English",
+          "LifeSkills",
+          "Tech",
+          "ProblemSolving",
+          "Attendance",
+          "Behavior",
+          "Project",
+        ].includes(prop)
+      ) {
+        const fieldsToInclude = [
+          student.English,
+          student.LifeSkills,
+          student.Tech,
+          student.ProblemSolving,
+          student.Attendance,
+          student.Behavior,
+        ];
+
+        // Add Project if it's included in the Handsontable headers
+        if (hot.getColHeader().includes("Project")) {
+          fieldsToInclude.push(student.Project);
+        }
+
+        // Calculate Overall
+        const validMarks = fieldsToInclude.filter(
+          (mark) => typeof mark === "number" && !isNaN(mark)
+        );
+        student.Overall = Math.round(validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length);
+        hot.setDataAtRowProp(row, "Overall", student.Overall);
+      }
+    });
+  }
 }
 
-// Define the column configuration for the Project column
-const projectColumn = {
-  data: "Project",
-  type: "numeric", // Change the type as per your requirement
-  readOnly: false, // Set to false to allow editing
-};
 
-// Add event listener for the Project checkbox
-document.getElementById("addProject").addEventListener("change", (event) => {
+
+// Toggle the Project column visibility in Handsontable
+function toggleProjectColumn(event) {
   const isChecked = event.target.checked;
-
   if (isChecked) {
-    // Insert the Project column at index 5
     const currentCols = hot.getSettings().columns;
     const currentHeaders = hot.getColHeader();
-
-    // Create new columns and headers with the Project column inserted
     const newCols = [
-      ...currentCols.slice(0, 5), // Columns before index 5
-      projectColumn, // New Project column
-      ...currentCols.slice(5), // Remaining columns
+      ...currentCols.slice(0, 5),
+      projectColumn,
+      ...currentCols.slice(5),
     ];
-
     const newHeaders = [
-      ...currentHeaders.slice(0, 5), // Headers before index 5
-      "Project", // New Project header
-      ...currentHeaders.slice(5), // Remaining headers
+      ...currentHeaders.slice(0, 5),
+      "Project",
+      ...currentHeaders.slice(5),
     ];
-
-    // Update the Handsontable settings
-    hot.updateSettings({
-      columns: newCols,
-      colHeaders: newHeaders,
-    });
+    hot.updateSettings({ columns: newCols, colHeaders: newHeaders });
   } else {
-    // Remove the Project column
     const projectColIndex = hot.getColHeader().indexOf("Project");
     if (projectColIndex > -1) {
       hot.updateSettings({
@@ -367,4 +351,80 @@ document.getElementById("addProject").addEventListener("change", (event) => {
       });
     }
   }
+}
+
+
+// Function to sanitize student names for use as Firebase keys
+function sanitizeKey(key) {
+  return key.replace(/[.#$/[\\\]]/g, "_"); // Replace invalid characters with underscores
+}
+
+// Save or update result data in Firebase
+async function saveOrUpdateResult() {
+  const resultPath = `/studentMarks/${section}/months/${month}/result`;
+  const resultData = tableData.reduce((acc, student) => {
+    const sanitizedStudentName = sanitizeKey(student.student); // Sanitize the student name
+    const isChecked = document.getElementById("addProject").checked;
+  if (isChecked) {
+    acc[sanitizedStudentName] = {
+      Attendance: student.Attendance || 0,
+      Behavior: student.Behavior || 0,
+      English: student.English || 0,
+      LifeSkills: student.LifeSkills || 0,
+      Tech: student.Tech || 0,
+      ProblemSolving: student.ProblemSolving || 0,
+      Project:student.Project||0,
+      AcademicOverall: student.AcademicOverall || 0,
+      Overall: student.Overall || 0
+    };
+  }
+  else{
+    acc[sanitizedStudentName] = {
+      Attendance: student.Attendance || 0,
+      Behavior: student.Behavior || 0,
+      English: student.English || 0,
+      LifeSkills: student.LifeSkills || 0,
+      Tech: student.Tech || 0,
+      ProblemSolving: student.ProblemSolving || 0,
+      AcademicOverall: student.AcademicOverall || 0,
+      Overall: student.Overall || 0,
+    };
+  }
+    return acc;
+  }, {});
+
+  try {
+    await set(ref(database, resultPath), resultData);
+    showSuccessMessage("Result saved successfully!");
+    isDataChanged = false;
+  } catch (error) {
+    console.error("Error saving result data:", error);
+    alert("Error saving result data. Please check the console for details.");
+  }
+}
+
+
+// Define the column configuration for the Project column
+const projectColumn = {
+  data: "Project",
+  type: "numeric",
+  readOnly: false,
+};
+
+
+
+// Function to show success message
+function showSuccessMessage(str) {
+  const message = document.getElementById("successMessage");
+  message.innerText = str;
+  message.classList.add("show");
+  setTimeout(() => {
+    message.classList.remove("show");
+  }, 3000); // Display message for 3 seconds
+}
+
+
+document.getElementById("backButton").addEventListener("click",()=>{
+  localStorage.setItem("monthly",true);
+  window.location.href="home.html"
 });

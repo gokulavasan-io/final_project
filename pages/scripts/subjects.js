@@ -24,6 +24,8 @@ const database = getDatabase(app);
 
 const pageTitle=localStorage.getItem("pageTitle");
 const section=localStorage.getItem("section");
+let deleteMode = false;
+const deleteBtn = document.getElementById("delete-btn");
 
 // Function to get all dataset names from Firebase and render them
 function getAllData() {
@@ -31,10 +33,6 @@ function getAllData() {
   
   const dbRef = ref(database);
   const dataPath = `studentMarks/${section}/${subject_name}`;
-
-  // Get the delete button
-  const deleteBtn = document.getElementById("delete-btn");
-  let deleteMode = false; // Flag to track delete mode
 
   // Fetch dataset names from Firebase
   get(child(dbRef, dataPath))
@@ -129,8 +127,13 @@ function confirmDeletion() {
     } else {
       console.log("Deletion canceled.");
     }
+    deleteMode=false;
+    deleteBtn.innerText = "Delete";
+
   } else {
     alert("No Marks selected for deletion.");
+    deleteMode=false;
+    deleteBtn.innerText = "Delete";
   }
 }
 
