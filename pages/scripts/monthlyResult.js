@@ -70,9 +70,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         LifeSkills: 0,
         Tech: 0,
         ProblemSolving: 0,
-        Total: 0,
-        Attendance: "",
-        Behavior: ""
+        AcademicOverall: 0,
+        Attendance: 0,
+        Behavior: 0,
+        Overall:0
       };
     });
 
@@ -117,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await Promise.all(subjects.map(fetchAndAverageMarks));
 
     tableData = Object.values(studentData).map(student => {
-      student.Total = (student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length;
+      student.AcademicOverall = (student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length;
       return student;
     });
 
@@ -134,9 +135,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       "LifeSkills",
       "Tech",
       "Problem Solving",
-      "Total",
       "Attendance",
-      "Behavior"
+      "Behavior",
+      "Academic Overall",
+      "Overall"
     ],
     columns: [
       { data: "student", readOnly: true },
@@ -144,9 +146,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       { data: "LifeSkills", type: "numeric", readOnly: true },
       { data: "Tech", type: "numeric", readOnly: true },
       { data: "ProblemSolving", type: "numeric", readOnly: true },
-      { data: "Total", type: "numeric", readOnly: true },
-      { data: "Attendance" },
-      { data: "Behavior" }
+      { data: "Attendance",type: "numeric" },
+      { data: "Behavior",type: "numeric" },
+      { data: "AcademicOverall", type: "numeric", readOnly: true },
+      { data: "Overall", type: "numeric", readOnly: true },
     ],
     rowHeaders: true,
     width: "100%",
@@ -157,14 +160,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (changes) {
         isDataChanged = true; // Mark data as changed
         changes.forEach(([row, prop, oldValue, newValue]) => {
+          const student = tableData[row];
+    
+          // Update AcademicOverall if one of the main subjects changed
           if (["English", "LifeSkills", "Tech", "ProblemSolving"].includes(prop)) {
-            const student = tableData[row];
-            student.Total = (student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length;
-            hot.setDataAtRowProp(row, "Total", student.Total);
+            student.AcademicOverall = 
+              (student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length;
+            hot.setDataAtRowProp(row, "AcademicOverall", student.AcademicOverall);
+          }
+    
+          // Update Overall average if any relevant field changes
+          if (["English", "LifeSkills", "Tech", "ProblemSolving", "Attendance", "Behavior"].includes(prop)) {
+            const totalSubjects = 6; // Total number of fields contributing to Overall
+            const fields = [student.English, student.LifeSkills, student.Tech, student.ProblemSolving, student.Attendance, student.Behavior];
+            const validMarks = fields.filter(mark => typeof mark === 'number' && !isNaN(mark)); // Only include valid numbers
+    
+            student.Overall = validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length;
+            hot.setDataAtRowProp(row, "Overall", student.Overall);
           }
         });
       }
     }
+    
   });
 
   // Warn the user if they try to leave the page without saving
@@ -178,7 +195,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const saveOrUpdateResult = async () => {
     try {
       await set(ref(database, resultPath), tableData);
-      alert(saveButton.textContent === "Save Result" ? "Result saved successfully!" : "Result updated successfully!");
+      showSuccessMessage(saveButton.textContent === "Save Result" ? "Result saved successfully!" : "Result updated successfully!");
       saveButton.textContent = "Update Result";
       isDataChanged = false; // Reset change flag after saving
     } catch (error) {
@@ -204,3 +221,14 @@ document.getElementById("backButton").addEventListener("click",()=>{
   localStorage.setItem("monthly",true);
   window.history.back();
 });
+
+
+// Function to show success message
+function showSuccessMessage(str) {
+  const message = document.getElementById("successMessage");
+  message.innerText = str;
+  message.classList.add("show");
+  setTimeout(() => {
+    message.classList.remove("show");
+  }, 3000); // Display message for 3 seconds
+}
