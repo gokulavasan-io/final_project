@@ -118,7 +118,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     await Promise.all(subjects.map(fetchAndAverageMarks));
 
     tableData = Object.values(studentData).map(student => {
-      student.AcademicOverall = (student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length;
+      student.AcademicOverall = 
+      parseFloat(((student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length).toFixed(1));
       return student;
     });
 
@@ -165,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           // Update AcademicOverall if one of the main subjects changed
           if (["English", "LifeSkills", "Tech", "ProblemSolving"].includes(prop)) {
             student.AcademicOverall = 
-              (student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length;
+            parseFloat(((student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length).toFixed(1));
             hot.setDataAtRowProp(row, "AcademicOverall", student.AcademicOverall);
           }
     
@@ -174,8 +175,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const totalSubjects = 6; // Total number of fields contributing to Overall
             const fields = [student.English, student.LifeSkills, student.Tech, student.ProblemSolving, student.Attendance, student.Behavior];
             const validMarks = fields.filter(mark => typeof mark === 'number' && !isNaN(mark)); // Only include valid numbers
-    
-            student.Overall = validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length;
+            //parseFloat(number.toFixed(1));
+            student.Overall =  parseFloat((validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length).toFixed(0));
             hot.setDataAtRowProp(row, "Overall", student.Overall);
           }
         });

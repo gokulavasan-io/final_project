@@ -55,6 +55,7 @@
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    font-family: Poppins;
 }
 
 .marks-detail{
@@ -64,13 +65,16 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     padding: 1rem;
     border-radius: 10px;
     gap: 1rem;
     transition: 300ms all ease;
     height: 6rem;
-    width: 8rem;
+    min-width:8rem ;
+    max-width: min-content;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    font-family: Poppins;
 
 }
 .marks-detail:hover{
@@ -103,6 +107,7 @@
     padding: 1rem;
     display: none;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    font-family: Poppins;
 }
 .addMarksContainer .marks-detail{
     box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
@@ -123,6 +128,7 @@
     right: 2rem;
     display: flex;
     gap: 1rem;
+    font-family: Poppins;
 }
 
 .selected {

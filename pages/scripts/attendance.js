@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Set dataset name in input field if not newAttendance
   if (newAttendance !== "yes") {
-    datasetNameInput.value = datasetName; // Populate input with dataset name
+    datasetNameInput.placeholder = datasetName; // Populate input with dataset name
     saveButton.innerText = "Update"; // Change button text to Update
   }
 

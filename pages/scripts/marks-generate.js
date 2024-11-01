@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Add an event listener for beforeunload to save data before reloading or closing the page
   window.addEventListener("beforeunload", (event) => {
-    const customName = document.getElementById("datasetName").value.trim().replaceAll("/", "-");
+    const customName = capitalizeFirstLetter(document.getElementById("datasetName").value.trim().replaceAll("/", "-"));
     if (!isDataSaved) { // Show alert only if data is not saved
       event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
     }
@@ -197,11 +197,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   document
     .getElementById("saveToFirebase")
     .addEventListener("click", function () {
-      const customName = document
+      const customName = capitalizeFirstLetter(document
         .getElementById("datasetName")
         .value.trim()
         .split("/")
-        .join("-");
+        .join("-"));
 
       if (customName === "") {
         alert("Please enter a valid dataset name.");
@@ -219,4 +219,9 @@ function showSuccessMessage() {
   setTimeout(() => {
     message.classList.remove("show");
   }, 1000);
+}
+
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }

@@ -105,7 +105,8 @@ function updateCellColor(row, average) {
 
 // Update Firebase data
 function updateDataInFirebase(datasetName) {
-    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
+    const datasetNameForUpdate = localStorage.getItem("dataSet"); 
+    const dataPath = `studentMarks/${section}/${pageTitle}/${datasetNameForUpdate}`;
     if (!hot) return;
     const updatedData = hot.getData();
     const totalMarksInput = document.getElementById("totalMarks").value;
@@ -149,6 +150,7 @@ if (updateTotalMarksButton) {
         const totalMarks = parseFloat(document.getElementById("totalMarks").value);
         if (!isNaN(totalMarks) && totalMarks > 0) {
             recalculateAverages(totalMarks);
+            isEdited = true; // Set edited flag to true when total marks change
         } else {
             alert("Please enter a valid number for total marks.");
         }
@@ -168,15 +170,18 @@ if (updateDataButton) {
     });
 }
 
+// Track changes to rename input
+const renameDatasetInput = document.getElementById("renameDatasetInput");
+if (renameDatasetInput) {
+    renameDatasetInput.addEventListener("input", () => {
+        isEdited = true;
+    });
+}
+
 // Auto-save data to Firebase when the page is closed or reloaded
 window.addEventListener('beforeunload', function (event) {
     if (isEdited && datasetName && hot) {
-        const totalMarksInput = document.getElementById("totalMarks").value;
-        if (totalMarksInput) {
-            event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
-        } else {
-            event.returnValue = "Total marks value is missing. Please enter a value before leaving.";
-        }
+        event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
     }
 });
 
@@ -189,28 +194,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Function to show success message
-function showSuccessMessage(message) {
-    const successMessageDiv = document.getElementById("successMessage");
-    if (successMessageDiv) {
-        successMessageDiv.innerText = message;
-        successMessageDiv.style.display = "block";
-        setTimeout(() => {
-            successMessageDiv.style.display = "none";
-        }, 3000);
-    }
-}
-
-
 
 
 let analysisChart; // Variable to hold the chart instance
 document.addEventListener("DOMContentLoaded", () => {
     createChart();
 });
-
-
-
 
 async function createChart() {
     const section = localStorage.getItem("section");
@@ -235,36 +224,96 @@ async function createChart() {
     }
 
     // Destroy previous chart if it exists
-    if (analysisChart) {
-        analysisChart.destroy();
-    }
-    // Display the chart
+    if (analysisChart) analysisChart.destroy();
+
+    // Create a new chart
     const ctx = document.getElementById("myChart").getContext("2d");
     analysisChart = new Chart(ctx, {
         type: "pie",
         data: {
             labels: ["0-50", "51-80", "81-100"],
-            datasets: [
-                {
-                    data: [scoreRanges["0-50"], scoreRanges["51-80"], scoreRanges["81-100"]],
-                    backgroundColor: ["red", "yellow", "green"]
-                }
-            ]
+            datasets: [{
+                data: Object.values(scoreRanges),
+                backgroundColor: ["#FF6384", "#FFCE56", "#36A2EB"]
+            }]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: {
-                    position: "top"
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            return `${context.label}: ${context.raw} students`;
-                        }
-                    }
-                }
+                legend: { position: 'top' },
+                title: { display: true, text: 'Student Marks Distribution' }
             }
         }
     });
 }
+
+
+
+
+// Rename dataset function
+async function renameDataset() {
+    const renameDatasetInput = document.getElementById("renameDatasetInput");
+    const newDatasetName = capitalizeFirstLetter(renameDatasetInput.value.trim());
+    const section = localStorage.getItem("section");
+    const pageTitle = localStorage.getItem("pageTitle");
+    const datasetName = localStorage.getItem("dataSet");
+    const oldDataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
+
+
+    if (newDatasetName && newDatasetName !== datasetName) {
+        const newDataPath = `studentMarks/${section}/${pageTitle}/${newDatasetName}`;
+        const dbRef = ref(database);
+
+        try {
+            // Fetch data from the old dataset
+            const oldDataSnapshot = await get(child(dbRef, oldDataPath));
+            if (oldDataSnapshot.exists()) {
+                const oldData = oldDataSnapshot.val();
+
+                // Set data to the new path
+                await set(ref(database, newDataPath), oldData);
+
+                // Delete old dataset
+                await set(ref(database, oldDataPath), null);
+
+                // Update the local dataset name and input placeholder
+                localStorage.setItem("dataSet", newDatasetName);
+                renameDatasetInput.placeholder = newDatasetName;
+
+                // Display success message
+                showSuccessMessage("Dataset renamed successfully!");
+            } else {
+                alert("Original dataset not found.");
+            }
+        } catch (error) {
+            console.error("Error renaming dataset:", error);
+            alert("Failed to rename the dataset.");
+        }
+    } else {
+        alert("Please enter a new name different from the current one.");
+    }
+}
+
+// Add event listener to the rename button
+document.getElementById("renameDataset").addEventListener("click", renameDataset);
+
+
+
+// Function to show success message
+function showSuccessMessage(message) {
+    const successMessageDiv = document.getElementById("successMessage");
+    if (successMessageDiv) {
+        successMessageDiv.innerText = message;
+        successMessageDiv.style.display = "block";
+        setTimeout(() => {
+            successMessageDiv.style.display = "none";
+        }, 3000);
+    }
+}
+
+
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+  
