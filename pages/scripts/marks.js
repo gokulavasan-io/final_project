@@ -234,7 +234,7 @@ async function createChart() {
             labels: ["0-50", "51-80", "81-100"],
             datasets: [{
                 data: Object.values(scoreRanges),
-                backgroundColor: ["#FF6384", "#FFCE56", "#36A2EB"]
+                backgroundColor: ["red", "yellow", "green"]
             }]
         },
         options: {

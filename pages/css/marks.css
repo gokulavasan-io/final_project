@@ -27,18 +27,20 @@
 }
 
 .error{
-    background-color: brown;
+    background-color: rgb(0, 0, 0);
+    
 }
 .red {
-    background-color: red !important;
+    background-color: #ff5757 !important;
 }
 .yellow {
-    background-color: yellow !important;
+    background-color: #ffed22 !important;
 }
 .green {
-    background-color: green !important;
+    background-color: #4dff00 !important;
+    color: black !important;
 }
-
+/* ["#7ed957", "#ffde59", "#ff5757"] */
 
 .forChart{
     position: fixed;
