@@ -8,8 +8,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import {
   getFirestore,
-  doc,
-  getDoc,
+  collection,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration (replace with your project details)
@@ -41,14 +41,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Fetch student names from Firestore based on section
   async function fetchStudentNames(classSection) {
     try {
-      const docRef = doc(firestore, "FSSA/studentNames"); // Document reference to the classes document
-      const docSnap = await getDoc(docRef);
+      const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`); // Document reference to the classes document
+      const docSnap = await getDocs(docRef);
 
-      if (docSnap.exists()) {
-        const studentNames = docSnap.data()[classSection] || []; // Default to an empty array if undefined
-
+      if (!docSnap.empty)  {
+        const studentNames = docSnap.docs.map((doc) => doc.id);
         if (Array.isArray(studentNames) && studentNames.length > 0) {
-          console.log("Student names fetched successfully:", studentNames);
           Students = studentNames;
         } else {
           console.error("No student names found for the selected class.");
@@ -145,45 +143,44 @@ document.addEventListener("DOMContentLoaded", async function () {
     hot.render(); // Re-render the table to apply styles
   }
 
-  // Function to save data to Firebase
   async function saveDataToFirebase(customName) {
     const dbRef = ref(database);
     const dataPath = `studentMarks/${section}/${pageTitle}`;
-    
+
     // Check for existing datasets
     try {
-      const snapshot = await get(ref(database, dataPath));
-      const tableData = hot.getData();
-      const saveData = {
-        totalMarks: totalMarksInput.value,
-        students: tableData,
-      };
+        const snapshot = await get(ref(database, dataPath));
+        const tableData = hot.getData();
+        const saveData = {
+            totalMarks: totalMarksInput.value,
+            students: tableData,
+        };
 
-      if (snapshot.exists()) {
-        const existingDatasets = Object.keys(snapshot.val());
-        if (existingDatasets.includes(customName)) {
-          // Update existing dataset
-          await set(ref(database, `${dataPath}/${customName}`), saveData);
-          showSuccessMessage("file updated Successfully !!!")
+        if (snapshot.exists()) {
+            const existingDatasets = Object.keys(snapshot.val());
+
+            // Check if the dataset name already exists
+            if (existingDatasets.includes(customName)) {
+                alert("A dataset with this name already exists. Please choose a different name.");
+                return; // Exit if the dataset name already exists
+            } else {
+                // Save new dataset
+                await set(ref(database, `${dataPath}/${customName}`), saveData);
+                showSuccessMessage("Data saved successfully.");
+            }
         } else {
-          // Save new dataset
-          await set(ref(database, `${dataPath}/${customName}`), saveData);
-          showSuccessMessage("Data saved successfully.");
+            // Save new dataset
+            await set(ref(database, `${dataPath}/${customName}`), saveData);
+            showSuccessMessage("Data saved successfully.");
         }
-      } else {
-        // Save new dataset
-        await set(ref(database, `${dataPath}/${customName}`), saveData);
-        showSuccessMessage("Data saved successfully.");
-      }
 
-      isDataSaved = true; // Set to true when data is successfully saved
-      document.getElementById("saveToFirebase").innerText = "Update"; // Change button text to "Update"
-      showSuccessMessage();
+        isDataSaved = true; // Set to true when data is successfully saved
+        document.getElementById("saveToFirebase").innerText = "Update"; // Change button text to "Update"
     } catch (error) {
-      console.error("Error saving data:", error);
-      alert("Error saving file.");
+        console.error("Error saving data:", error);
+        alert("Error saving file.");
     }
-  }
+}
 
   // Add an event listener for beforeunload to save data before reloading or closing the page
   window.addEventListener("beforeunload", (event) => {

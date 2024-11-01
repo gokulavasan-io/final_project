@@ -8,8 +8,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import {
   getFirestore,
-  doc,
-  getDoc,
+  collection,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -47,16 +47,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const newAttendance = getQueryParameter("new");
 
-  // Fetch student names from Firestore
   async function fetchStudentNames(classSection) {
     try {
-      const docRef = doc(firestore, "FSSA/studentNames");
-      const docSnap = await getDoc(docRef);
+      const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`); // Document reference to the classes document
+      const docSnap = await getDocs(docRef);
 
-      if (docSnap.exists()) {
-        const studentNames = docSnap.data()[classSection] || [];
+      if (!docSnap.empty)  {
+        const studentNames = docSnap.docs.map((doc) => doc.id);
         if (Array.isArray(studentNames) && studentNames.length > 0) {
-          console.log("Student names fetched successfully:", studentNames);
           Students = studentNames;
         } else {
           console.error("No student names found for the selected class.");

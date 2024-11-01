@@ -1,7 +1,6 @@
-{
-    "ClassA": [
+[
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Abinaya Murugan",
             "age": 19,
             "category": "C+",
@@ -10,7 +9,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Gowtham Lakshamanan",
             "age": 18,
             "category": "B",
@@ -19,7 +18,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Hari Krishnan Balasubramanian",
             "age": 19,
             "category": "D",
@@ -28,7 +27,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Harish Karthick Maheswaran",
             "age": 17,
             "category": "E",
@@ -37,7 +36,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Joshitha",
             "age": 17,
             "category": "A",
@@ -46,7 +45,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Jumana H",
             "age": 17,
             "category": "B",
@@ -55,7 +54,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "K Balamurugan",
             "age": 18,
             "category": "B",
@@ -64,7 +63,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Karthikeyan",
             "age": 20,
             "category": "C+",
@@ -73,7 +72,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Kavinisha Kannan",
             "age": 21,
             "category": "B",
@@ -82,7 +81,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Kishore M",
             "age": 17,
             "category": "E",
@@ -91,7 +90,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Madasamy A",
             "age": 21,
             "category": "E",
@@ -100,7 +99,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Mohamed Vaseem Ismail",
             "age": 17,
             "category": "C+",
@@ -109,7 +108,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Muthamizhan",
             "age": 18,
             "category": "B",
@@ -118,7 +117,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Muthujothi",
             "age": 19,
             "category": "D",
@@ -127,7 +126,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Parkavi M",
             "age": 17,
             "category": "E",
@@ -136,7 +135,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Pugazhenthi S",
             "age": 20,
             "category": "D",
@@ -145,7 +144,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "R Keerthika",
             "age": 19,
             "category": "C+",
@@ -154,7 +153,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Rama Subbu N A",
             "age": 20,
             "category": "A",
@@ -163,7 +162,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Sankar K",
             "age": 18,
             "category": "B",
@@ -172,7 +171,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Saravanan",
             "age": 20,
             "category": "D",
@@ -181,7 +180,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Senthilnathan",
             "age": 17,
             "category": "E",
@@ -190,7 +189,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Shalini R",
             "age": 17,
             "category": "C+",
@@ -199,7 +198,7 @@
             "gender": "Female"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Sridhar",
             "age": 21,
             "category": "B",
@@ -208,7 +207,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Sudharsan H",
             "age": 18,
             "category": "C+",
@@ -217,7 +216,7 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Vajesh Babu H",
             "age": 18,
             "category": "C+",
@@ -226,18 +225,16 @@
             "gender": "Male"
         },
         {
-            "section": "A",
+            "section":"ClassA",
             "name": "Yuva Ganesh A",
             "age": 18,
             "category": "E",
             "school": "Govt",
             "medium": "Tamil",
             "gender": "Male"
-        }
-    ],
-    "ClassB": [
+        },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Arumuga Kani",
             "age": 20,
             "category": "C+",
@@ -246,7 +243,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "DB Shriram",
             "age": 17,
             "category": "C+",
@@ -255,7 +252,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Gokulavasan G",
             "age": 18,
             "category": "A",
@@ -264,7 +261,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Gopika",
             "age": 17,
             "category": "E",
@@ -273,7 +270,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Guna P",
             "age": 19,
             "category": "D",
@@ -282,7 +279,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Jeevanantham R",
             "age": 20,
             "category": "B",
@@ -291,7 +288,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Kamalika",
             "age": 18,
             "category": "C+",
@@ -299,7 +296,7 @@
             "medium": "English",
             "gender": "Female"
         }, {
-            "section": "B",
+            "section":"ClassB",
             "name": "Karthikeyan M",
             "age": 17,
             "category": "B",
@@ -308,7 +305,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Kottai Samy K",
             "age": 21,
             "category": "C+",
@@ -317,7 +314,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Krishna Moorthy",
             "age": 17,
             "category": "E",
@@ -326,7 +323,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Logesh Muthu",
             "age": 18,
             "category": "D",
@@ -335,7 +332,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Malarvizhi k",
             "age": 19,
             "category": "E",
@@ -344,7 +341,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Maruthamuthu G",
             "age": 21,
             "category": "E",
@@ -353,7 +350,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Mohamed Mohideen Thayub",
             "age": 19,
             "category": "D",
@@ -362,7 +359,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Naveen S",
             "age": 20,
             "category": "D",
@@ -371,7 +368,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Pestica M",
             "age": 18,
             "category": "B",
@@ -380,7 +377,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Pranesh",
             "age": 20,
             "category": "B",
@@ -389,7 +386,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "RAMALAKSHMI T",
             "age": 17,
             "category": "C+",
@@ -398,7 +395,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "S.Mohammed sheriff",
             "age": 19,
             "category": "E",
@@ -407,7 +404,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Sandhiya P",
             "age": 17,
             "category": "B",
@@ -416,7 +413,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Santhosh Raja Ramesh",
             "age": 18,
             "category": "B",
@@ -425,7 +422,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Sham L",
             "age": 20,
             "category": "C+",
@@ -434,7 +431,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Sivaraman R",
             "age": 21,
             "category": "E",
@@ -443,7 +440,7 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Suprasanna A",
             "age": 18,
             "category": "C+",
@@ -452,7 +449,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Udhaya S",
             "age": 18,
             "category": "B",
@@ -461,7 +458,7 @@
             "gender": "Female"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Venkatesh S",
             "age": 17,
             "category": "A",
@@ -470,18 +467,16 @@
             "gender": "Male"
         },
         {
-            "section": "B",
+            "section":"ClassB",
             "name": "Zahid Hussain",
             "age": 19,
             "category": "C+",
             "school": "Private",
             "medium": "English",
             "gender": "Male"
-        }
-    ],
-    "ClassC": [
+        },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Abdul Kalam S",
             "age": 21,
             "grade": "E",
@@ -490,7 +485,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Brindha",
             "age": 19,
             "grade": "D",
@@ -499,7 +494,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Deepak V",
             "age": 20,
             "grade": "C+",
@@ -508,7 +503,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Devika S",
             "age": 17,
             "grade": "E",
@@ -517,7 +512,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Dhanasri V",
             "age": 18,
             "grade": "D",
@@ -526,7 +521,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Dharani Sri A",
             "age": 17,
             "grade": "A",
@@ -535,7 +530,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "G S Chandhru",
             "age": 17,
             "grade": "C+",
@@ -544,7 +539,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Harini Ragavi",
             "age": 18,
             "grade": "C+",
@@ -553,7 +548,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Jeshin Daniel",
             "age": 18,
             "grade": "B",
@@ -562,7 +557,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Kaleeshwari",
             "age": 20,
             "grade": "D",
@@ -571,7 +566,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Mohamed Ibrahim",
             "age": 18,
             "grade": "A",
@@ -580,7 +575,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Mohammed J",
             "age": 20,
             "grade": "B",
@@ -588,7 +583,7 @@
             "medium": "Tamil",
             "gender": "Male"
         }, {
-            "section": "C",
+            "section":"ClassC",
             "name": "Musharaf S",
             "age": 18,
             "grade": "E",
@@ -597,7 +592,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Naveen Kumar",
             "age": 20,
             "grade": "C+",
@@ -606,7 +601,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "R.Rajesh",
             "age": 21,
             "grade": "C+",
@@ -615,7 +610,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Rakesh Raj",
             "age": 21,
             "grade": "C+",
@@ -624,7 +619,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Rithishmutu",
             "age": 17,
             "grade": "B",
@@ -633,7 +628,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Sathish Kumar",
             "age": 20,
             "grade": "C+",
@@ -642,7 +637,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Shanmugavel",
             "age": 19,
             "grade": "E",
@@ -651,7 +646,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Sivaperumal B",
             "age": 18,
             "grade": "C+",
@@ -660,7 +655,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Sudharsan S",
             "age": 18,
             "grade": "E",
@@ -669,7 +664,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Swathi",
             "age": 18,
             "grade": "B",
@@ -678,7 +673,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "T. Harishmugi",
             "age": 17,
             "grade": "B",
@@ -687,7 +682,7 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Teena Morin",
             "age": 18,
             "grade": "E",
@@ -696,7 +691,7 @@
             "gender": "Female"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Thirupathi",
             "age": 17,
             "grade": "E",
@@ -705,12 +700,12 @@
             "gender": "Male"
         },
         {
-            "section": "C",
+            "section":"ClassC",
             "name": "Vanitha N",
             "age": 17,
             "grade": "B",
             "school_type": "Govt",
             "medium": "English",
             "gender": "Female"
-        }]    
-}
+        }   
+    ]

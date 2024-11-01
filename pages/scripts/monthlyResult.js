@@ -8,8 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import {
   getFirestore,
-  doc,
-  getDoc,
+  getDocs,collection,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 // Firebase configuration and initialization
@@ -32,22 +31,27 @@ const month = localStorage.getItem("month");
 const section = localStorage.getItem("section");
 let tableData = [];
 
-// Fetch student names from Firestore
-async function fetchStudentNames(classSection) {
+async function fetchStudentNames(section) {
   try {
-    const docRef = doc(firestore, "FSSA/studentNames");
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const studentNames = docSnap.data()[classSection] || [];
-      return Array.isArray(studentNames) && studentNames.length > 0
-        ? studentNames
-        : [];
+    const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`); // Document reference to the classes document
+    const docSnap = await getDocs(docRef);
+
+    if (!docSnap.empty)  {
+      const studentNames = docSnap.docs.map((doc) => doc.id);
+      if (Array.isArray(studentNames) && studentNames.length > 0) {
+        return studentNames;
+      } else {
+        console.error("No student names found for the selected class.");
+        alert("No student names found for the selected class.");
+        return [];
+      }
     } else {
-      alert("No document found for the selected class.");
+      console.log("No such document!");
+      alert("No such document for the selected class.");
       return [];
     }
   } catch (error) {
-    console.error("Error fetching student names:", error);
+    console.error("Error fetching document:", error);
     alert("Error fetching student names.");
     return [];
   }
