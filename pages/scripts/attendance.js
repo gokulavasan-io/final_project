@@ -255,7 +255,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   window.addEventListener("beforeunload", (event) => {
     if (unsavedChanges) {
       // Show alert only if there are unsaved changes and not saving
-      event.preventDefault();
       const dataName=localStorage.getItem("dataSet");
       saveDataToFirebase(dataName);
     }

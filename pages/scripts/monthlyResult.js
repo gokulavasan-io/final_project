@@ -273,8 +273,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Warn the user if they try to leave the page without saving
   window.addEventListener("beforeunload", (event) => {
     if (isDataChanged) {
-      event.preventDefault(); // Prevent the default action
-      event.returnValue = ""; // Display the confirmation dialog
+      saveOrUpdateResult();
     }
   });
 
