@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Set dataset name in input field if not newAttendance
   if (newAttendance !== "yes") {
     datasetNameInput.placeholder = datasetName; // Populate input with dataset name
-    saveButton.innerText = "Update"; // Change button text to Update
+    saveButton.style.display = "none"; // Change button text to Update
   }
 
   // Initialize Handsontable
@@ -228,7 +228,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         await saveDataToFirebase(newName); // Then save the data
       } else {
         await saveDataToFirebase(datasetName); // Save with current dataset name if no changes
-        showSuccessMessage("File saved successfully!");
+        showSuccessMessage("File Updated successfully!");
       }
     }
   });
@@ -256,8 +256,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (unsavedChanges) {
       // Show alert only if there are unsaved changes and not saving
       event.preventDefault();
-      event.returnValue =
-        "You have unsaved changes. Are you sure you want to leave?";
+      const dataName=localStorage.getItem("dataSet");
+      saveDataToFirebase(dataName);
     }
   });
 });

@@ -181,6 +181,7 @@ if (renameDatasetInput) {
 // Auto-save data to Firebase when the page is closed or reloaded
 window.addEventListener('beforeunload', function (event) {
     if (isEdited && datasetName && hot) {
+        event.preventDefault();
         updateDataInFirebase()
     }
 });
