@@ -1,6 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
-import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+import {
+  getDatabase,
+  ref,
+  get,
+  set,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
@@ -16,7 +25,7 @@ const database = getDatabase(app);
 const firestore = getFirestore(app);
 
 let isDataChanged = false;
-
+let hot;
 
 async function fetchStudentNames(classSection) {
   try {
@@ -25,7 +34,9 @@ async function fetchStudentNames(classSection) {
 
     if (docSnap.exists()) {
       const studentNames = docSnap.data()[classSection] || [];
-      return Array.isArray(studentNames) && studentNames.length > 0 ? studentNames : [];
+      return Array.isArray(studentNames) && studentNames.length > 0
+        ? studentNames
+        : [];
     } else {
       alert("No document found for the selected class.");
       return [];
@@ -46,7 +57,7 @@ async function fetchResultData(path) {
 document.addEventListener("DOMContentLoaded", async () => {
   const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving"];
   const month = localStorage.getItem("month");
-  const section=localStorage.getItem("section");
+  const section = localStorage.getItem("section");
 
   const resultPath = `/studentMarks/${section}/months/${month}/result`;
   let tableData = [];
@@ -69,11 +80,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         English: 0,
         LifeSkills: 0,
         Tech: 0,
+        Projects: 0,
         ProblemSolving: 0,
         AcademicOverall: 0,
         Attendance: 0,
         Behavior: 0,
-        Overall:0
+        Overall: 0,
       };
     });
 
@@ -82,25 +94,31 @@ document.addEventListener("DOMContentLoaded", async () => {
       const fileRef = ref(database, monthPath);
       const markSums = {};
       const markCounts = {};
-    
+
       const fileSnapshot = await get(fileRef);
       if (fileSnapshot.exists()) {
         const fileNames = Object.keys(fileSnapshot.val());
-    
+
         await Promise.all(
           fileNames.map(async (fileName) => {
-            const marksRef = ref(database, `/studentMarks/${section}/${subject}/${fileName}/students`);
+            const marksRef = ref(
+              database,
+              `/studentMarks/${section}/${subject}/${fileName}/students`
+            );
             const marksSnapshot = await get(marksRef);
-    
+
             if (marksSnapshot.exists()) {
               const marks = marksSnapshot.val();
               if (Array.isArray(marks)) {
                 marks.forEach(([studentName, , mark]) => {
-                  const numericMark = typeof mark === "number" && !isNaN(mark) ? mark : 0;
-    
+                  const numericMark =
+                    typeof mark === "number" && !isNaN(mark) ? mark : 0;
+
                   if (studentName) {
-                    markSums[studentName] = (markSums[studentName] || 0) + numericMark;
-                    markCounts[studentName] = (markCounts[studentName] || 0) + 1;
+                    markSums[studentName] =
+                      (markSums[studentName] || 0) + numericMark;
+                    markCounts[studentName] =
+                      (markCounts[studentName] || 0) + 1;
                   }
                 });
               }
@@ -108,18 +126,27 @@ document.addEventListener("DOMContentLoaded", async () => {
           })
         );
       }
-    
+
       studentNames.forEach((studentName) => {
-        const average = markCounts[studentName] ? markSums[studentName] / markCounts[studentName] : 0;
+        const average = markCounts[studentName]
+          ? markSums[studentName] / markCounts[studentName]
+          : 0;
         studentData[studentName][subject] = average;
       });
     }
-    
+
     await Promise.all(subjects.map(fetchAndAverageMarks));
 
-    tableData = Object.values(studentData).map(student => {
-      student.AcademicOverall = 
-      parseFloat(((student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length).toFixed(1));
+    tableData = Object.values(studentData).map((student) => {
+      student.AcademicOverall = parseFloat(
+        (
+          (student.English +
+            student.LifeSkills +
+            student.Tech +
+            student.ProblemSolving) /
+          subjects.length
+        ).toFixed(1)
+      );
       return student;
     });
 
@@ -128,7 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const container = document.getElementById("handsontable-container");
-  const hot = new Handsontable(container, {
+  hot = new Handsontable(container, {
     data: tableData,
     colHeaders: [
       "Student Name",
@@ -139,16 +166,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Attendance",
       "Behavior",
       "Academic Overall",
-      "Overall"
+      "Overall",
     ],
     columns: [
       { data: "student", readOnly: true },
-      { data: "English", type: "numeric" , readOnly: true},
+      { data: "English", type: "numeric", readOnly: true },
       { data: "LifeSkills", type: "numeric", readOnly: true },
       { data: "Tech", type: "numeric", readOnly: true },
       { data: "ProblemSolving", type: "numeric", readOnly: true },
-      { data: "Attendance",type: "numeric" },
-      { data: "Behavior",type: "numeric" },
+      { data: "Attendance", type: "numeric" },
+      { data: "Behavior", type: "numeric" },
       { data: "AcademicOverall", type: "numeric", readOnly: true },
       { data: "Overall", type: "numeric", readOnly: true },
     ],
@@ -162,41 +189,103 @@ document.addEventListener("DOMContentLoaded", async () => {
         isDataChanged = true; // Mark data as changed
         changes.forEach(([row, prop, oldValue, newValue]) => {
           const student = tableData[row];
-    
+
           // Update AcademicOverall if one of the main subjects changed
-          if (["English", "LifeSkills", "Tech", "ProblemSolving"].includes(prop)) {
-            student.AcademicOverall = 
-            parseFloat(((student.English + student.LifeSkills + student.Tech + student.ProblemSolving) / subjects.length).toFixed(1));
-            hot.setDataAtRowProp(row, "AcademicOverall", student.AcademicOverall);
+          if (
+            [
+              "English",
+              "LifeSkills",
+              "Tech",
+              "ProblemSolving",
+              "Project",
+            ].includes(prop)
+          ) {
+            const subjectsToInclude = [
+              "English",
+              "LifeSkills",
+              "Tech",
+              "ProblemSolving",
+            ];
+
+            // Check if the Project column is visible
+            if (hot.getColHeader().includes("Project")) {
+              subjectsToInclude.push("Project"); // Include Project if visible
+            }
+
+            // Calculate the Academic Overall
+            student.AcademicOverall = parseFloat(
+              (
+                subjectsToInclude.reduce(
+                  (sum, subject) => sum + student[subject],
+                  0
+                ) / subjectsToInclude.length
+              ).toFixed(1)
+            );
+            hot.setDataAtRowProp(
+              row,
+              "AcademicOverall",
+              student.AcademicOverall
+            );
           }
-    
+
           // Update Overall average if any relevant field changes
-          if (["English", "LifeSkills", "Tech", "ProblemSolving", "Attendance", "Behavior"].includes(prop)) {
-            const totalSubjects = 6; // Total number of fields contributing to Overall
-            const fields = [student.English, student.LifeSkills, student.Tech, student.ProblemSolving, student.Attendance, student.Behavior];
-            const validMarks = fields.filter(mark => typeof mark === 'number' && !isNaN(mark)); // Only include valid numbers
-            //parseFloat(number.toFixed(1));
-            student.Overall =  parseFloat((validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length).toFixed(0));
+          if (
+            [
+              "English",
+              "LifeSkills",
+              "Tech",
+              "ProblemSolving",
+              "Attendance",
+              "Behavior",
+              "Project",
+            ].includes(prop)
+          ) {
+            const fields = [
+              student.English,
+              student.LifeSkills,
+              student.Tech,
+              student.ProblemSolving,
+              student.Attendance,
+              student.Behavior,
+            ];
+
+            // Include Project if it's visible
+            if (hot.getColHeader().includes("Project")) {
+              fields.push(student.Project); // Add the Project value for calculation
+            }
+
+            const validMarks = fields.filter(
+              (mark) => typeof mark === "number" && !isNaN(mark)
+            ); // Only include valid numbers
+            student.Overall = parseFloat(
+              (
+                validMarks.reduce((sum, mark) => sum + mark, 0) /
+                validMarks.length
+              ).toFixed(0)
+            );
             hot.setDataAtRowProp(row, "Overall", student.Overall);
           }
         });
       }
-    }
-    
+    },
   });
 
   // Warn the user if they try to leave the page without saving
   window.addEventListener("beforeunload", (event) => {
     if (isDataChanged) {
       event.preventDefault(); // Prevent the default action
-      event.returnValue = ''; // Display the confirmation dialog
+      event.returnValue = ""; // Display the confirmation dialog
     }
   });
 
   const saveOrUpdateResult = async () => {
     try {
       await set(ref(database, resultPath), tableData);
-      showSuccessMessage(saveButton.textContent === "Save Result" ? "Result saved successfully!" : "Result updated successfully!");
+      showSuccessMessage(
+        saveButton.textContent === "Save Result"
+          ? "Result saved successfully!"
+          : "Result updated successfully!"
+      );
       saveButton.textContent = "Update Result";
       isDataChanged = false; // Reset change flag after saving
     } catch (error) {
@@ -208,21 +297,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   saveButton.removeEventListener("click", saveOrUpdateResult);
   saveButton.addEventListener("click", saveOrUpdateResult);
 
-  document.getElementById("month").textContent=month;
+  document.getElementById("month").textContent = month;
 
-  document.getElementById("seeAnalysis").addEventListener("click",()=>{
-    localStorage.setItem("month",month);
-    window.location.href ="../../pages/html/analysis.html";
-  })
-
+  document.getElementById("seeAnalysis").addEventListener("click", () => {
+    localStorage.setItem("month", month);
+    window.location.href = "../../pages/html/analysis.html";
+  });
 });
 
-
-document.getElementById("backButton").addEventListener("click",()=>{
-  localStorage.setItem("monthly",true);
+document.getElementById("backButton").addEventListener("click", () => {
+  localStorage.setItem("monthly", true);
   window.history.back();
 });
-
 
 // Function to show success message
 function showSuccessMessage(str) {
@@ -233,3 +319,53 @@ function showSuccessMessage(str) {
     message.classList.remove("show");
   }, 3000); // Display message for 3 seconds
 }
+
+// Define the column configuration for the Project column
+const projectColumn = {
+  data: "Project",
+  type: "numeric", // Change the type as per your requirement
+  readOnly: false, // Set to false to allow editing
+};
+
+// Add event listener for the Project checkbox
+document.getElementById("addProject").addEventListener("change", (event) => {
+  const isChecked = event.target.checked;
+
+  if (isChecked) {
+    // Insert the Project column at index 5
+    const currentCols = hot.getSettings().columns;
+    const currentHeaders = hot.getColHeader();
+
+    // Create new columns and headers with the Project column inserted
+    const newCols = [
+      ...currentCols.slice(0, 5), // Columns before index 5
+      projectColumn, // New Project column
+      ...currentCols.slice(5), // Remaining columns
+    ];
+
+    const newHeaders = [
+      ...currentHeaders.slice(0, 5), // Headers before index 5
+      "Project", // New Project header
+      ...currentHeaders.slice(5), // Remaining headers
+    ];
+
+    // Update the Handsontable settings
+    hot.updateSettings({
+      columns: newCols,
+      colHeaders: newHeaders,
+    });
+  } else {
+    // Remove the Project column
+    const projectColIndex = hot.getColHeader().indexOf("Project");
+    if (projectColIndex > -1) {
+      hot.updateSettings({
+        columns: hot
+          .getSettings()
+          .columns.filter((_, index) => index !== projectColIndex),
+        colHeaders: hot
+          .getColHeader()
+          .filter((_, index) => index !== projectColIndex),
+      });
+    }
+  }
+});

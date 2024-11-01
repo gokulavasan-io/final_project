@@ -22,6 +22,7 @@
     display: none;
     gap: 1rem;
     z-index: 100;
+    font-family: poppins;
 
 }
 
@@ -29,6 +30,7 @@
     position: fixed;
     top: 10%;
     right:  3%;
+    font-family: poppins;
 }
 
 
@@ -46,10 +48,19 @@
 
 #handsontable-container{
     position: fixed;
-    left: 20%;
+    left: 17%;
     top: 20%;
+    font-family: poppins;
 }
 
 #month{
     color:red;
+}
+
+#addSubject{
+    position: absolute;
+    top: 11%;
+    right: 15%;
+    font-family: poppins;
+    font-weight: bolder;
 }
