@@ -8,7 +8,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import {
   getFirestore,
-  getDocs,collection,
+  getDocs,
+  collection,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 // Firebase configuration and initialization
@@ -25,7 +26,6 @@ const database = getDatabase(app);
 const firestore = getFirestore(app);
 
 // Global variables
-let isDataChanged = false;
 let hot; // Handsontable instance
 const month = localStorage.getItem("month");
 const section = localStorage.getItem("section");
@@ -36,7 +36,7 @@ async function fetchStudentNames(section) {
     const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`); // Document reference to the classes document
     const docSnap = await getDocs(docRef);
 
-    if (!docSnap.empty)  {
+    if (!docSnap.empty) {
       const studentNames = docSnap.docs.map((doc) => doc.id);
       if (Array.isArray(studentNames) && studentNames.length > 0) {
         return studentNames;
@@ -66,12 +66,11 @@ async function fetchResultData(path) {
       student: key, // Using the key as the student name
       Attendance: resultData[key].Attendance || 0,
       Behavior: resultData[key].Behavior || 0,
-      Project:resultData[key].Project||0,
+      Project: resultData[key].Project || 0,
     }));
   }
   return [];
 }
-
 
 // Event listener for DOM content load
 document.addEventListener("DOMContentLoaded", async () => {
@@ -148,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Fetch result data if exists, and populate Attendance and Behavior
   const resultData = await fetchResultData(resultPath);
-    if (resultData) {
+  if (resultData) {
     resultData.forEach((result) => {
       const studentName = result.student;
       if (studentData[studentName]) {
@@ -156,12 +155,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           ...studentData[studentName],
           Attendance: result.Attendance || 0,
           Behavior: result.Behavior || 0,
-          Project:result.Project||0,
+          Project: result.Project || 0,
         };
       }
     });
     document.querySelector(".seebuttons").style.display = "flex";
   }
+
+    // Check if "Project" data exists and set the checkbox accordingly
+    const hasProjectData = resultData.some((student) => student.Project != 0);
 
   // Prepare table data with computed AcademicOverall and Overall
   tableData = Object.values(studentData).map((student) => {
@@ -191,6 +193,79 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     return student;
   });
+
+  // Calculate class averages
+  const classAverage = {
+    student: "classAverage", // Label for the average row
+    English: 0,
+    LifeSkills: 0,
+    Tech: 0,
+    ProblemSolving: 0,
+    Project: 0,
+    Attendance: 0,
+    Behavior: 0,
+    AcademicOverall: 0,
+    Overall: 0,
+  };
+
+  // Sum up the marks for each subject
+  const totalStudents = Object.keys(studentData).length;
+
+  if (totalStudents > 0) {
+    const subjects = [
+      "English",
+      "LifeSkills",
+      "Tech",
+      "ProblemSolving",
+      "Attendance",
+      "Behavior",
+      "Project",
+    ];
+
+    subjects.forEach((subject) => {
+      classAverage[subject] = parseFloat(
+        (
+          Object.values(studentData).reduce(
+            (sum, student) => sum + student[subject],
+            0
+          ) / totalStudents
+        ).toFixed(1)
+      );
+    });
+
+
+    let forAO=4;
+    let forO=6;
+    if(hasProjectData){
+      forAO=5;
+      forO=7;
+    }
+
+    classAverage.AcademicOverall = parseFloat(
+      (
+        (classAverage.English +
+          classAverage.LifeSkills +
+          classAverage.Tech +
+          classAverage.ProblemSolving+classAverage.Project) /
+        forAO
+      ).toFixed(1)
+    );
+
+    const overallMarks = [
+      classAverage.English,
+      classAverage.LifeSkills,
+      classAverage.Tech,
+      classAverage.ProblemSolving,
+      classAverage.Attendance,
+      classAverage.Behavior,
+      classAverage.Project,
+    ].filter((mark) => typeof mark === "number" && !isNaN(mark));
+
+    classAverage.Overall = Number(parseFloat(overallMarks.reduce((sum, mark) => sum + mark, 0) / forO).toFixed(1));
+  }
+
+  // Append the classAverage object to the tableData array
+  tableData.push(classAverage);
 
   // Initialize Handsontable instance
   const container = document.getElementById("handsontable-container");
@@ -225,10 +300,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     afterChange: handleAfterChange,
   });
 
-  // Check if "Project" data exists and set the checkbox accordingly
-  const hasProjectData = resultData.some((student) => student.Project != 0);
+
   document.getElementById("addProject").checked = hasProjectData;
-  
+
   // Trigger the toggleProjectColumn function if "Project" data exists
   if (hasProjectData) {
     toggleProjectColumn({ target: { checked: true } });
@@ -241,9 +315,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Warn user before page unload if there are unsaved changes
   window.addEventListener("beforeunload", (event) => {
-    if (isDataChanged) {
       saveOrUpdateResult();
-    }
   });
 
   // Save or Update result data on button click
@@ -252,7 +324,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function handleAfterChange(changes) {
   if (changes) {
-    isDataChanged = true; // Mark data as changed
     changes.forEach(([row, prop, oldValue, newValue]) => {
       // Retrieve updated data directly from Handsontable
       const student = hot.getSourceDataAtRow(row);
@@ -316,14 +387,14 @@ function handleAfterChange(changes) {
         const validMarks = fieldsToInclude.filter(
           (mark) => typeof mark === "number" && !isNaN(mark)
         );
-        student.Overall = Math.round(validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length);
+        student.Overall = Math.round(
+          validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length
+        );
         hot.setDataAtRowProp(row, "Overall", student.Overall);
       }
     });
   }
 }
-
-
 
 // Toggle the Project column visibility in Handsontable
 function toggleProjectColumn(event) {
@@ -357,56 +428,47 @@ function toggleProjectColumn(event) {
   }
 }
 
-
-// Function to sanitize student names for use as Firebase keys
-function sanitizeKey(key) {
-  return key.replace(/[.#$/[\\\]]/g, "_"); // Replace invalid characters with underscores
-}
-
 // Save or update result data in Firebase
 async function saveOrUpdateResult() {
   const resultPath = `/studentMarks/${section}/months/${month}/result`;
   const resultData = tableData.reduce((acc, student) => {
-    const sanitizedStudentName = sanitizeKey(student.student); // Sanitize the student name
+    const studentNames = student.student;
     const isChecked = document.getElementById("addProject").checked;
-  if (isChecked) {
-    acc[sanitizedStudentName] = {
-      Attendance: student.Attendance || 0,
-      Behavior: student.Behavior || 0,
-      English: student.English || 0,
-      LifeSkills: student.LifeSkills || 0,
-      Tech: student.Tech || 0,
-      ProblemSolving: student.ProblemSolving || 0,
-      Project:student.Project||0,
-      AcademicOverall: student.AcademicOverall || 0,
-      Overall: student.Overall || 0
-    };
-  }
-  else{
-    acc[sanitizedStudentName] = {
-      Attendance: student.Attendance || 0,
-      Behavior: student.Behavior || 0,
-      English: student.English || 0,
-      LifeSkills: student.LifeSkills || 0,
-      Tech: student.Tech || 0,
-      ProblemSolving: student.ProblemSolving || 0,
-      AcademicOverall: student.AcademicOverall || 0,
-      Overall: student.Overall || 0,
-    };
-  }
+    if (isChecked) {
+      acc[studentNames] = {
+        Attendance: student.Attendance || 0,
+        Behavior: student.Behavior || 0,
+        English: student.English || 0,
+        LifeSkills: student.LifeSkills || 0,
+        Tech: student.Tech || 0,
+        ProblemSolving: student.ProblemSolving || 0,
+        Project: student.Project || 0,
+        AcademicOverall: student.AcademicOverall || 0,
+        Overall: student.Overall || 0,
+      };
+    } else {
+      acc[studentNames] = {
+        Attendance: student.Attendance || 0,
+        Behavior: student.Behavior || 0,
+        English: student.English || 0,
+        LifeSkills: student.LifeSkills || 0,
+        Tech: student.Tech || 0,
+        ProblemSolving: student.ProblemSolving || 0,
+        AcademicOverall: student.AcademicOverall || 0,
+        Overall: student.Overall || 0,
+      };
+    }
     return acc;
   }, {});
 
   try {
     await set(ref(database, resultPath), resultData);
     showSuccessMessage("Result saved successfully!");
-    isDataChanged = false;
   } catch (error) {
     console.error("Error saving result data:", error);
     alert("Error saving result data. Please check the console for details.");
   }
 }
-
 
 // Define the column configuration for the Project column
 const projectColumn = {
@@ -414,8 +476,6 @@ const projectColumn = {
   type: "numeric",
   readOnly: false,
 };
-
-
 
 // Function to show success message
 function showSuccessMessage(str) {
@@ -427,8 +487,7 @@ function showSuccessMessage(str) {
   }, 3000); // Display message for 3 seconds
 }
 
-
-document.getElementById("backButton").addEventListener("click",()=>{
-  localStorage.setItem("monthly",true);
-  window.location.href="home.html"
+document.getElementById("backButton").addEventListener("click", () => {
+  localStorage.setItem("monthly", true);
+  window.location.href = "home.html";
 });
