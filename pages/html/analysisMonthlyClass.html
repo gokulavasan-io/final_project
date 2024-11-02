@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Classwise Analysis</title>
+
+    <link rel="stylesheet" href="../css/home.css">
+
+    <!-- Bootstrap links -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- line-icons css and font awesome -->
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        ::after,
+        *,
+        ::before {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+
+        }
+
+        :root {
+            --primary-color: #0e2238;
+            --font-color: #fff;
+            --border-left: #3b7ddd;
+        }
+
+        .mainContainer {
+            width: 90%;
+            margin: 100px;
+            margin-left: 100px;
+            position: absolute;
+            z-index: -100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .pageHeader {
+            text-align: center;
+            font-family: poppins;
+        }
+
+        .chart-container {
+            min-width: 45%;
+            width: 150%;
+            height: 300px;
+            margin: 20px 20px auto;
+        }
+
+        .charts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 3rem;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: poppins;
+        }
+
+        #commonLegend {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            font-family: poppins;
+        }
+
+        .legendItem {
+            display: flex;
+            gap: .1rem;
+            align-items: center;
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- aside bar -->
+    <aside id="sidebar">
+
+        <ul class="sidebar-nav mt-5">
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" id="backButton">
+                    <i class="lni lni-chevron-left-circle"></i>
+                    <span>Go back</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="../html/home.html" class="sidebar-link" id="home">
+                    <i class="lni lni-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#auth"
+                    aria-expanded="false" aria-controls="auth">
+                    <i class="lni lni-book"></i>
+                    <span>Subjects</span>
+                </a>
+                <ul id="auth" class="sidebar-dropdown list-unstyled collapse subjectsAside" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="english">English</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="life-skills">Life Skills</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="tech">Tech</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="problem-solving">Problem Solving</a>
+                    </li>
+
+                </ul>
+            </li>
+
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="#" id="attendance">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link " id="monthlyReport" href="./monthlyHome.html">
+                    <i class="fa fa-list-alt" aria-hidden="true"></i>
+                    <span>Monthly report</span>
+                </a>
+            </li>
+            <li class="sidebar-item" id="analysisNav">
+                <a href="#" class="sidebar-link">
+                    <i class="lni lni-bar-chart"></i>
+                    <span>Analysis</span>
+                </a>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link">
+                    <i class="lni lni-whatsapp"></i>
+                    <span>Share report card</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="d-flex sidebar-footer">
+            <button class="toggle-btn" type="button">
+                <i class="lni lni-grid-alt"></i>
+            </button>
+            <div class="sidebar-logo">
+                <a href="#">Toodle</a>
+            </div>
+        </div>
+    </aside>
+
+    <header class="w-100 position-fixed top-0">
+        <div class="logo">Toodle</div>
+        <div id="classNow">X</div>
+        <div class="user">
+            <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
+        </div>
+    </header>
+    <div class="user-info">
+        <div class="name-container">
+            <div id="name">John doe</div>
+            <div id="teacher">Tech teacher</div>
+        </div>
+        <a href="#" id="logout">
+            <i class="lni lni-exit"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+
+    <div id="logout-warning">
+        <div>Are you sure want to Logout ?</div>
+        <div class="yes-no mt-4">
+            <button class="btn btn-success" id="yes">Yes</button>
+            <button class="btn btn-danger" id="no">No</button>
+        </div>
+    </div>
+
+    <div id="logoutMessage" class="popup">
+        Successfully Logged Out
+    </div>
+
+    <div class="mainContainer">
+        <h2 class="pageHeader">Class wise monthly Analysis</h2>
+        <div id="commonLegend"></div>
+
+        <div>
+            <div class="charts">
+                <div class="chart-container">
+                    <div class="chart-title">English</div>
+                    <canvas id="EnglishChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">LifeSkills</div>
+                    <canvas id="LifeSkillsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Tech</div>
+                    <canvas id="TechChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">ProblemSolving</div>
+                    <canvas id="ProblemSolvingChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Project</div>
+                    <canvas id="ProjectChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Attendance</div>
+                    <canvas id="AttendanceChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">AcademicOverall</div>
+                    <canvas id="AcademicOverallChart"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
+            authDomain: "fir-demo-4a5b4.firebaseapp.com",
+            projectId: "fir-demo-4a5b4",
+            storageBucket: "fir-demo-4a5b4.appspot.com",
+            messagingSenderId: "716679557063",
+            appId: "1:716679557063:web:603a78f59045ceeaf133e2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Define classes and months to fetch data for
+        const classes = ["ClassA", "ClassB", "ClassC"];
+        const orderedMonths = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        const categories = ["AcademicOverall", "Attendance", "English", "LifeSkills", "Tech", "ProblemSolving", "Project"];
+        let months = [];
+        let legendLabels = [];
+
+
+        // Fetch months for all classes concurrently
+        async function fetchMonths(section) {
+            const monthRef = ref(database, `/studentMarks/${section}/months`);
+            const monthSnapshot = await get(monthRef);
+
+            if (monthSnapshot.exists()) {
+                const newMonths = Object.keys(monthSnapshot.val());
+                months = [...new Set([...months, ...newMonths])]; // Combine and deduplicate months
+            } else {
+                console.log(`No months available for ${section}.`);
+            }
+        }
+
+        // Fetch data for a specific class and return it
+        async function fetchClassData(className) {
+            const classData = {};
+            for (const month of months) {
+                const dataRef = ref(database, `/studentMarks/${className}/months/${month}/result/classAverage`);
+                const snapshot = await get(dataRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    // Replace NaN values with 0
+                    for (const category of categories) {
+                        data[category] = (data[category] === null || isNaN(data[category])) ? 0 : data[category];
+                    }
+                    classData[month] = data;
+                } else {
+                    console.log(`No data available for ${className} in ${month}`);
+                }
+            }
+            return classData;
+        }
+
+        async function fetchDataAndRenderCharts() {
+            await Promise.all(classes.map(fetchMonths));
+
+            months.sort((a, b) => orderedMonths.indexOf(a) - orderedMonths.indexOf(b));
+
+            // Fetch data for all classes concurrently
+            const classDataPromises = classes.map(className => fetchClassData(className));
+            const classDataArray = await Promise.all(classDataPromises);
+
+            // Combine the classData into a structured object
+            const classData = {};
+            classes.forEach((className, index) => {
+                classData[className] = classDataArray[index];
+            });
+
+            // Render charts and create legend
+            categories.forEach(category => renderChart(classData, category));
+            createLegend();
+        }
+
+
+        function renderChart(data, category) {
+            const ctx = document.getElementById(`${category}Chart`).getContext('2d');
+
+            // Prepare datasets for each class and month combination for this category
+            const classDatasets = classes.map((className, classIndex) => ({
+                label: className,
+                data: months.map(month => data[className][month] ? data[className][month][category] : 0),
+                backgroundColor: `rgba(${75 + classIndex * 50}, 192, 192, 0.2)`,
+                borderColor: `rgba(${75 + classIndex * 50}, 192, 192, 1)`,
+                borderWidth: 1
+            }));
+
+            // Calculate the average for each month in the current category
+            const averageData = months.map(month => {
+                const sum = classes.reduce((acc, className) => acc + (data[className][month] ? data[className][month][category] : 0), 0);
+                return sum / classes.length;
+            });
+
+            // Add the average dataset
+            classDatasets.push({
+                label: 'Overall',
+                data: averageData,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                borderDash: [5, 5]  // Dotted line for differentiation
+            });
+
+            // Create a bar chart for the given category
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: classDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30, // Add padding at the top to prevent overlap
+                            bottom: 30 // Add padding at the bottom for legend
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // Hide individual legends
+                        },
+                        datalabels: {
+                            anchor: 'end', // Position the label in the center
+                            align: 'end',  // Align the label to the center
+                            formatter: (value) => {
+                                return value ? value.toFixed(1) : '0';
+                            },
+                            font: {
+                                weight: 'bold'
+                            },
+                            color: 'black', // Change label color for better visibility
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels] // Activate Data Labels Plugin
+            });
+        }
+
+        // Function to create a common legend below the title
+        function createLegend() {
+            const legendContainer = document.getElementById('commonLegend');
+            legendContainer.innerHTML = '';
+            const classeswithOA = ["ClassA", "ClassB", "ClassC", "Overall"];
+
+            classeswithOA.forEach((className, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.classList.add("legendItem")
+                // legendItem.style.display = 'flex';
+                legendItem.style.marginRight = '15px';
+
+                const colorBox = document.createElement('span');
+                colorBox.style.display = 'inline-block';
+                colorBox.style.width = '20px';
+                colorBox.style.height = '20px';
+                colorBox.style.borderRadius = "50%";
+
+                if (className === 'Overall') {
+                    colorBox.style.backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                } else {
+                    colorBox.style.backgroundColor = `rgba(${75 + index * 50}, 192, 192, 0.2)`;
+                }
+
+                colorBox.style.border = '2px solid black';
+
+                const label = document.createElement('span');
+                label.style.marginLeft = '5px';
+                label.textContent = className;
+
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(label);
+                legendContainer.appendChild(legendItem);
+            });
+        }
+
+
+        // Fetch data and render the charts when the page loads
+        window.onload = fetchDataAndRenderCharts;
+    </script>
+    <script type="module" src="../scripts/generalScript.js"></script>
+    <!-- bootstrap link -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

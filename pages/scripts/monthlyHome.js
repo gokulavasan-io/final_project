@@ -23,11 +23,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const section = localStorage.getItem("section");
+const orderedMonths = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
 
 // Function to get all existing months from Firebase and render them
 function getAllData() {
   const dbRef = ref(database, `studentMarks/${section}/months`);
-
   // Fetch existing months from Firebase
   get(dbRef)
     .then((snapshot) => {
@@ -39,9 +43,15 @@ function getAllData() {
 
       if (snapshot.exists()) {
         const months = snapshot.val();
+        const monthNames = Object.keys(months); // Get the month names
+
+        // Sort the month names based on the orderedMonths array
+        monthNames.sort(
+          (a, b) => orderedMonths.indexOf(a) - orderedMonths.indexOf(b)
+        );
 
         // For each month, create a div and populate it with the month name and a checkbox
-        Object.keys(months).forEach((month) => {
+        monthNames.forEach((month) => {
           appendMonthToUI(month, container, false);
         });
       } else {
@@ -80,8 +90,8 @@ function appendMonthToUI(monthName, container, showCheckbox) {
       checkbox.checked = !checkbox.checked;
       div.style.backgroundColor = checkbox.checked ? "#e73232" : "";
     } else {
-      localStorage.setItem("month",checkbox.value);
-      localStorage.setItem("monthly",true);
+      localStorage.setItem("month", checkbox.value);
+      localStorage.setItem("monthly", true);
       window.location.href = "../../pages/html/home.html";
     }
   });
@@ -93,7 +103,9 @@ let deleteMode = false;
 
 // Add event listener for the delete button
 document.getElementById("delete-btn").addEventListener("click", function () {
-  const selectedCheckboxes = document.querySelectorAll(".delete-checkbox:checked");
+  const selectedCheckboxes = document.querySelectorAll(
+    ".delete-checkbox:checked"
+  );
 
   if (!deleteMode) {
     // Enter delete mode
@@ -102,11 +114,16 @@ document.getElementById("delete-btn").addEventListener("click", function () {
   } else {
     // If in delete mode, confirm deletion
     if (selectedCheckboxes.length > 0) {
-      const confirmation = confirm("Are you sure you want to delete the selected months?");
+      const confirmation = confirm(
+        "Are you sure you want to delete the selected months?"
+      );
       if (confirmation) {
         selectedCheckboxes.forEach((checkbox) => {
           const monthName = checkbox.value;
-          const monthRef = ref(database, `studentMarks/${section}/months/${monthName}`);
+          const monthRef = ref(
+            database,
+            `studentMarks/${section}/months/${monthName}`
+          );
           remove(monthRef)
             .then(() => {
               checkbox.parentElement.remove();
@@ -138,9 +155,14 @@ document.getElementById("new").addEventListener("click", function (e) {
 
 // Confirm button functionality
 document.getElementById("confirm").addEventListener("click", function () {
-  const monthInput = capitalizeFirstLetter(document.getElementById("newMonth").value.trim());
+  const monthInput = capitalizeFirstLetter(
+    document.getElementById("newMonth").value.trim()
+  );
   if (monthInput) {
-    const monthRef = ref(database, `studentMarks/${section}/months/${monthInput}`);
+    const monthRef = ref(
+      database,
+      `studentMarks/${section}/months/${monthInput}`
+    );
     set(monthRef, true)
       .then(() => {
         showSuccessMessage("added new month !!!");

@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+*,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+}
+
+:root {
+    --primary-color: #0e2238;
+    --font-color: #fff;
+    --border-left: #3b7ddd;
+}
+.chart-container {
+    width: 45%;
+    height: 300px;
+    margin: 20px auto;
+}
+
+.charts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.chart-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#commonLegend {
+    text-align: center;
+    margin: 20px 0;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    font-family: poppins;
+}
+.legendItem{
+    display: flex;
+    gap: .1rem;
+    align-items: center;
+  
+}
