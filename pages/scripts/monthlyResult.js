@@ -293,6 +293,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       { data: "AcademicOverall", type: "numeric", readOnly: true },
       { data: "Overall", type: "numeric", readOnly: true },
     ],
+    cells: function (row, col) {
+      const cellProperties = {};
+      if (tableData[row] && tableData[row].student === 'classAverage') {
+        cellProperties.readOnly = true;
+      }
+      return cellProperties;
+    },
     rowHeaders: true,
     width: "100%",
     height: "auto",
