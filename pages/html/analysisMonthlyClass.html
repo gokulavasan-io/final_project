@@ -79,10 +79,16 @@
         #commonLegend {
             text-align: center;
             margin: 20px 0;
+            position: sticky;
+            top: 80px;
             display: flex;
             gap: 1rem;
             justify-content: center;
             font-family: poppins;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.886);
+            border-radius: 50px;
+            border: 1px solid black;
         }
 
         .legendItem {
@@ -97,7 +103,7 @@
             top: 48%;
             transform: translate(-50%, -50%);
             font-size: 7rem;
-            color: rgb(0, 112, 0);
+            color: var(--border-left);
         }
     </style>
 
@@ -211,7 +217,7 @@
         Successfully Logged Out
     </div>
     <div id="loading" ><i class="fa fa-spinner fa-spin"></i></div>
-
+    
     <div class="mainContainer">
         <h2 class="pageHeader">Class wise monthly Analysis</h2>
         <div id="commonLegend"></div>
@@ -342,8 +348,8 @@
             const classDatasets = classes.map((className, classIndex) => ({
                 label: className,
                 data: months.map(month => data[className][month] ? data[className][month][category] : 0),
-                backgroundColor: `rgba(${75 + classIndex * 50}, 192, 192, 0.2)`,
-                borderColor: `rgba(${75 + classIndex * 50}, 192, 192, 1)`,
+                backgroundColor: classIndex==0?'rgba(54, 235, 54, 0.2)':classIndex==1?'rgba(235, 235, 54, 0.2)':"rgba(255, 40, 40, 0.2)",
+                borderColor:classIndex==0?'rgba(54, 235, 54, 1)':classIndex==1?'#e1ad01':"rgba(255, 40, 40, 1)" ,
                 borderWidth: 1
             }));
 
@@ -427,10 +433,10 @@
                 if (className === 'Overall') {
                     colorBox.style.backgroundColor = 'rgba(54, 162, 235, 0.2)';
                 } else {
-                    colorBox.style.backgroundColor = `rgba(${75 + index * 50}, 192, 192, 0.2)`;
+                    colorBox.style.backgroundColor =  index==0?'rgba(54, 235, 54, 0.2)':index==1?'rgba(235, 235, 54, 0.2)':"rgba(255, 40, 40, 0.2)";
                 }
 
-                colorBox.style.border = '2px solid black';
+                colorBox.style.border = '1.5px solid black';
 
                 const label = document.createElement('span');
                 label.style.marginLeft = '5px';

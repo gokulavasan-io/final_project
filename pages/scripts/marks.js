@@ -44,7 +44,7 @@ function fetchAndDisplayData(datasetName) {
           colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
           columns: [
             { data: 0, type: "text", readOnly: true },
-            { data: 1, type: "numeric" },
+            { data: 1, type: "text" }, // Allow both numbers and the string "A"
             { data: 2, type: "numeric", readOnly: true },
             { data: 3, type: "text" },
           ],
@@ -53,35 +53,45 @@ function fetchAndDisplayData(datasetName) {
           licenseKey: "non-commercial-and-evaluation",
           cells: function (row, col) {
             const cellProperties = {};
-            if(row>=0&&col==0||col==3) cellProperties.className="fonts";
+            if (row >= 0 && (col === 0 || col === 3)) cellProperties.className = "fonts";
             return cellProperties;
           },
           afterChange: (changes, source) => {
             if (source === "edit") {
               const totalMarks = parseFloat(totalMarksInput.value);
-
-              if (!isNaN(totalMarks) && totalMarks > 0) {
-                changes.forEach(([row, prop]) => {
-                  if (prop === 1) {
-                    // Only trigger when "Marks" column is edited
-                    const marks = hot.getDataAtCell(row, 1);
-                    if (marks > totalMarks) {
-                      hot.setCellMeta(row, 1, "className", "error"); // Apply error class
+        
+              changes.forEach(([row, prop, oldValue, newValue]) => {
+                if (prop === 1) { // Check if the "Marks" column is edited
+                  if (!isNaN(totalMarks) && totalMarks > 0) {
+                    if (newValue === "A"||newValue=="a") {
+                      // Accept "A" as valid input for "absent"
+                      hot.setDataAtCell(row, 2, "N/A"); 
+                    } else if (!isNaN(newValue)) {
+                      // Handle numeric input
+                      if (newValue > totalMarks) {
+                        hot.setCellMeta(row, 1, "className", "error"); // Apply error class for invalid marks
+                      } else {
+                        hot.setCellMeta(row, 1, "className", null); // Clear error class
+                        const average = (newValue / totalMarks) * 100;
+                        hot.setDataAtCell(row, 2, average.toFixed(2)); // Update percentage column
+                        updateCellColor(row, average); // Update cell color based on percentage
+                      }
                     } else {
-                      hot.setCellMeta(row, 1, "className", null); // Clear error class if marks are valid
-                      const average = (marks / totalMarks) * 100;
-                      hot.setDataAtCell(row, 2, average.toFixed(2)); // Update average column
-                      updateCellColor(row, average); // Update cell color based on average
+                      // Reject other non-numeric strings
+                      alert('Only numeric values or "A" are allowed in the Marks column.');
+                      hot.setDataAtCell(row, 1, oldValue); // Revert to the old value
                     }
+                  } else {
+                    alert("Please enter a valid total marks value.");
                   }
-                });
-                hot.render();
-              } else {
-                alert("Please enter a valid total marks value.");
-              }
+                }
+              });
+              hot.render();
             }
           },
         });
+        
+        
 
         const totalMarks = firebaseData.totalMarks || 100;
         firebaseData.students.forEach((student, row) => {
@@ -104,9 +114,10 @@ function fetchAndDisplayData(datasetName) {
     });
 }
 
-// Function to update cell color based on average
 function updateCellColor(row, average) {
-  if (average < 51) {
+  if (average === "N/A") {
+    hot.setCellMeta(row, 2, "className", "blue");
+  } else if (average < 51) {
     hot.setCellMeta(row, 2, "className", "red");
   } else if (average < 81) {
     hot.setCellMeta(row, 2, "className", "yellow");
@@ -145,7 +156,9 @@ function recalculateAverages(totalMarks) {
 
   hot.getData().forEach((row, rowIndex) => {
     const marks = row[1];
-    if (!isNaN(marks)) {
+    if (marks === "A" || marks=="a") {
+      hot.setDataAtCell(rowIndex, 2, "N/A"); // Keep "N/A" for percentage
+    } else if (!isNaN(marks)) {
       const average = (marks / totalMarks) * 100;
       hot.setDataAtCell(rowIndex, 2, average.toFixed(2));
       updateCellColor(rowIndex, average);
@@ -153,6 +166,7 @@ function recalculateAverages(totalMarks) {
   });
   hot.render();
 }
+
 
 // Event listener for the "Update Total Marks" button
 const updateTotalMarksButton = document.getElementById("updateTotalMarks");
@@ -212,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function createChart() {
   const section = localStorage.getItem("section");
-  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0 };
+  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100":0,"Absent":0};
 
   // Fetch data directly from Firebase path
   const studentsPath = `/studentMarks/${section}/${pageTitle}/${datasetName}/students`;
@@ -224,10 +238,9 @@ async function createChart() {
 
     // Iterate over students' marks and categorize scores
     studentsData.forEach(([, , mark]) => {
-      const numericMark = typeof mark === "number" && !isNaN(mark) ? mark : 0;
-
-      if (numericMark >= 81) scoreRanges["81-100"]++;
-      else if (numericMark >= 51) scoreRanges["51-80"]++;
+      if(mark==="N/A") scoreRanges["Absent"]++;
+      if (mark >= 81) scoreRanges["81-100"]++;
+      else if (mark >= 51) scoreRanges["51-80"]++;
       else scoreRanges["0-50"]++;
     });
   }
@@ -240,11 +253,11 @@ async function createChart() {
   analysisChart = new Chart(ctx, {
     type: "pie",
     data: {
-      labels: ["0-50", "51-80", "81-100"],
+      labels: ["0-50", "51-80", "81-100","Absent"],
       datasets: [
         {
           data: Object.values(scoreRanges),
-          backgroundColor: ["red", "#FBEC5D", "green"],
+          backgroundColor: ["red", "#FBEC5D", "green","blue"],
         },
       ],
     },

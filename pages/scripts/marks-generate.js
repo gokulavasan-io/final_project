@@ -4,6 +4,7 @@ import {
   getDatabase,
   ref,
   set,
+  update,
   get,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import {
@@ -44,7 +45,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`); // Document reference to the classes document
       const docSnap = await getDocs(docRef);
 
-      if (!docSnap.empty)  {
+      if (!docSnap.empty) {
         const studentNames = docSnap.docs.map((doc) => doc.id);
         if (Array.isArray(studentNames) && studentNames.length > 0) {
           Students = studentNames;
@@ -66,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   await fetchStudentNames(section);
-  
+
   // Generate data for students and marks (empty initially)
   for (let i = 0; i < Students.length; i++) {
     let row = [`${Students[i]}`, ""]; // First column is the student name, second is empty marks
@@ -76,44 +77,45 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Get the totalMarks input and parse its value
   const totalMarksInput = document.getElementById("totalMarks");
   let totalMarks = parseInt(totalMarksInput.value);
-  
+
   // Initialize Handsontable
   const hot = new Handsontable(container, {
     data: data,
-    colHeaders: ['Student Name', 'Marks', "Percentage", "Remarks"],
+    colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
     columns: [
-      { data: 0, type: 'text', readOnly: true },
-      { data: 1, type: 'numeric' },
-      { data: 2, type: 'numeric', readOnly: true },
-      { data: 3, type: 'text' },
+      { data: 0, type: "text", readOnly: true },
+      { data: 1, type: "text" }, // Set to 'text' to allow "A" for absent
+      { data: 2, type: "numeric", readOnly: true },
+      { data: 3, type: "text" },
     ],
     rowHeaders: true,
     colWidths: [200, 100, 100, 100],
     licenseKey: "non-commercial-and-evaluation",
     cells: function (row, col) {
       const cellProperties = {};
-      if(row>=0 &&col==0||col==3) cellProperties.className="fonts";
+      if ((row >= 0 && col == 0) || col == 3)
+        cellProperties.className = "fonts";
       return cellProperties;
     },
     afterChange: (changes, source) => {
-      if (source === 'edit') {
+      if (source === "edit") {
         isDataSaved = false; // Set to false when the user makes changes
         changes.forEach(([row, prop]) => {
-          if (prop === 1) { // Only trigger when "Marks" column is edited
+          if (prop === 1) {
+            // Only trigger when "Marks" column is edited
             const marks = hot.getDataAtCell(row, 1);
             if (marks > totalMarks) {
-              hot.setCellMeta(row, 1, 'className', 'error'); // Set class for red color
+              hot.setCellMeta(row, 1, "className", "error"); // Set class for red color
             } else {
-              hot.setCellMeta(row, 1, 'className', null); // Remove class if marks are valid
+              hot.setCellMeta(row, 1, "className", null); // Remove class if marks are valid
             }
-            hot.render(); // Re-render the table to apply styles
 
             // Update average immediately after marks are edited
             updateTableAverages();
           }
         });
       }
-    }
+    },
   });
 
   // Button to calculate total marks
@@ -134,14 +136,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       if (!isNaN(marks) && marks <= totalMarks) {
         const average = (marks / totalMarks) * 100;
         hot.setDataAtCell(row, 2, average.toFixed(2));
-        
+
         // Set the cell color based on the average value
         if (average <= 50) {
-          hot.setCellMeta(row, 2, 'className', 'red'); // Class for average < 50
+          hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
         } else if (average > 50 && average < 81) {
-          hot.setCellMeta(row, 2, 'className', 'yellow'); // Class for 50 <= average < 81
+          hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
         } else {
-          hot.setCellMeta(row, 2, 'className', 'green'); // Class for average >= 81
+          hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
         }
       }
     }
@@ -151,47 +153,56 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function saveDataToFirebase(customName) {
     const dbRef = ref(database);
     const dataPath = `studentMarks/${section}/${pageTitle}`;
+    const month = customName.split("_")[0];
 
     // Check for existing datasets
     try {
-        const snapshot = await get(ref(database, dataPath));
-        const tableData = hot.getData();
-        const saveData = {
-            totalMarks: totalMarksInput.value,
-            students: tableData,
-        };
+      const snapshot = await get(ref(database, dataPath));
+      const tableData = hot.getData();
+      const saveData = {
+        totalMarks: totalMarksInput.value,
+        students: tableData,
+      };
 
-        if (snapshot.exists()) {
-            const existingDatasets = Object.keys(snapshot.val());
+      if (snapshot.exists()) {
+        const existingDatasets = Object.keys(snapshot.val());
 
-            // Check if the dataset name already exists
-            if (existingDatasets.includes(customName)) {
-                alert("A dataset with this name already exists. Please choose a different name.");
-                return; // Exit if the dataset name already exists
-            } else {
-                // Save new dataset
-                await set(ref(database, `${dataPath}/${customName}`), saveData);
-                showSuccessMessage("Data saved successfully.");
-            }
+        // Check if the dataset name already exists
+        if (existingDatasets.includes(customName)) {
+          alert(
+            "A dataset with this name already exists. Please choose a different name."
+          );
+          return; // Exit if the dataset name already exists
         } else {
-            // Save new dataset
-            await set(ref(database, `${dataPath}/${customName}`), saveData);
-            showSuccessMessage("Data saved successfully.");
+          // Save new dataset
+          await set(ref(database, `${dataPath}/${customName}`), saveData);
+          if (customName.includes("_"))
+            await addToMonth(section, pageTitle, month, customName);
+          showSuccessMessage("Data saved successfully.");
         }
+      } else {
+        // Save new dataset
+        await set(ref(database, `${dataPath}/${customName}`), saveData);
+        showSuccessMessage("Data saved successfully.");
+      }
 
-        isDataSaved = true; // Set to true when data is successfully saved
-        document.getElementById("saveToFirebase").innerText = "Update"; // Change button text to "Update"
+      isDataSaved = true;
+      document.getElementById("saveToFirebase").innerText = "Update";
     } catch (error) {
-        console.error("Error saving data:", error);
-        alert("Error saving file.");
+      console.error("Error saving data:", error);
+      alert("Error saving file.");
     }
-}
+  }
 
   // Add an event listener for beforeunload to save data before reloading or closing the page
   window.addEventListener("beforeunload", (event) => {
-    const customName = capitalizeFirstLetter(document.getElementById("datasetName").value.trim().replaceAll("/", "-"));
-    if (!isDataSaved) { // Show alert only if data is not saved
-      event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+    const customName = capitalizeFirstLetter(
+      document.getElementById("datasetName").value.trim().replaceAll("/", "-")
+    );
+    if (!isDataSaved) {
+      // Show alert only if data is not saved
+      event.returnValue =
+        "You have unsaved changes. Are you sure you want to leave?";
     }
   });
 
@@ -199,11 +210,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   document
     .getElementById("saveToFirebase")
     .addEventListener("click", function () {
-      const customName = capitalizeFirstLetter(document
-        .getElementById("datasetName")
-        .value.trim()
-        .split("/")
-        .join("-"));
+      const customName = capitalizeFirstLetter(
+        document.getElementById("datasetName").value.trim().split("/").join("-")
+      );
 
       if (customName === "") {
         alert("Please enter a valid dataset name.");
@@ -223,7 +232,20 @@ function showSuccessMessage() {
   }, 1000);
 }
 
-
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+async function addToMonth(section, subject, month, dataSetName) {
+  const dataSet = {};
+  dataSet[dataSetName] = true;
+  try {
+    await update(
+      ref(database, `/studentMarks/${section}/months/${month}/${subject}`),
+      dataSet
+    );
+    console.log("Data successfully appended to Firebase.");
+  } catch (error) {
+    console.error("Error appending data to Firebase:", error);
+  }
 }
