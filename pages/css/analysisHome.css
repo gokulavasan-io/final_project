@@ -13,44 +13,13 @@
     --primary-color: #0e2238;
     --font-color: #fff;
     --border-left: #3b7ddd;
-}
-.chart-container {
-    width: 45%;
-    height: 300px;
-    margin: 20px auto;
-}
-
-.charts {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-}
-
-.chart-title {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-#commonLegend {
-    text-align: center;
-    margin: 20px 0;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    font-family: poppins;
-}
-.legendItem{
-    display: flex;
-    gap: .1rem;
-    align-items: center;
-  
+    --font:poppins;
 }
 
 #pageName{
     font-size: 2rem;
     font-weight: bolder;
-    font-family: poppins;
+    font-family: var(--font);
     color: var(--primary-color);
     position: fixed;
     top: 12%;
@@ -58,11 +27,37 @@
 }
 
 .mainContainer{
-    background-color: antiquewhite;
+    /* background-color: antiquewhite;
+    border: #0e2238 1px solid; */
     position: fixed;
     top: 20%;
-    left: 12%;
+    left: 10%;
     height: 70%;
     width: 80%;
     z-index: -100;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 2rem;
+    font-family: var(--font);
+}
+
+.types{
+    height: 8rem;
+    background-color: red;
+    width: 10rem;
+    padding: 2rem;
+    text-wrap: wrap;
+    border-radius: 10px;
+    color: white;
+    transition: all 300ms ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.types:hover{
+    transform: scale(.97);
+    background-color: rgb(181, 5, 5);
+    cursor: pointer;
 }

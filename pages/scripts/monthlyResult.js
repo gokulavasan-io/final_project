@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     afterChange: handleAfterChange,
   });
 
-
+  document.getElementById("loading").style.display="none";
   document.getElementById("addProject").checked = hasProjectData;
 
   // Trigger the toggleProjectColumn function if "Project" data exists

@@ -101,11 +101,13 @@ if (role == "others") {
 } else {
   document.getElementById("teacher").textContent = `${role} Coach`;
 }
-document.getElementById("classNow").textContent = `${section.split("s")[2]}`;
 
 document.getElementById("backButton").addEventListener("click",()=>{
-       window.history.back();
+  window.history.back();
 });
-
+document.getElementById("analysisNav").addEventListener("click",()=>{
+  window.location.href="analysisHome.html"
+})
 
 document.getElementById("user").innerText=userName.slice(0,1).toUpperCase();
+document.getElementById("classNow").textContent = `${section.split("s")[2]}`;

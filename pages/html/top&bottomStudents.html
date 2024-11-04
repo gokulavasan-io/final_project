@@ -42,23 +42,35 @@
             --font: poppins;
         }
 
+        .fonts {
+            font-family: var(--font);
+            color: black !important;
+        }
+
         .tableContainer {
             position: fixed;
             top: 30%;
             left: 12%;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
             width: 80%;
+        }
+
+        h2 {
+            font-family: var(--font);
+            color: var(--border-left);
+            font-weight: bolder;
         }
 
         #performanceTable {
             width: fit-content;
             border-radius: 5px;
             padding-bottom: 5px;
-            border: 3px solid black;
+            /* border: 3px solid black; */
             z-index: -100;
             font-family: var(--font);
-            
         }
 
         .top5Cells {
@@ -67,12 +79,10 @@
             color: white !important;
             text-align: center;
             border: none !important;
+            font-family: var(--font);
+            font-size: 1.3rem;
         }
 
-        .fonts {
-            font-family: var(--font);
-            color: black !important;
-        }
 
         .bottom5Cells {
             background-color: red !important;
@@ -81,6 +91,8 @@
             text-align: center;
             border: none !important;
             color: white !important;
+            font-family: var(--font);
+            font-size: 1.1rem;
         }
 
         .borderBottom {
@@ -91,6 +103,68 @@
             background-color: rgb(158, 155, 3) !important;
             font-weight: bolder;
             color: white !important;
+            font-family: var(--font);
+        }
+
+        .buttonContainer {
+            position: fixed;
+            top: 13%;
+            left: 10%;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .introInfo {
+            position: fixed;
+            top: 20%;
+            left: 10%;
+            width: 17rem;
+            height: 3rem;
+            background-color: #dd3b3b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: white;
+            border-radius: 10px;
+            animation: blink 700ms infinite;
+        }
+
+        .arrow-up {
+            width: px;
+            height: 0;
+            border-left: 1rem solid transparent;
+            border-right: 1rem solid transparent;
+            border-bottom: 1rem solid #dd3b3b;
+            position: absolute;
+            top: -15px;
+            left: 10px;
+            animation: blink 700ms infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                transform: scale(1);
+
+            }
+
+            50% {
+                transform: scale(.95);
+
+            }
+
+            100% {
+                transform: scale(1);
+
+            }
+        }
+        #loading{
+            position: absolute;
+            left: 52%;
+            top: 48%;
+            transform: translate(-50%, -50%);
+            font-size: 7rem;
+            color: rgb(0, 112, 0);
         }
     </style>
 </head>
@@ -175,7 +249,7 @@
 
     <header class="w-100 position-fixed top-0">
         <div class="logo">Toodle</div>
-        <div id="classNow">X</div>
+        <!-- <div id="classNow">X</div> -->
         <div class="user">
             <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
         </div>
@@ -204,10 +278,37 @@
         Successfully Logged Out
     </div>
 
+    <div class="buttonContainer">
+        <div class="dropdown" id="forClass">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Choose Class
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Class A</a></li>
+                <li><a class="dropdown-item" href="#">Class B</a></li>
+                <li><a class="dropdown-item" href="#">Class C</a></li>
+            </ul>
+        </div>
+        <div class="dropdown" id="forMonth">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Choose month
+            </button>
+            <ul class="dropdown-menu" id="monthsButton"></ul>
+        </div>
+    </div>
 
     <div class="tableContainer">
+        <h2>Top and Bottom students</h2>
         <div id="performanceTable" class="text-center"></div>
     </div>
+
+    <div class="introInfo">
+        <div>Please choose a class and month<div class="arrow-up"></div>
+        </div>
+    </div>
+    <div id="loading" ><i class="fa fa-spinner fa-spin"></i></div>
 
 
 
@@ -229,10 +330,18 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        const loading= document.getElementById("loading");
+
+        document.getElementById("forClass").addEventListener("click",()=>{
+            document.querySelector(".introInfo").style.display="none";
+        })
+
+        let section;
+        let month;
 
         // Function to fetch student marks
         async function fetchStudentMarks() {
-            const dbRef = ref(database, '/studentMarks/ClassC/months/September/result');
+            const dbRef = ref(database, `/studentMarks/${section}/months/${month}/result`);
             const snapshot = await get(dbRef);
 
             if (snapshot.exists()) {
@@ -310,6 +419,7 @@
 
         // Display data in Handsontable
         async function displayTable() {
+            loading.style.display="none";
             const { tableData, subjects } = await prepareTableData();
             const headers = ["", ...subjects]; // Include empty column header for labels like "Top 5" and "Bottom 5"
 
@@ -321,7 +431,7 @@
                 licenseKey: 'non-commercial-and-evaluation',
                 cells: function (row, col) {
                     const cellProperties = {};
-                    if(row>=0) cellProperties.readOnly = true;
+                    if (row >= 0) cellProperties.readOnly = true;
                     if (row >= 0) cellProperties.className = "fonts";
                     if (row == 4 && col == 0) cellProperties.className = "htCenter";
                     if (row > 1 && col == 0 && row < 7 && col == 0) cellProperties.className = "top5Cells";
@@ -331,10 +441,55 @@
                     return cellProperties;
                 }
             });
+            container.style.border = "3px solid black";
         }
 
-        // Load the table data
-        displayTable();
+
+        let monthsForSelection = [];
+        const classes = ["ClassA", "ClassB", "ClassC"];
+        const orderedMonths = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        async function fetchMonths(section) {
+            const monthRef = ref(database, `/studentMarks/${section}/months`);
+            const monthSnapshot = await get(monthRef);
+
+            if (monthSnapshot.exists()) {
+                const newMonths = Object.keys(monthSnapshot.val());
+                monthsForSelection = [...new Set([...monthsForSelection, ...newMonths])]; // Combine and deduplicate months
+            } else {
+                console.log(`No months available for ${section}.`);
+            }
+        }
+
+        await Promise.all(classes.map(fetchMonths));
+        monthsForSelection.sort((a, b) => orderedMonths.indexOf(a) - orderedMonths.indexOf(b));
+        monthsForSelection.forEach(month => {
+            let eachMonth = document.createElement("li");
+            eachMonth.innerHTML = `<a class="dropdown-item" href="#" id="${month}">${month}</a>`;
+            document.getElementById("monthsButton").appendChild(eachMonth);
+        })
+
+        document.getElementById("forMonth").querySelectorAll("li").forEach(x => {
+            x.addEventListener("click", () => {
+                month = x.textContent;
+                document.getElementById("performanceTable").innerHTML = "";
+                displayTable();
+                document.getElementById("forMonth").querySelector("button").innerText = x.innerText;
+            })
+        })
+
+        document.getElementById("forClass").querySelectorAll("li").forEach(sec => {
+            sec.addEventListener("click", () => {
+                section = sec.textContent.split(" ").join("");
+                document.getElementById("performanceTable").innerHTML = "";
+                displayTable();
+                document.getElementById("forClass").querySelector("button").innerText = sec.innerText;
+            })
+        });
+
     </script>
 
     <script type="module" src="../scripts/generalScript.js"></script>

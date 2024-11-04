@@ -37,6 +37,7 @@
             --border-left: #3b7ddd;
         }
 
+
         .mainContainer {
             width: 90%;
             margin: 100px;
@@ -89,6 +90,14 @@
             gap: .1rem;
             align-items: center;
 
+        }
+        #loading{
+            position: absolute;
+            left: 52%;
+            top: 48%;
+            transform: translate(-50%, -50%);
+            font-size: 7rem;
+            color: rgb(0, 112, 0);
         }
     </style>
 
@@ -174,7 +183,6 @@
 
     <header class="w-100 position-fixed top-0">
         <div class="logo">Toodle</div>
-        <div id="classNow">X</div>
         <div class="user">
             <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
         </div>
@@ -202,6 +210,7 @@
     <div id="logoutMessage" class="popup">
         Successfully Logged Out
     </div>
+    <div id="loading" ><i class="fa fa-spinner fa-spin"></i></div>
 
     <div class="mainContainer">
         <h2 class="pageHeader">Class wise monthly Analysis</h2>
@@ -353,7 +362,7 @@
                 borderWidth: 1,
                 borderDash: [5, 5]  // Dotted line for differentiation
             });
-
+            document.getElementById("loading").style.display="none";
             // Create a bar chart for the given category
             new Chart(ctx, {
                 type: 'bar',
@@ -394,6 +403,7 @@
                 },
                 plugins: [ChartDataLabels] // Activate Data Labels Plugin
             });
+            
         }
 
         // Function to create a common legend below the title
