@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,42 +26,52 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-::after,
-*,
-::before {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+        ::after,
+        *,
+        ::before {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
 
-}
+        }
 
-:root {
-    --primary-color: #0e2238;
-    --font-color: #fff;
-    --border-left: #3b7ddd;
-    --font:poppins;
-}
-        #performanceTable{
+        :root {
+            --primary-color: #0e2238;
+            --font-color: #fff;
+            --border-left: #3b7ddd;
+            --font: poppins;
+        }
+
+        .tableContainer {
             position: fixed;
-            width: fit-content;
             top: 30%;
             left: 12%;
+            display: flex;
+            justify-content: center;
+            width: 80%;
+        }
+
+        #performanceTable {
+            width: fit-content;
             border-radius: 5px;
             padding-bottom: 5px;
             border: 3px solid black;
             z-index: -100;
-            font-family:var(--font);
+            font-family: var(--font);
+            
         }
 
         .top5Cells {
             background-color: green !important;
-            font-weight: bolder ;
-            color: white ;
+            font-weight: bolder;
+            color: white !important;
             text-align: center;
             border: none !important;
         }
-        .fonts{
-            font-family:var(--font);
+
+        .fonts {
+            font-family: var(--font);
+            color: black !important;
         }
 
         .bottom5Cells {
@@ -69,18 +80,18 @@
             color: white;
             text-align: center;
             border: none !important;
+            color: white !important;
         }
-        .borderBottom{
+
+        .borderBottom {
             border-bottom: 3px solid black !important;
         }
 
         .classAverage {
             background-color: rgb(158, 155, 3) !important;
             font-weight: bolder;
-            color: white;
+            color: white !important;
         }
-        
-
     </style>
 </head>
 
@@ -194,7 +205,9 @@
     </div>
 
 
-    <div id="performanceTable" class="text-center"></div>
+    <div class="tableContainer">
+        <div id="performanceTable" class="text-center"></div>
+    </div>
 
 
 
@@ -219,7 +232,7 @@
 
         // Function to fetch student marks
         async function fetchStudentMarks() {
-            const dbRef = ref(database, '/studentMarks/ClassB/months/August/result');
+            const dbRef = ref(database, '/studentMarks/ClassC/months/September/result');
             const snapshot = await get(dbRef);
 
             if (snapshot.exists()) {
@@ -278,17 +291,17 @@
 
             // Get class average marks in correct order
             const classAverages = getClassAverages(data, subjects);
-            topRows[2][0]="Top 5";
-            bottomRows[2][0]="Bottom 5";
-            
+            topRows[2][0] = "Top 5";
+            bottomRows[2][0] = "Bottom 5";
+
 
             // Insert "Top 5" and "Bottom 5" labels with row spanning
             const tableData = [
-            ["Class Average", ...classAverages],
-                [...Array(subjects.length+1).fill("")],
+                ["Class Average", ...classAverages],
+                [...Array(subjects.length + 1).fill("")],
                 ...topRows,
-                [...Array(subjects.length+1).fill("")],
-                [...Array(subjects.length+1).fill("")],
+                [...Array(subjects.length + 1).fill("")],
+                [...Array(subjects.length + 1).fill("")],
                 ...bottomRows,
             ];
 
@@ -308,13 +321,13 @@
                 licenseKey: 'non-commercial-and-evaluation',
                 cells: function (row, col) {
                     const cellProperties = {};
-                    if(row>=0) cellProperties.className="fonts";
-                    if(row==4&&col==0) cellProperties.className="htCenter";
-                    if(row>1&&col==0 && row<7&&col==0) cellProperties.className="top5Cells";
-                    if(row>8&&col==0 && row<14&&col==0) cellProperties.className="bottom5Cells";
-                    if (row === 7||row==0) cellProperties.className = 'borderBottom'; 
+                    if(row>=0) cellProperties.readOnly = true;
+                    if (row >= 0) cellProperties.className = "fonts";
+                    if (row == 4 && col == 0) cellProperties.className = "htCenter";
+                    if (row > 1 && col == 0 && row < 7 && col == 0) cellProperties.className = "top5Cells";
+                    if (row > 8 && col == 0 && row < 14 && col == 0) cellProperties.className = "bottom5Cells";
+                    if (row === 7 || row == 0) cellProperties.className = 'borderBottom';
                     if (row == 0) cellProperties.className = "htCenter classAverage";
-                    
                     return cellProperties;
                 }
             });
@@ -327,8 +340,8 @@
     <script type="module" src="../scripts/generalScript.js"></script>
     <!-- bootstrap link -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
 </body>
 
