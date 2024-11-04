@@ -42,6 +42,7 @@
             position: fixed;
             top: 10%;
             right: 2%;
+            font-family: var(--font);
         }
         #handsontable {
             position: absolute;
@@ -49,16 +50,13 @@
             left: 30%;
             z-index: -10;
         }
-        .fonts {
-            font-family: var(--font);
-        }
 
         .page-name {
             position: fixed;
             top: 10%;
             left: 7%;
             font-weight: bolder;
-            font-family: poppins;
+            font-family: var(--font);
             color: var(--primary-color);
             z-index: -10;
             display: flex;
@@ -68,50 +66,34 @@
 
         }
 
-        .file-name {
-            position: fixed;
-            top: 15%;
-            left: 7%;
-            display: flex;
-            flex-direction: column;
-            font-weight: bolder;
-            color: var(--border-left);
-            z-index: -10;
-        }
-
         .page-name p {
             margin-bottom: 0;
         }
 
-        .exceeding-marks {
-            background-color: #ffcccc;
-            /* Light red color */
-        }
-
-        .markGreatThanTotal {
-            background-color: red !important;
-            color: white;
-        }
 
         .error {
-            background-color: rgb(0, 0, 0);
-
+            background-color: rgb(0, 0, 0) !important;
+            text-decoration: line-through;
+            color: white !important;
         }
 
         .red {
             background-color: #ff5757 !important;
+            font-family: var(--font) !important;
+            color: black !important;
         }
 
         .yellow {
             background-color: #ffed22 !important;
+            font-family: var(--font) !important;
+            color: black !important;
         }
 
         .green {
             background-color: #4dff00 !important;
             color: black !important;
+            font-family: var(--font) !important;
         }
-
-        /* ["#7ed957", "#ffde59", "#ff5757"] */
 
         .forChart {
             position: fixed;
@@ -119,6 +101,10 @@
             right: -7%;
             height: 30%;
             width: 30%;
+            font-family: var(--font);
+        }
+        .fonts {
+            font-family: var(--font) !important;
         }
     </style>
 

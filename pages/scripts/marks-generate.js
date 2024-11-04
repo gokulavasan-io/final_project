@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     licenseKey: "non-commercial-and-evaluation",
     cells: function (row, col) {
       const cellProperties = {};
-      if(row>=0) cellProperties.className="fonts";
+      if(row>=0 &&col==0||col==3) cellProperties.className="fonts";
       return cellProperties;
     },
     afterChange: (changes, source) => {
