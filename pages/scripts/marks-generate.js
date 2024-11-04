@@ -90,6 +90,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     rowHeaders: true,
     colWidths: [200, 100, 100, 100],
     licenseKey: "non-commercial-and-evaluation",
+    cells: function (row, col) {
+      const cellProperties = {};
+      if(row>=0) cellProperties.className="fonts";
+      return cellProperties;
+    },
     afterChange: (changes, source) => {
       if (source === 'edit') {
         isDataSaved = false; // Set to false when the user makes changes

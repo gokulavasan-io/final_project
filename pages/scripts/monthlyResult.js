@@ -298,6 +298,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (tableData[row] && tableData[row].student === 'classAverage') {
         cellProperties.readOnly = true;
       }
+      if(row>=0) cellProperties.className="fonts";
       return cellProperties;
     },
     rowHeaders: true,
