@@ -97,7 +97,8 @@
             align-items: center;
 
         }
-        #loading{
+
+        #loading {
             position: absolute;
             left: 52%;
             top: 48%;
@@ -189,6 +190,10 @@
 
     <header class="w-100 position-fixed top-0">
         <div class="logo">Toodle</div>
+        <div class="d-flex gap-2 align-items-center" style="display: none !important;">
+            <button class="btn btn-danger " id="changeClass">Choose Class</button>
+            <div id="classNow">X</div>
+        </div>
         <div class="user">
             <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
         </div>
@@ -216,8 +221,8 @@
     <div id="logoutMessage" class="popup">
         Successfully Logged Out
     </div>
-    <div id="loading" ><i class="fa fa-spinner fa-spin"></i></div>
-    
+    <div id="loading"><i class="fa fa-spinner fa-spin"></i></div>
+
     <div class="mainContainer">
         <h2 class="pageHeader">Class wise monthly Analysis</h2>
         <div id="commonLegend"></div>
@@ -348,8 +353,8 @@
             const classDatasets = classes.map((className, classIndex) => ({
                 label: className,
                 data: months.map(month => data[className][month] ? data[className][month][category] : 0),
-                backgroundColor: classIndex==0?'rgba(54, 235, 54, 0.2)':classIndex==1?'rgba(235, 235, 54, 0.2)':"rgba(255, 40, 40, 0.2)",
-                borderColor:classIndex==0?'rgba(54, 235, 54, 1)':classIndex==1?'#e1ad01':"rgba(255, 40, 40, 1)" ,
+                backgroundColor: classIndex == 0 ? 'rgba(54, 235, 54, 0.2)' : classIndex == 1 ? 'rgba(235, 235, 54, 0.2)' : "rgba(255, 40, 40, 0.2)",
+                borderColor: classIndex == 0 ? 'rgba(54, 235, 54, 1)' : classIndex == 1 ? '#e1ad01' : "rgba(255, 40, 40, 1)",
                 borderWidth: 1
             }));
 
@@ -368,7 +373,7 @@
                 borderWidth: 1,
                 borderDash: [5, 5]  // Dotted line for differentiation
             });
-            document.getElementById("loading").style.display="none";
+            document.getElementById("loading").style.display = "none";
             // Create a bar chart for the given category
             new Chart(ctx, {
                 type: 'bar',
@@ -409,7 +414,7 @@
                 },
                 plugins: [ChartDataLabels] // Activate Data Labels Plugin
             });
-            
+
         }
 
         // Function to create a common legend below the title
@@ -433,7 +438,7 @@
                 if (className === 'Overall') {
                     colorBox.style.backgroundColor = 'rgba(54, 162, 235, 0.2)';
                 } else {
-                    colorBox.style.backgroundColor =  index==0?'rgba(54, 235, 54, 0.2)':index==1?'rgba(235, 235, 54, 0.2)':"rgba(255, 40, 40, 0.2)";
+                    colorBox.style.backgroundColor = index == 0 ? 'rgba(54, 235, 54, 0.2)' : index == 1 ? 'rgba(235, 235, 54, 0.2)' : "rgba(255, 40, 40, 0.2)";
                 }
 
                 colorBox.style.border = '1.5px solid black';

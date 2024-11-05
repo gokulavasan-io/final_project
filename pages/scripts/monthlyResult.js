@@ -507,6 +507,5 @@ function showSuccessMessage(str) {
 }
 
 document.getElementById("backButton").addEventListener("click", () => {
-  localStorage.setItem("monthly", true);
-  window.location.href = "home.html";
+  window.location.href = "../../pages/html/monthlySubjectHome.html";
 });

@@ -91,8 +91,7 @@ function appendMonthToUI(monthName, container, showCheckbox) {
       div.style.backgroundColor = checkbox.checked ? "#e73232" : "";
     } else {
       localStorage.setItem("month", checkbox.value);
-      localStorage.setItem("monthly", true);
-      window.location.href = "../../pages/html/home.html";
+      window.location.href = "../../pages/html/monthlySubjectHome.html";
     }
   });
   container.appendChild(div);

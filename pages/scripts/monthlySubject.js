@@ -235,7 +235,6 @@ document.getElementById("seeMarks").addEventListener("click",()=>{
 });
 
 document.getElementById("backButton").addEventListener("click",()=>{
-    localStorage.setItem("monthly",true);
     window.history.back();
 });
 
