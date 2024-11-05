@@ -162,8 +162,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector(".seebuttons").style.display = "flex";
   }
 
-    // Check if "Project" data exists and set the checkbox accordingly
-    const hasProjectData = resultData.some((student) => student.Project != 0);
+  // Check if "Project" data exists and set the checkbox accordingly
+  const hasProjectData = resultData.some((student) => student.Project != 0);
 
   // Prepare table data with computed AcademicOverall and Overall
   tableData = Object.values(studentData).map((student) => {
@@ -233,12 +233,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
     });
 
-
-    let forAO=4;
-    let forO=6;
-    if(hasProjectData){
-      forAO=5;
-      forO=7;
+    let forAO = 4;
+    let forO = 6;
+    if (hasProjectData) {
+      forAO = 5;
+      forO = 7;
     }
 
     classAverage.AcademicOverall = parseFloat(
@@ -246,7 +245,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         (classAverage.English +
           classAverage.LifeSkills +
           classAverage.Tech +
-          classAverage.ProblemSolving+classAverage.Project) /
+          classAverage.ProblemSolving +
+          classAverage.Project) /
         forAO
       ).toFixed(1)
     );
@@ -261,7 +261,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       classAverage.Project,
     ].filter((mark) => typeof mark === "number" && !isNaN(mark));
 
-    classAverage.Overall = Number(parseFloat(overallMarks.reduce((sum, mark) => sum + mark, 0) / forO).toFixed(1));
+    classAverage.Overall = Number(
+      parseFloat(
+        overallMarks.reduce((sum, mark) => sum + mark, 0) / forO
+      ).toFixed(1)
+    );
   }
 
   // Append the classAverage object to the tableData array
@@ -295,10 +299,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     ],
     cells: function (row, col) {
       const cellProperties = {};
-      if (tableData[row] && tableData[row].student === 'classAverage') {
+      if (tableData[row] && tableData[row].student === "classAverage") {
         cellProperties.readOnly = true;
       }
-      if(row>=0) cellProperties.className="fonts";
+      if (row >= 0) cellProperties.className = "fonts";
       return cellProperties;
     },
     rowHeaders: true,
@@ -308,7 +312,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     afterChange: handleAfterChange,
   });
 
-  document.getElementById("loading").style.display="none";
+  document.getElementById("loading").style.display = "none";
   document.getElementById("addProject").checked = hasProjectData;
 
   // Trigger the toggleProjectColumn function if "Project" data exists
@@ -323,7 +327,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Warn user before page unload if there are unsaved changes
   window.addEventListener("beforeunload", (event) => {
-      saveOrUpdateResult();
+    saveOrUpdateResult();
   });
 
   // Save or Update result data on button click
@@ -434,6 +438,13 @@ function toggleProjectColumn(event) {
       });
     }
   }
+  // Recalculate AcademicOverall and Overall for all students
+  tableData.forEach((student, row) => {
+    handleAfterChange([[row, "Project", null, student.Project]]); // Trigger recalculation for each row
+  });
+
+  // Refresh the table with updated values
+  hot.render();
 }
 
 // Save or update result data in Firebase
