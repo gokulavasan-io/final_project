@@ -154,6 +154,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     const dbRef = ref(database);
     const dataPath = `studentMarks/${section}/${pageTitle}`;
     const month = customName.split("_")[0];
+    const orderedMonths = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
 
     // Check for existing datasets
     try {
@@ -176,8 +180,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
           // Save new dataset
           await set(ref(database, `${dataPath}/${customName}`), saveData);
-          if (customName.includes("_"))
-            await addToMonth(section, pageTitle, month, customName);
+          orderedMonths.forEach(async (x)=>{
+            if(x.includes(month)){
+              await addToMonth(section, pageTitle, x, customName);
+            }
+          })
           showSuccessMessage("Data saved successfully.");
         }
       } else {

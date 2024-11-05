@@ -4,6 +4,7 @@ import {
   ref,
   get,
   child,
+  update,remove,
   set,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
@@ -53,19 +54,21 @@ function fetchAndDisplayData(datasetName) {
           licenseKey: "non-commercial-and-evaluation",
           cells: function (row, col) {
             const cellProperties = {};
-            if (row >= 0 && (col === 0 || col === 3)) cellProperties.className = "fonts";
+            if (row >= 0 && (col === 0 || col === 3))
+              cellProperties.className = "fonts";
             return cellProperties;
           },
           afterChange: (changes, source) => {
             if (source === "edit") {
               const totalMarks = parseFloat(totalMarksInput.value);
-        
+
               changes.forEach(([row, prop, oldValue, newValue]) => {
-                if (prop === 1) { // Check if the "Marks" column is edited
+                if (prop === 1) {
+                  // Check if the "Marks" column is edited
                   if (!isNaN(totalMarks) && totalMarks > 0) {
-                    if (newValue === "A"||newValue=="a") {
+                    if (newValue === "A" || newValue == "a") {
                       // Accept "A" as valid input for "absent"
-                      hot.setDataAtCell(row, 2, "N/A"); 
+                      hot.setDataAtCell(row, 2, "N/A");
                     } else if (!isNaN(newValue)) {
                       // Handle numeric input
                       if (newValue > totalMarks) {
@@ -78,7 +81,9 @@ function fetchAndDisplayData(datasetName) {
                       }
                     } else {
                       // Reject other non-numeric strings
-                      alert('Only numeric values or "A" are allowed in the Marks column.');
+                      alert(
+                        'Only numeric values or "A" are allowed in the Marks column.'
+                      );
                       hot.setDataAtCell(row, 1, oldValue); // Revert to the old value
                     }
                   } else {
@@ -90,8 +95,6 @@ function fetchAndDisplayData(datasetName) {
             }
           },
         });
-        
-        
 
         const totalMarks = firebaseData.totalMarks || 100;
         firebaseData.students.forEach((student, row) => {
@@ -156,7 +159,7 @@ function recalculateAverages(totalMarks) {
 
   hot.getData().forEach((row, rowIndex) => {
     const marks = row[1];
-    if (marks === "A" || marks=="a") {
+    if (marks === "A" || marks == "a") {
       hot.setDataAtCell(rowIndex, 2, "N/A"); // Keep "N/A" for percentage
     } else if (!isNaN(marks)) {
       const average = (marks / totalMarks) * 100;
@@ -166,7 +169,6 @@ function recalculateAverages(totalMarks) {
   });
   hot.render();
 }
-
 
 // Event listener for the "Update Total Marks" button
 const updateTotalMarksButton = document.getElementById("updateTotalMarks");
@@ -198,16 +200,16 @@ let isEdited = false;
 const renameDatasetInput = document.getElementById("renameDatasetInput");
 if (renameDatasetInput) {
   renameDatasetInput.addEventListener("input", () => {
-    isEdited=true;
+    isEdited = true;
   });
 }
 
 // Auto-save data to Firebase when the page is closed or reloaded
 window.addEventListener("beforeunload", function (event) {
-    if(isEdited){
-        renameDataset();
-    }
-    updateDataInFirebase();
+  if (isEdited) {
+    renameDataset();
+  }
+  updateDataInFirebase();
 });
 
 // Fetch data when DOM is loaded
@@ -226,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function createChart() {
   const section = localStorage.getItem("section");
-  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100":0,"Absent":0};
+  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
 
   // Fetch data directly from Firebase path
   const studentsPath = `/studentMarks/${section}/${pageTitle}/${datasetName}/students`;
@@ -238,7 +240,7 @@ async function createChart() {
 
     // Iterate over students' marks and categorize scores
     studentsData.forEach(([, , mark]) => {
-      if(mark==="N/A") scoreRanges["Absent"]++;
+      if (mark === "N/A") scoreRanges["Absent"]++;
       if (mark >= 81) scoreRanges["81-100"]++;
       else if (mark >= 51) scoreRanges["51-80"]++;
       else scoreRanges["0-50"]++;
@@ -253,11 +255,11 @@ async function createChart() {
   analysisChart = new Chart(ctx, {
     type: "pie",
     data: {
-      labels: ["0-50", "51-80", "81-100","Absent"],
+      labels: ["0-50", "51-80", "81-100", "Absent"],
       datasets: [
         {
           data: Object.values(scoreRanges),
-          backgroundColor: ["red", "#FBEC5D", "green","blue"],
+          backgroundColor: ["red", "#FBEC5D", "green", "blue"],
         },
       ],
     },
@@ -270,6 +272,21 @@ async function createChart() {
     },
   });
 }
+
+const orderedMonths = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 // Rename dataset function
 async function renameDataset() {
@@ -293,12 +310,26 @@ async function renameDataset() {
         // Set data to the new path
         await set(ref(database, newDataPath), oldData);
 
+        let oldMonth = datasetName.split("_")[0];
+        orderedMonths.forEach(async (x) => {
+          if (x.includes(oldMonth)) {
+            await removeFromMonth(section, pageTitle, x, datasetName);
+          }
+        });
+
+
         // Delete old dataset
         await set(ref(database, oldDataPath), null);
 
         // Update the local dataset name and input placeholder
         localStorage.setItem("dataSet", newDatasetName);
         renameDatasetInput.placeholder = newDatasetName;
+        let newMonth = newDatasetName.split("_")[0];
+        orderedMonths.forEach(async (x) => {
+          if (x.includes(newMonth)) {
+            await addToMonth(section, pageTitle, x, newDatasetName);
+          }
+        });
 
         // Display success message
         showSuccessMessage("Dataset renamed successfully!");
@@ -333,4 +364,31 @@ function showSuccessMessage(message) {
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+async function addToMonth(section, subject, month, dataSetName) {
+  const dataSet = {};
+  dataSet[dataSetName] = true;
+  try {
+    await update(
+      ref(database, `/studentMarks/${section}/months/${month}/${subject}`),
+      dataSet
+    );
+    console.log("Data successfully appended to Firebase.");
+  } catch (error) {
+    console.error("Error appending data to Firebase:", error);
+  }
+}
+
+async function removeFromMonth(section, subject, month, dataSetName) {
+  const datasetRef = ref(
+    database,
+    `/studentMarks/${section}/months/${month}/${subject}/${dataSetName}`
+  );
+  try {
+    await remove(datasetRef);
+    console.log(`Successfully deleted: ${dataSetName}`);
+  } catch (error) {
+    console.error("Failed to delete dataset:", dataSetName, error);
+  }
 }

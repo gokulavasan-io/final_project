@@ -22,15 +22,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-const pageTitle=localStorage.getItem("pageTitle");
-const section=localStorage.getItem("section");
+const pageTitle = localStorage.getItem("pageTitle");
+const section = localStorage.getItem("section");
 let deleteMode = false;
 const deleteBtn = document.getElementById("delete-btn");
+const orderedMonths = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 // Function to get all dataset names from Firebase and render them
 function getAllData() {
   const subject_name = document.getElementById("page-name").innerText;
-  
+
   const dbRef = ref(database);
   const dataPath = `studentMarks/${section}/${subject_name}`;
 
@@ -63,11 +77,11 @@ function getAllData() {
           // Add click event listener to the div
           div.addEventListener("click", function (e) {
             if (!deleteMode && e.target !== checkbox) {
-              if(pageTitle=="Attendance"){
-                localStorage.setItem("dataSet",div.innerText);
-                window.location.href="./attendance.html?new=no"
-              }else{
-                localStorage.setItem("dataSet",div.innerText);
+              if (pageTitle == "Attendance") {
+                localStorage.setItem("dataSet", div.innerText);
+                window.location.href = "./attendance.html?new=no";
+              } else {
+                localStorage.setItem("dataSet", div.innerText);
                 window.location.href = "marks.html";
               }
             } else if (deleteMode) {
@@ -127,12 +141,11 @@ function confirmDeletion() {
     } else {
       console.log("Deletion canceled.");
     }
-    deleteMode=false;
+    deleteMode = false;
     deleteBtn.innerText = "Delete";
-
   } else {
     alert("No Marks selected for deletion.");
-    deleteMode=false;
+    deleteMode = false;
     deleteBtn.innerText = "Delete";
   }
 }
@@ -149,6 +162,7 @@ function deleteSelectedDatasets() {
 
   selectedCheckboxes.forEach((checkbox) => {
     const datasetName = checkbox.value;
+
     const datasetRef = ref(
       database,
       `studentMarks/${section}/${subject_name}/${datasetName}`
@@ -163,6 +177,12 @@ function deleteSelectedDatasets() {
       .catch((error) => {
         console.error(`Failed to delete dataset: ${datasetName}`, error);
       });
+    const month = datasetName.split("_")[0];
+    orderedMonths.forEach((x) => {
+      if (x.includes(month)) {
+        deleteFromMonth(section, x, subject_name, datasetName);
+      }
+    });
   });
 }
 
@@ -171,16 +191,24 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("page-name").innerText = pageTitle;
   if (pageTitle == "Attendance") {
     document.getElementById("new-mark").innerText = `New`;
-    document.getElementById(
-      "new"
-    ).href = `./attendance.html?new=yes`;
-    localStorage.setItem("pageTitle",pageTitle);
+    document.getElementById("new").href = `./attendance.html?new=yes`;
+    localStorage.setItem("pageTitle", pageTitle);
   } else {
-    document.getElementById(
-      "new"
-    ).href = `./mark-generate.html`;
-    localStorage.setItem("pageTitle",pageTitle);
+    document.getElementById("new").href = `./mark-generate.html`;
+    localStorage.setItem("pageTitle", pageTitle);
   }
   getAllData();
 });
 
+async function deleteFromMonth(section, month, subject, datasetName) {
+  const datasetRef = ref(
+    database,
+    `/studentMarks/${section}/months/${month}/${subject}/${datasetName}`
+  );
+  try {
+    await remove(datasetRef);
+    console.log(`Successfully deleted: ${datasetName}`);
+  } catch (error) {
+    console.error("Failed to delete dataset:", datasetName, error);
+  }
+}
