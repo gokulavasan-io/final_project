@@ -68,7 +68,8 @@ function fetchAndDisplayData(datasetName) {
                   if (!isNaN(totalMarks) && totalMarks > 0) {
                     if (newValue === "A" || newValue == "a") {
                       // Accept "A" as valid input for "absent"
-                      hot.setDataAtCell(row, 2, "N/A");
+                      hot.setDataAtCell(row, 2, "Absent");
+                      hot.setCellMeta(row, 2, "className", "absent"); 
                     } else if (!isNaN(newValue)) {
                       // Handle numeric input
                       if (newValue > totalMarks) {
@@ -118,13 +119,13 @@ function fetchAndDisplayData(datasetName) {
 }
 
 function updateCellColor(row, average) {
-  if (average === "N/A") {
-    hot.setCellMeta(row, 2, "className", "blue");
-  } else if (average < 51) {
+  if (average === "Absent") {
+    hot.setCellMeta(row, 2, "className", "absent");
+  } else if (average>=0&&average < 51) {
     hot.setCellMeta(row, 2, "className", "red");
-  } else if (average < 81) {
+  } else if (average>50&&average < 81) {
     hot.setCellMeta(row, 2, "className", "yellow");
-  } else {
+  } else if(!isNaN(average)) {
     hot.setCellMeta(row, 2, "className", "green");
   }
 }
@@ -160,7 +161,7 @@ function recalculateAverages(totalMarks) {
   hot.getData().forEach((row, rowIndex) => {
     const marks = row[1];
     if (marks === "A" || marks == "a") {
-      hot.setDataAtCell(rowIndex, 2, "N/A"); // Keep "N/A" for percentage
+      hot.setDataAtCell(rowIndex, 2, "Absent"); // Keep "Absent" for percentage
     } else if (!isNaN(marks)) {
       const average = (marks / totalMarks) * 100;
       hot.setDataAtCell(rowIndex, 2, average.toFixed(2));
@@ -240,10 +241,10 @@ async function createChart() {
 
     // Iterate over students' marks and categorize scores
     studentsData.forEach(([, , mark]) => {
-      if (mark === "N/A") scoreRanges["Absent"]++;
-      if (mark >= 81) scoreRanges["81-100"]++;
-      else if (mark >= 51) scoreRanges["51-80"]++;
-      else scoreRanges["0-50"]++;
+      if (mark === "Absent") scoreRanges["Absent"]++;
+      if (mark >= 81&& !isNaN(mark)) scoreRanges["81-100"]++;
+      else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
+      else if(!isNaN(mark)) scoreRanges["0-50"]++;
     });
   }
 

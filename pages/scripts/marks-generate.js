@@ -79,13 +79,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   let totalMarks = parseInt(totalMarksInput.value);
 
   // Initialize Handsontable
+  // Initialize Handsontable
   const hot = new Handsontable(container, {
     data: data,
     colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
     columns: [
       { data: 0, type: "text", readOnly: true },
-      { data: 1, type: "text" }, // Set to 'text' to allow "A" for absent
-      { data: 2, type: "numeric", readOnly: true },
+      { data: 1, type: "text" }, // Changed to "text" to accept both numbers and "A" or "a"
+      { data: 2, type: "numeric", readOnly: true }, // Display "Absent" as text
       { data: 3, type: "text" },
     ],
     rowHeaders: true,
@@ -105,13 +106,31 @@ document.addEventListener("DOMContentLoaded", async function () {
             // Only trigger when "Marks" column is edited
             const marks = hot.getDataAtCell(row, 1);
             if (marks > totalMarks) {
-              hot.setCellMeta(row, 1, "className", "error"); // Set class for red color
-            } else {
-              hot.setCellMeta(row, 1, "className", null); // Remove class if marks are valid
+              hot.setCellMeta(row, 1, "className", "error");
             }
 
-            // Update average immediately after marks are edited
-            updateTableAverages();
+            // Check if the input is "A" or "a" for absent
+            if (marks === "A" || marks === "a") {
+              hot.setDataAtCell(row, 2, "Absent"); // Display "Absent" in the average column
+              hot.setCellMeta(row, 2, "className", "absent"); // Optional: Apply a style for "Absent"
+            } else {
+              const marksNumeric = parseFloat(marks);
+              if (!isNaN(marksNumeric) && marksNumeric <= totalMarks) {
+                const average = (marksNumeric / totalMarks) * 100;
+                hot.setDataAtCell(row, 2, average.toFixed(2));
+
+                // Set the cell color based on the average value
+                if (average <= 50) {
+                  hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
+                } else if (average > 50 && average < 81) {
+                  hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
+                } else {
+                  hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
+                }
+              } else {
+                hot.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
+              }
+            }
           }
         });
       }
@@ -155,8 +174,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     const dataPath = `studentMarks/${section}/${pageTitle}`;
     const month = customName.split("_")[0];
     const orderedMonths = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     // Check for existing datasets
@@ -180,11 +209,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
           // Save new dataset
           await set(ref(database, `${dataPath}/${customName}`), saveData);
-          orderedMonths.forEach(async (x)=>{
-            if(x.includes(month)){
+          orderedMonths.forEach(async (x) => {
+            if (x.includes(month)) {
               await addToMonth(section, pageTitle, x, customName);
             }
-          })
+          });
           showSuccessMessage("Data saved successfully.");
         }
       } else {
