@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MonthlySubjectHome</title>
 
-    <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/generalStyles.css">
     <!-- Bootstrap links -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -14,6 +14,85 @@
     <!-- line-icons css and font awesome -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <style>
+        .main-container {
+            position: fixed;
+            top: 20%;
+            left: 13%;
+            width: 80%;
+            z-index: -100;
+            font-family: 'Poppins', sans-serif;
+
+        }
+
+        .main-container img {
+            width: 90%;
+        }
+
+        .subjects-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+
+        .sub-cards {
+            height: 15rem;
+            width: 17rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: .3rem;
+            position: relative;
+            transition: all 300ms ease;
+            box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        }
+
+        .sub-cards:hover {
+            transform: scale(.95);
+        }
+
+        .sub-cards p {
+            color: green;
+            font-weight: bolder;
+            background-color: antiquewhite;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            padding: 1rem 0;
+        }
+
+        .attendance-container {
+            cursor: pointer;
+        }
+
+        #pageTitleForMonthlySubject {
+            position: fixed;
+            top: 13%;
+            left: 13%;
+            font-size: 1.5rem;
+            font-weight: bolder;
+            z-index: -10;
+            font-family: 'Poppins', sans-serif;
+            color: red;
+        }
+
+        #seeButtons {
+            position: fixed;
+            bottom: 5%;
+            right: 2%;
+            gap: 1rem;
+        }
+
+        #whichMonth {
+            font-size: 1.5rem;
+            color: rgb(208, 0, 255);
+        }
+    </style>
 </head>
 
 <body>
@@ -22,7 +101,7 @@
     <aside id="sidebar">
 
         <ul class="sidebar-nav mt-5">
-            <li class="sidebar-item" id="backMonthlyHome" style="display: none;">
+            <li class="sidebar-item" id="backButton">
                 <a href="#" class="sidebar-link" id="backButton">
                     <i class="lni lni-chevron-left-circle"></i>
                     <span>Go back</span>
@@ -137,25 +216,25 @@
         <h4 class="mb-3">Subjects</h4>
         <div class="subjects-container">
             <div class="eng-container">
-                <a href="#" id="English" class="sub-cards">
+                <a href="../../pages/html/monthlySubject.html" id="English" class="sub-cards">
                     <img src="../../assets/images/home_img/img_english.png" class="img-fluid">
                     <p class="text-center">English</p>
                 </a>
             </div>
             <div class="lifeskills-container">
-                <a href="#" id="LifeSkills" class="sub-cards">
+                <a href="../../pages/html/monthlySubject.html" id="LifeSkills" class="sub-cards">
                     <img src="../../assets/images/home_img/img_lifeskills.png" class="img-fluid">
                     <p class="text-center">Life Skills</p>
                 </a>
             </div>
             <div class="tech-container">
-                <a href="#" id="Tech" class="sub-cards">
+                <a href="../../pages/html/monthlySubject.html" id="Tech" class="sub-cards">
                     <img src="../../assets/images/home_img/img_tech.png" class="img-fluid">
                     <p class="text-center">Tech</p>
                 </a>
             </div>
             <div class="problem-solving-container">
-                <a href="#" id="ProblemSolving" class="sub-cards">
+                <a href="../../pages/html/monthlySubject.html" id="ProblemSolving" class="sub-cards">
                     <img src="../../assets/images/home_img/img_problem-soving.jpeg" class="img-fluid">
                     <p class="text-center">Problem Solving</p>
                 </a>
@@ -163,7 +242,7 @@
         </div>
         <h4 class="mt-5 mb-3">Attendance</h4>
         <div class="attendance-container">
-            <a class="sub-cards" href="#" id="attendanceMarks">
+            <a class="sub-cards" href="../../pages/html/marks.html" id="attendanceMarks">
                 <img src="../../assets/images/home_img/img_attendance.webp" class="img-fluid">
                 <p class="text-center">Attendance</p>
             </a>
@@ -174,31 +253,15 @@
     <!-- for Monthly Subjects -->
     <div id="pageTitleForMonthlySubject">Monthly Report : <span id="whichMonth">xxxx</span></div>
     <div id="seeButtons">
-        <button class="btn btn-success" id="seeResult">See result</button>
+        <button class="btn btn-success" id="seeResult" ><a href="../../pages/html/monthlyResult.html" style="color: white;">See
+                result</a></button>
     </div>
 
 
 
     <script>
         const month = localStorage.getItem("month");
-        const allSubjects = document.querySelectorAll(".subjects-container a");
-        allSubjects.forEach(x => {
-            x.addEventListener("click", () => {
-                localStorage.setItem("subject", x.id)
-                window.location.href = "../../pages/html/monthlySubject.html";
-            });
-        })
-        document.getElementById("pageTitleForMonthlySubject").style.display = "block";
-        document.getElementById("seeButtons").style.display = "block";
-        document.querySelector(".main-container").style.top = "20%";
         document.getElementById("whichMonth").innerText = month;
-        document.getElementById(
-            "attendanceMarks"
-        ).href = "../../pages/html/marks.html";
-        document.getElementById("backMonthlyHome").style.display = "inline-block";
-        document.getElementById("seeResult").addEventListener("click", () => {
-            window.location.href = "../../pages/html/monthlyResult.html";
-        })
     </script>
     <script type="module" src="../scripts/generalScript.js"></script>
 
