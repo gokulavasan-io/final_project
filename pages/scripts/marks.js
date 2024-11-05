@@ -25,6 +25,7 @@ let hot;
 const datasetName = localStorage.getItem("dataSet");
 const section = localStorage.getItem("section");
 const pageTitle = localStorage.getItem("pageTitle");
+let colors=["red","yellow","green","absent"];
 
 function fetchAndDisplayData(datasetName) {
   const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
@@ -238,7 +239,7 @@ async function createChart() {
       else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
       else if(!isNaN(mark)) scoreRanges["0-50"]++;
   }
-
+  updateCountTable(Object.values(scoreRanges));
   // Destroy previous chart if it exists
   if (analysisChart) analysisChart.destroy();
 
@@ -251,7 +252,7 @@ async function createChart() {
       datasets: [
         {
           data: Object.values(scoreRanges),
-          backgroundColor: ["red", "#FBEC5D", "green", "blue"],
+          backgroundColor: ["red", "rgb(225, 225, 4)", "green", "blue"],
         },
       ],
     },
@@ -384,3 +385,16 @@ async function removeFromMonth(section, subject, month, dataSetName) {
     console.error("Failed to delete dataset:", dataSetName, error);
   }
 }
+
+
+
+async function updateCountTable(scoreRanges) {
+  let totalStudents=scoreRanges.reduce((a,b)=>a+b);
+  let percentage=(n)=>{return Math.round((n/totalStudents)*100)}
+    colors.forEach((x,i)=>{
+        document.getElementById(`${x}Count`).innerText=scoreRanges[i];
+      document.getElementById(`${x}Percent`).innerText=`${percentage(scoreRanges[i])}%`;
+
+    })    
+}
+

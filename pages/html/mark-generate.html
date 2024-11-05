@@ -127,6 +127,31 @@
             width: 30%;
             font-family: var(--font);
         }
+        .countTable{
+            height: 10%;
+            width: 10%;
+            position: fixed;
+            bottom: 2%;
+            right: 2%;
+            border: 1px solid black;
+            border-radius: 10px !important;
+        }
+        th{
+            background-color: #70161E !important;
+            color: white !important;
+            font-family: var(--font);
+            font-weight: bolder;
+        }
+        .table th{
+            background-color: var(--border-left) !important;
+            color: white !important;
+            font-family: var(--font);
+        }
+        td{
+            text-align: center;
+            font-weight: bolder;
+            font-family: var(--font);
+        }
 
     </style>
 
@@ -263,6 +288,38 @@
         <canvas id="myChart"></canvas>
     </div>
 
+    <table class="table countTable table-bordered">
+        <thead class="tableHead">
+          <tr>
+            <th scope="col">Grade</th>
+            <th scope="col">Percentage</th>
+            <th scope="col">count</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="background-color: green !important ; color: white;">Green</td>
+                <td id="greenPercent">0%</td>
+                <td id="greenCount">0</td>
+              </tr>
+              <tr>
+                <td style="background-color: yellow !important ; color: rgb(0, 0, 0);">Yellow</td>
+                <td id="yellowPercent">0%</td>
+                <td id="yellowCount">0</td>
+              </tr>
+              <tr>
+                <td style="background-color: red !important ; color: white;">Red</td>
+                <td id="redPercent">0%</td>
+                <td id="redCount">0</td>
+              </tr>
+              <tr>
+                <td style="background-color: rgb(40, 40, 245) !important ; color: white;">Absentees</td>
+                <td id="absentPercent">0%</td>
+                <td id="absentCount">0</td>
+              </tr>
+          
+        </tbody>
+      </table>
 
 
 

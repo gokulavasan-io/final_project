@@ -28,6 +28,8 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
 let hot;
+let colors=["red","yellow","green","absent"];
+
 
 document.addEventListener("DOMContentLoaded", async function () {
   const pageTitle = localStorage.getItem("pageTitle");
@@ -304,7 +306,7 @@ async function createChart() {
       else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
       else if(!isNaN(mark)) scoreRanges["0-50"]++;
   }
-
+  updateCountTable(Object.values(scoreRanges));
   // Destroy previous chart if it exists
   if (analysisChart) analysisChart.destroy();
 
@@ -329,4 +331,15 @@ async function createChart() {
       },
     },
   });
+}
+
+
+async function updateCountTable(scoreRanges) {
+  let totalStudents=scoreRanges.reduce((a,b)=>a+b);
+  let percentage=(n)=>{return Math.round((n/totalStudents)*100)}
+    colors.forEach((x,i)=>{
+        document.getElementById(`${x}Count`).innerText=scoreRanges[i];
+      document.getElementById(`${x}Percent`).innerText=`${percentage(scoreRanges[i])}%`;
+
+    })    
 }
