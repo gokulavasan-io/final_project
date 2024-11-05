@@ -116,6 +116,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             } else {
               const marksNumeric = parseFloat(marks);
               if (!isNaN(marksNumeric) && marksNumeric <= totalMarks) {
+                hot.setCellMeta(row, 1, "className", "");
                 const average = (marksNumeric / totalMarks) * 100;
                 hot.setDataAtCell(row, 2, average.toFixed(2));
 
@@ -157,11 +158,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         hot.setDataAtCell(row, 2, average.toFixed(2));
 
         // Set the cell color based on the average value
-        if (average <= 50) {
+        if(average=="Absent"){
+          hot.setCellMeta(row, 2, "className", "absent"); 
+        }
+        else if (average <= 50 && !isNaN(average)) {
           hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
-        } else if (average > 50 && average < 81) {
+        } else if (average > 50 && average < 81 &&!isNaN(average)) {
           hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
-        } else {
+        } else if(!isNaN(average)) {
           hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
         }
       }
