@@ -60,6 +60,7 @@ function fetchAndDisplayData(datasetName) {
           },
           afterChange: (changes, source) => {
             if (source === "edit") {
+              createChart();
               const totalMarks = parseFloat(totalMarksInput.value);
 
               changes.forEach(([row, prop, oldValue, newValue]) => {
@@ -93,6 +94,7 @@ function fetchAndDisplayData(datasetName) {
                 }
               });
               hot.render();
+              createChart();
             }
           },
         });
@@ -228,24 +230,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function createChart() {
-  const section = localStorage.getItem("section");
   const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
-
-  // Fetch data directly from Firebase path
-  const studentsPath = `/studentMarks/${section}/${pageTitle}/${datasetName}/students`;
-  const studentsRef = ref(database, studentsPath);
-  const studentsSnapshot = await get(studentsRef);
-
-  if (studentsSnapshot.exists()) {
-    const studentsData = studentsSnapshot.val();
-
-    // Iterate over students' marks and categorize scores
-    studentsData.forEach(([, , mark]) => {
+  for (let row = 0; row < hot.countRows(); row++) {
+    const mark = hot.getDataAtCell(row, 2);
       if (mark === "Absent") scoreRanges["Absent"]++;
       if (mark >= 81&& !isNaN(mark)) scoreRanges["81-100"]++;
       else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
       else if(!isNaN(mark)) scoreRanges["0-50"]++;
-    });
   }
 
   // Destroy previous chart if it exists

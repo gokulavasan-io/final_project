@@ -16,6 +16,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.css">
     <script src="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
@@ -116,6 +117,15 @@
             text-align: center;
             font-family: var(--font) !important;
 
+        }
+
+        .forChart {
+            position: fixed;
+            top: 35%;
+            right: -7%;
+            height: 30%;
+            width: 30%;
+            font-family: var(--font);
         }
 
     </style>
@@ -247,6 +257,10 @@
 
     <div class="buttons">
         <button class="btn btn-success" id="saveToFirebase">Save </button>
+    </div>
+
+    <div class="forChart">
+        <canvas id="myChart"></canvas>
     </div>
 
 

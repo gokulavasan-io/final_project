@@ -27,6 +27,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
+let hot;
 
 document.addEventListener("DOMContentLoaded", async function () {
   const pageTitle = localStorage.getItem("pageTitle");
@@ -78,9 +79,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   const totalMarksInput = document.getElementById("totalMarks");
   let totalMarks = parseInt(totalMarksInput.value);
 
+
   // Initialize Handsontable
-  // Initialize Handsontable
-  const hot = new Handsontable(container, {
+   hot = new Handsontable(container, {
     data: data,
     colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
     columns: [
@@ -99,6 +100,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       return cellProperties;
     },
     afterChange: (changes, source) => {
+      createChart();
       if (source === "edit") {
         isDataSaved = false; // Set to false when the user makes changes
         changes.forEach(([row, prop]) => {
@@ -131,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               } else {
                 hot.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
               }
-            }
+            }  
           }
         });
       }
@@ -288,4 +290,43 @@ async function addToMonth(section, subject, month, dataSetName) {
   } catch (error) {
     console.error("Error appending data to Firebase:", error);
   }
+}
+
+
+let analysisChart; // Variable to hold the chart instance
+
+async function createChart() {
+  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
+  for (let row = 0; row < hot.countRows(); row++) {
+    const mark = hot.getDataAtCell(row, 2);
+      if (mark === "Absent") scoreRanges["Absent"]++;
+      if (mark >= 81&& !isNaN(mark)) scoreRanges["81-100"]++;
+      else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
+      else if(!isNaN(mark)) scoreRanges["0-50"]++;
+  }
+
+  // Destroy previous chart if it exists
+  if (analysisChart) analysisChart.destroy();
+
+  // Create a new chart
+  const ctx = document.getElementById("myChart").getContext("2d");
+  analysisChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["0-50", "51-80", "81-100", "Absent"],
+      datasets: [
+        {
+          data: Object.values(scoreRanges),
+          backgroundColor: ["red", "#FBEC5D", "green", "blue"],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "top" },
+        title: { display: true, text: "Student Marks Distribution" },
+      },
+    },
+  });
 }
