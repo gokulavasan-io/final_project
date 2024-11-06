@@ -12,6 +12,9 @@
     <!-- line-icons css and font awesome -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 <body>
     
@@ -139,7 +142,87 @@
             </div>
         </div>
 
-        <div class="main-container"></div>
+        <div class="main-container">
+            <div class="forClass">
+                <div id="academicTopBottom">
+                    <div class="techTable">
+                        <table class="table table-bordered ">
+                            <thead class="tableHead">
+                                <tr>
+                                    <td style="background-color: rgb(155, 150, 2) !important ; color: white;" colspan="2">Tech</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: green !important ; color: white;">Top</td>
+                                    <td style="background-color: red !important ; color: rgb(255, 255, 255);">Bottom</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td id="techT1" >x1</td>
+                                    <td id="techB1">y1</td>
+                                </tr>
+                                <tr>
+                                    <td id="techT2">x2</td>
+                                    <td id="techB2">y2</td>
+                                </tr>
+                                <tr>
+                                    <td id="techT3">x3</td>
+                                    <td id="techB3">y3</td>
+                                </tr>
+                                <tr>
+                                    <td id="techT4">x4</td>
+                                    <td id="techB4">y4</td>
+                                </tr>
+                                <tr>
+                                    <td id="techT5">x5</td>
+                                    <td id="techB5">y5</td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="psTable">
+                        <table class="table table-bordered ">
+                            <thead class="tableHead">
+                                <tr>
+                                    <td style="background-color: rgb(155, 150, 2) !important ; color: white;" colspan="2">Problem Solving</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: green !important ; color: white;">Top</td>
+                                    <td style="background-color: red !important ; color: rgb(255, 255, 255);">Bottom</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td id="psT1">x1</td>
+                                    <td id="psB1">y1</td>
+                                </tr>
+                                <tr>
+                                    <td id="psT2">x2</td>
+                                    <td id="psB2">y2</td>
+                                </tr>
+                                <tr>
+                                    <td id="psT3">x3</td>
+                                    <td id="psB3">y3</td>
+                                </tr>
+                                <tr>
+                                    <td id="psT4">x4</td>
+                                    <td id="psB4">y4</td>
+                                </tr>
+                                <tr>
+                                    <td id="psT5">x5</td>
+                                    <td id="psB5">y5</td>
+                                </tr>
+                    
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+            
+
+        </div>
 
   
           <script type="module" src="../scripts/home.js"></script>
