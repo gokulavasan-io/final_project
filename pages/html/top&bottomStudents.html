@@ -390,7 +390,7 @@
 
             // Collect the top 5 and bottom 5 scores for each subject
             const topRows = Array.from({ length: 5 }, () => Array(subjects.length + 1).fill("")); // 5 rows for Top 5
-            const bottomRows = Array.from({ length: 5 }, () => Array(subjects.length + 1).fill("")); // 5 rows for Bottom 5
+            let bottomRows = Array.from({ length: 5 }, () => Array(subjects.length + 1).fill("")); // 5 rows for Bottom 5
 
             subjects.forEach((subject, index) => {
                 const { top5, bottom5 } = getTopBottomScores(data, subject);
@@ -407,6 +407,7 @@
             // Get class average marks in correct order
             const classAverages = getClassAverages(data, subjects);
             topRows[2][0] = "Top 5";
+            bottomRows=bottomRows.reverse();
             bottomRows[2][0] = "Bottom 5";
 
 

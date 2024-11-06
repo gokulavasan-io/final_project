@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+*,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+}
+
+:root {
+    --primary-color: #0e2238;
+    --font-color: #fff;
+    --border-left: #3b7ddd;
+    --font:poppins;
+}
+
+
+.main-container{
+    width: 91%;
+    height: 85%;
+    position: fixed;
+    top: 11%;
+    left: 7%;
+    background-color: wheat;
+    z-index: -1000;
+
+}
