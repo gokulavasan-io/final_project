@@ -41,6 +41,8 @@ function fetchAndDisplayData(datasetName) {
       if (snapshot.exists()) {
         const firebaseData = snapshot.val();
         const container = document.getElementById("handsontable");
+  document.getElementById("loading").style.display = "none";
+
         hot = new Handsontable(container, {
           data: firebaseData.students,
           colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],

@@ -124,3 +124,12 @@
     font-family: poppins;
     color: var(--primary-color);
 }
+
+#loading {
+    position: absolute;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: var(--border-left);
+}

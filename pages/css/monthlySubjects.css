@@ -150,3 +150,12 @@
     background-color: rosybrown;
     border: 2px solid red;
 }
+
+#loading{
+    position: absolute;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color:var(--border-left);
+}

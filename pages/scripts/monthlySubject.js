@@ -179,6 +179,8 @@ const fetchMarksForDisplay = async () => {
     } catch (error) {
         console.error("Error fetching marks:", error);
     }
+    document.getElementById("loading").style.display = "none";
+
 };
 
 

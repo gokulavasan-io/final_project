@@ -73,6 +73,8 @@ function getAllData() {
           // Append the checkbox and dataset name to the div
           div.appendChild(checkbox);
           div.appendChild(pElement);
+  document.getElementById("loading").style.display = "none";
+
 
           // Add click event listener to the div
           div.addEventListener("click", function (e) {

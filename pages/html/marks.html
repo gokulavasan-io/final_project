@@ -150,6 +150,14 @@
             font-weight: bolder;
             font-family: var(--font);
         }
+        #loading{
+            position: absolute;
+            left: 52%;
+            top: 48%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            color:var(--border-left);
+        }
     </style>
 
 </head>
@@ -264,6 +272,9 @@
         Successfully Logged Out
     </div>
     <div id="successMessage" class="popup"></div>
+    <div id="loading" ><i class="fa fa-spinner fa-spin"></i></div>
+
+
     <div id="handsontable"></div>
     <div class="page-name">
         <div class="d-flex flex-column gap-2">

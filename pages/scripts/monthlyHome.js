@@ -54,6 +54,8 @@ function getAllData() {
         monthNames.forEach((month) => {
           appendMonthToUI(month, container, false);
         });
+  document.getElementById("loading").style.display = "none";
+
       } else {
         console.log("No months available in the database");
       }
