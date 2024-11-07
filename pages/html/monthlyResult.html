@@ -46,6 +46,7 @@
             gap: 1rem;
             z-index: 100;
             font-family: poppins;
+            flex-direction: column;
 
         }
 
@@ -71,7 +72,7 @@
 
         #handsontable-container {
             position: fixed;
-            left: 15%;
+            left: 17%;
             top: 18%;
             font-family: poppins;
             z-index: -100;
@@ -96,6 +97,12 @@
             transform: translate(-50%, -50%);
             font-size: 4rem;
             color: var(--border-left);
+        }
+
+        .handsontable td {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
     </style>
 
