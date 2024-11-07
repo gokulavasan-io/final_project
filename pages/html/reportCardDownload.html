@@ -132,6 +132,8 @@
     <div id="logoutMessage" class="popup">
         Successfully Logged Out
     </div>
+    <div id="loading"><i class="fa fa-spinner fa-spin"></i></div>
+
 
     <div id="pageName">Analysis</div>
 
@@ -148,24 +150,25 @@
             <div class="student-details ">
                 <div class="name-cont">
                     <label for="student-name">Student's name</label>
-                    <p><span id="student-name">xxxxxxx</span></p>
+                    <p><span id="student-name" style="text-wrap: nowrap;">xxxxx</span></p>
                 </div>
                 <div class="name-cont">
                     <label for="teachers-name">Teacher's name</label>
-                    <p><span id="teachers-name">xxxxxxx</span></p>
+                    <p><span id="teachers-name" style="text-wrap: nowrap;">
+                        xxxxxxx</span></p>
                 </div>
                 <div class="sec-mon-year">
                     <div>
                         <label for="section">Section</label>
-                        <p><span id="section">x</span></p>
+                        <p><span id="rpsection">x</span></p>
                     </div>
                     <div>
                         <label for="month">Month</label>
-                        <p><span id="month">xxx</span></p>
+                        <p><span id="rpmonth">xxx</span></p>
                     </div>
                     <div>
                         <label for="year">Year</label>
-                        <p><span id="year">xxx</span></p>
+                        <p><span id="rpyear">xxx</span></p>
                     </div>
                 </div>
             </div>
@@ -176,7 +179,7 @@
 
             <div class="scores-container ">
                 <div class="heading">
-                    <div><h4><span id="student-name1">xxxxxxxx</span>'s &nbsp; Score</h4></div>
+                    <div><h4><span id="student-name1">xxxxxxxxx</span>'s &nbsp; Score</h4></div>
                     <h4>Class Avg</h4>
                 </div>
                 <div class="scores-top">
@@ -186,16 +189,16 @@
                             <label for="" >Life Skills</label>
                             <label for="">Tech</label>
                             <label for="" style="font-size: .96rem;">Problem Solving</label>
-                            <label for="">Project</label>
+                            <label id="projectLabel">Project</label>
                             <label for="">Overall</label>
                         </div>
                         <div class="scores">
-                                <p><span id="english">0</span>%</p>
-                                <p><span id="lifeSkills">0</span>%</p>
-                                <p><span id="tech">0</span>%</p>
-                                <p><span id="problemSolving">0</span>%</p>
-                                <p><span id="project">0</span>%</p>
-                                <p><span id="overall">0</span>%</p>
+                                <p><span id="rpenglish">0</span>%</p>
+                                <p><span id="rplifeSkills">0</span>%</p>
+                                <p><span id="rptech">0</span>%</p>
+                                <p><span id="rpproblemSolving">0</span>%</p>
+                                <p><span id="rpproject">0</span>%</p>
+                                <p><span id="rpoverall">0</span>%</p>
                         </div>
                         
                     </div>
@@ -204,8 +207,8 @@
                         <p><span id="classLS">0</span>%</p>
                         <p><span id="classTech">0</span>%</p>
                         <p><span id="classPS">0</span>%</p>
-                        <p><span id="project">0</span>%</p>
-                        <p class="over"><span id="class-overall">0</span>%</p>
+                        <p><span id="classProject">0</span>%</p>
+                        <p class="over"><span id="classOverall">0</span>%</p>
                     </div>
                     
                 </div>
@@ -220,8 +223,8 @@
                                 <label for="">Behavior</label>
                             </div>
                             <div>
-                                <p class="attend"><span id="attendance">0</span>%</p>
-                                <p class="behave"><span id="behavior">0</span>%</p>
+                                <p class="attend"><span id="rpattendance">0</span>%</p>
+                                <p class="behave"><span id="rpbehavior">0</span>%</p>
                             </div>
                         </div>
         
@@ -258,32 +261,20 @@
             </div>
         </div>
     </div>
-
-
-    <!-- <div class="control">
-        <div class="name-container">
-            <div>
-                <p id="prev-name">xxxxx</p>
-            </div>
-            <div>
-                <p id="current-name">yyyyy</p>
-            </div>
-            <div>
-                <p id="next-name">zzzzz</p>
-            </div>
+    <div class="control-buttons">
+        <button id="previous" class="btn btn-primary">Previous</button>
+        <button id="downloadNow" class="btn btn-primary">Download</button>
+        <button id="next" class="btn btn-primary">Next</button>
+        <button id="downloadAll" class="btn btn-success">Download All</button>
+    </div>
+    
+    <div class="container mt-5 searchContainer">
+        <div>
+            <label for="">Search for student</label>
+            <input type="text" id="searchBox" placeholder="Search student..." class="form-control mb-3">
+            <div id="suggestions" class="list-group"></div> 
         </div>
-
-        <div class="buttons">
-            <button type="button" id="previous-person">Previous</button>
-            <button type="button" id="download">Download</button>
-            <button type="button" id="next-person">Next</button>
-            <button type="button" id="download-all">Download all</button>
-        </div>
-    </div> -->
-
-
-
-
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -291,9 +282,9 @@
     <script type="module" src="../scripts/generalScript.js"></script>
 
     <!-- bootstrap link -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
 
 

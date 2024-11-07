@@ -1,215 +1,351 @@
-// const studentName = document.getElementById("student-name");
-// const studentName1 = document.getElementById("student-name1");
-// const teacherName = document.getElementById("teachers-name");
-// const section = document.getElementById("section");
-// const month = document.getElementById("month");
-// const year = document.getElementById("year");
-// const english = document.getElementById("english");
-// const life_skills = document.getElementById("life-skills");
-// const tech = document.getElementById("tech");
-// const problem_solving = document.getElementById("problem-solving");
-// const overall = document.getElementById("overall");
-// const class_eng = document.getElementById("class-eng");
-// const class_els = document.getElementById("class-els");
-// const class_tech = document.getElementById("class-tech");
-// const class_pb = document.getElementById("class-pb");
-// const class_overall = document.getElementById("class-overall");
-// const attendance = document.getElementById("attendance");
-// const behavior = document.getElementById("behavior");
-// const previous_name = document.getElementById("prev-name");
-// const current_name = document.getElementById("current-name");
-// const next_name = document.getElementById("next-name");
-// const previous_person = document.getElementById("previous-person");
-// const download = document.getElementById("download");
-// const download_all = document.getElementById("download-all");
-// const next_person = document.getElementById("next-person");
-// const card = document.getElementById("report-card");
-// const submit = document.getElementById("get_result");
-// const remarks=document.getElementById("remark");
+const studentName = document.getElementById("student-name");
+const studentName1 = document.getElementById("student-name1");
+const teacherName = document.getElementById("teachers-name");
+const Rpsection = document.getElementById("rpsection");
+const RPmonth = document.getElementById("rpmonth");
+const RPyear = document.getElementById("rpyear");
+const english = document.getElementById("rpenglish");
+const life_skills = document.getElementById("rplifeSkills");
+const tech = document.getElementById("rptech");
+const problem_solving = document.getElementById("rpproblemSolving");
+const project = document.getElementById("rpproject");
+const attendance = document.getElementById("rpattendance");
+const behavior = document.getElementById("rpbehavior");
+const overall = document.getElementById("rpoverall");
+const class_eng = document.getElementById("classEng");
+const class_els = document.getElementById("classLS");
+const class_tech = document.getElementById("classTech");
+const class_pb = document.getElementById("classPS");
+const class_project = document.getElementById("classProject");
+const class_overall = document.getElementById("classOverall");
+const previous = document.getElementById("previous");
+const downloadNow = document.getElementById("downloadNow");
+const next = document.getElementById("next");
+const downloadAll = document.getElementById("downloadAll");
+const card = document.getElementById("report-card");
+const remarks = document.getElementById("remark");
 
 // // .................... variables end ............ //
 
-// let studentData;
-// let currentIndex = 0;  // Initialize currentIndex - for student
+// Import Firebase functions
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  get,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import {
+  getFirestore,
+  getDocs,
+  collection,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
-// // document.querySelector("#input-field").addEventListener("submit", (event) => {
-// //   event.preventDefault(); // Prevent form submission
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
+  authDomain: "fir-demo-4a5b4.firebaseapp.com",
+  projectId: "fir-demo-4a5b4",
+  storageBucket: "fir-demo-4a5b4.appspot.com",
+  messagingSenderId: "716679557063",
+  appId: "1:716679557063:web:603a78f59045ceeaf133e2",
+};
 
-// //   try {
-// //     // Parse JSON data directly from the textarea
-// //     studentData = JSON.parse(document.getElementById("json").value);
-// //     displayStudentData(currentIndex); // Display the data
-// //   } catch (error) {
-// //     console.error("Invalid JSON:", error);
-// //     alert("Please enter valid JSON data.");
-// //   }
-// // });
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const firestore = getFirestore(app);
 
+let studentData;
+let studentNames;
+let month = localStorage.getItem("month");
+let section = localStorage.getItem("section");
+let index = 0;
+let year = new Date().getFullYear();
+let hasProject=false;
+let teacherNames =
+  section == "ClassA"
+    ? "Miss Sreekala && Miss Haripriya"
+    : section == "ClassB"
+    ? "Mr Bharatwaj && Miss Sukirthi"
+    : "Mr Kanagalingam && Miss Niroshini";
 
-// //  to display the current student's information
+async function fetchStudentNames(section) {
+  try {
+    const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`);
+    const docSnap = await getDocs(docRef);
 
-// function displayStudentData(index) {
-//   const student = studentData[index];
-//   if (student) {
-//     name_change(capitalizeFirstLetter(student.name), student.teachers_name); // change student,teacher name
-//     smy_change(student.section.toUpperCase(), student.month, student.year); // change section,month,year
-//     changeRemark(student.remarks);
+    if (!docSnap.empty) {
+      const studentNamesFromDB = docSnap.docs.map((doc) => doc.id);
+      if (Array.isArray(studentNamesFromDB) && studentNamesFromDB.length > 0) {
+        studentNames = [...studentNamesFromDB];
+      } else {
+        console.error("No student names found for the selected class.");
+        alert("No student names found for the selected class.");
+        return [];
+      }
+    } else {
+      console.log("No such document!");
+      alert("No such document for the selected class.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching document:", error);
+    alert("Error fetching student names.");
+    return [];
+  }
+}
 
-//     // to update scores
-//     score_fun(english, student.english);
-//     score_fun(tech, student.tech);
-//     score_fun(life_skills, student.lifeskills);
-//     score_fun(problem_solving, student.problem_solving);
-//     score_fun(overall, student.overall);
-//     score_fun(attendance, student.attendance);
-//     score_fun(behavior, student.behavior);
+async function fetchStudentMarks(month) {
+  const dbRef = ref(
+    database,
+    `/studentMarks/${section}/months/${month}/result`
+  );
+  const snapshot = await get(dbRef);
 
+  if (snapshot.exists()) {
+    return snapshot.val();
+  } else {
+    console.log("No data available");
+    return {};
+  }
+}
 
-//     // for class average
-//     score_fun(class_eng,student.class_english);
-//     score_fun(class_els,student.class_lifeskills);
-//     score_fun(class_tech,student.class_tech);
-//     score_fun(class_pb,student.class_problem_solving);
-//     score_fun(class_overall,student.class_overall);    
+document.addEventListener("DOMContentLoaded", async () => {
+  await fetchStudentNames(section);
+  studentData = await fetchStudentMarks(month);
+  if ("Project" in studentData.classAverage) {
+    hasProject=true;
+  }
+  if(!hasProject){
+    await changeToNotProject();
+  }
+  displayStudentData(studentNames[index]);
+  document.getElementById("loading").style.display = "none";
+});
 
-//     // // to change previous and next name in bottom 
-//     let prevIndex = index > 0 ? index - 1 : studentData.length - 1;
-//     let nextIndex = index < studentData.length - 1 ? index + 1 : 0;
-//     prev_next_name(capitalizeFirstLetter(studentData[prevIndex].name), capitalizeFirstLetter(studentData[nextIndex].name));
-//   }
-// }
+function displayStudentData(studentName) {
+  let classEnglish = studentData.classAverage.English;
+  let classLS = studentData.classAverage.LifeSkills;
+  let classTech = studentData.classAverage.Tech;
+  let classPS = studentData.classAverage.ProblemSolving;
+  let classOverall = studentData.classAverage.AcademicOverall;
+  let classProject = studentData.classAverage.Project;
 
-// // change the score in page and color via function
-// function score_fun(sub, score) {
-//   sub.innerText = score;
-//   color_change(sub);
-// }
+  const student = studentData[studentName];
 
-// // background color change for scores
-// function color_change(sub) {
-//   sub.parentElement.style.backgroundColor = scores_color(Number(sub.innerText));
-// }
+  if (student) {
+    name_change(studentName, teacherNames);
+    smy_change(section.slice(-1), month.slice(0, 3), year);
+    // changeRemark(student.remarks);
 
-// // determine which color to change for scores
-// function scores_color(score) {
-//   if (score > 80 && score <= 100) {
-//     return "#7ed957";
-//   } else if (score > 50 && score <= 80) {
-//     return "#ffde59";
-//   } else {
-//     return "#ff5757";
-//   }
-// }
+    // to update scores
+    score_fun(english, student.English);
+    score_fun(tech, student.Tech);
+    score_fun(life_skills, student.LifeSkills);
+    score_fun(problem_solving, student.ProblemSolving);
+    score_fun(overall, student.AcademicOverall);
+    score_fun(attendance, student.Attendance);
+    score_fun(behavior, student.Behavior);
 
-// // change student and teachers name
-// function name_change(student_name, teach_name) {
-//   studentName.innerText = student_name.toUpperCase();
-//   studentName1.innerText = student_name;
-//   current_name.innerText = student_name;
-//   teacherName.innerText = teach_name.toUpperCase();
-// }
+    // for class average
+    score_fun(class_eng, classEnglish);
+    score_fun(class_els, classLS);
+    score_fun(class_tech, classTech);
+    score_fun(class_pb, classPS);
+    score_fun(class_overall, classOverall);
 
-// // change section,month and year
-// function smy_change(sec, mon, yr) {
-//   section.innerText = sec;
-//   month.innerText = mon;
-//   year.innerText = yr;
-// }
+    // for project 
+    if (hasProject) {
+      score_fun(project, student.Project);
+      score_fun(class_project, classProject);
+    }
+  }
+}
 
-// function changeRemark(remark){
-//   remarks.innerText=remark;
-// }
+// change the score in page and color via function
+function score_fun(sub, score) {
+  sub.innerText = Math.round(score);
+  color_change(sub);
+}
 
-// // change previous and next student name for navigation
-// function prev_next_name(prev_name, nxt_name) {
-//   previous_name.innerText = prev_name;
-//   next_name.innerText = nxt_name;
-// }
+// background color change for scores
+function color_change(sub) {
+  sub.parentElement.style.backgroundColor = scores_color(Number(sub.innerText));
+}
 
-// // Event listener for the "Next" button
-// next_person.addEventListener("click", () => {
-//   if (currentIndex >= studentData.length - 1) {
-//     alert("No more students available");
-//   } else {
-//     currentIndex++;
-//     displayStudentData(currentIndex);
-//   }
-// });
+// determine which color to change for scores
+function scores_color(score) {
+  if (score > 80 && score <= 100) {
+    return "#7ed957";
+  } else if (score > 50 && score <= 80) {
+    return "#ffde59";
+  } else {
+    return "#ff5757";
+  }
+}
 
-// // Event listener for the "Previous" button
-// previous_person.addEventListener("click", () => {
-//   if (currentIndex <= 0) {
-//     alert("No more students available");
-//   } else {
-//     currentIndex--;
-//     displayStudentData(currentIndex);
-//   }
-// });
+// change student and teachers name
+function name_change(student_name, teach_name) {
+  let temp=student_name;
+  if(student_name.length>15){
+      student_name = prompt(`Please enter a smaller name for this student " ${student_name} " `);
+  }
+  if(student_name.length<3){
+      student_name=prompt(`Please Enter a valid name for this student " ${temp} "`)
+  }
+  studentName.innerText = student_name;
+  studentName1.innerText = student_name;
+  teacherName.innerText = teach_name;
+}
 
+// change section,month and year
+function smy_change(sec, mon, yr) {
+  Rpsection.innerText = sec;
+  RPmonth.innerText = mon;
+  RPyear.innerText = yr;
+}
 
-// // to capitalize the first letter of a name
-// function capitalizeFirstLetter(str) {
-//   return str[0].toUpperCase() + str.slice(1);
-// }
+function changeRemark(remark) {
+  remarks.innerText = remark;
+}
 
 // // to download report-card container as jpg
 
-// document.getElementById("download").addEventListener("click", function () {
-//   html2canvas(card, { willReadFrequently: true }).then((canvas) => {
-//     canvas.toBlob(function (imageData) {
-//       const link = document.createElement("a");
-//       link.download = `${section.innerText.toUpperCase()} - ${studentName1.innerText} - report-card.jpg`;
-//       link.href = URL.createObjectURL(imageData);
+downloadNow.addEventListener("click", function () {
+  html2canvas(card, { willReadFrequently: true }).then((canvas) => {
+    canvas.toBlob(function (imageData) {
+      const link = document.createElement("a");
+      link.download = `${section.slice(-1)} - ${
+        studentName1.innerText
+      } - report-card.jpg`;
+      link.href = URL.createObjectURL(imageData);
 
-//       link.click();
+      link.click();
 
-//       URL.revokeObjectURL(link.href);
-//     }, "image/jpeg");
-//   });
-// });
-
-
-
-
-// // to download all students report card at once
-
-// function download_all_student(student_name_download, student_sec) {
-//   html2canvas(card, { willReadFrequently: true }).then((canvas) => {
-//     canvas.toBlob(function (imageData) {
-//       const link = document.createElement("a");
-//       link.download = `${student_sec} - ${student_name_download} - report-card.jpg`;
-//       link.href = URL.createObjectURL(imageData);
-//       link.click();
-//       URL.revokeObjectURL(link.href);
-//     }, "image/jpeg");
-//   });
-// }
-
-// download_all.addEventListener("click", () => {
-//   for (let i = 0; i < studentData.length; i++) {
-//     const student = studentData[i];
-//     name_change(capitalizeFirstLetter(student.name), student.teachers_name);
-//     smy_change(student.section, student.month, student.year);
-//     changeRemark(student.remarks);
-    
-//     // to update scores
-//     score_fun(english, student.english);
-//     score_fun(tech, student.tech);
-//     score_fun(life_skills, student.lifeskills);
-//     score_fun(problem_solving, student.problem_solving);
-//     score_fun(overall, student.overall);
-//     score_fun(attendance, student.attendance);
-//     score_fun(behavior, student.behavior);
-
-//     // for class average
-//     score_fun(class_eng,student.class_english);
-//     score_fun(class_els,student.class_lifeskills);
-//     score_fun(class_tech,student.class_tech);
-//     score_fun(class_pb,student.class_problem_solving);
-//     score_fun(class_overall,student.class_overall);
+      URL.revokeObjectURL(link.href);
+    }, "image/jpeg",1.0);
+  });
+});
 
 
-//     download_all_student(capitalizeFirstLetter(student.name), student.section.toUpperCase());
-//   }
-// });
+function download_all_student( student_sec) {
+  return new Promise((resolve) => {
+    html2canvas(card, { willReadFrequently: true }).then((canvas) => {
+      canvas.toBlob(function (imageData) {
+        const link = document.createElement("a");
+        link.download = `${student_sec} - ${studentName1.innerText} - report-card.jpg`;
+        link.href = URL.createObjectURL(imageData);
+        link.click();
+        URL.revokeObjectURL(link.href);
+        resolve();  
+      }, "image/png",1.0);
+    });
+  });
+}
 
+downloadAll.addEventListener("click", () => {
+  console.log("Starting downloads...");
+
+  studentNames.reduce((promise, studentName, i) => {
+    return promise.then(() => {
+      let classEnglish = studentData.classAverage.English;
+      let classLS = studentData.classAverage.LifeSkills;
+      let classTech = studentData.classAverage.Tech;
+      let classPS = studentData.classAverage.ProblemSolving;
+      let classOverall = studentData.classAverage.AcademicOverall;
+      let classProject = studentData.classAverage.Project;
+
+      const student = studentData[studentName];
+
+      if (student) {
+        name_change(studentName, teacherNames);
+        smy_change(section.slice(-1), month.slice(0, 3), year);
+
+        // Update scores
+        score_fun(english, student.English);
+        score_fun(tech, student.Tech);
+        score_fun(life_skills, student.LifeSkills);
+        score_fun(problem_solving, student.ProblemSolving);
+        score_fun(overall, student.AcademicOverall);
+        score_fun(attendance, student.Attendance);
+        score_fun(behavior, student.Behavior);
+        score_fun(project, student.Project);
+
+        // For class average
+        score_fun(class_eng, classEnglish);
+        score_fun(class_els, classLS);
+        score_fun(class_tech, classTech);
+        score_fun(class_pb, classPS);
+        score_fun(class_overall, classOverall);
+        score_fun(class_project, classProject);
+      }
+
+      return download_all_student( section.slice(-1));
+    });
+  }, Promise.resolve()).then(() => {
+    console.log("All downloads complete.");
+  });
+});
+
+document.getElementById("searchBox").addEventListener("input", () => {
+  const query = document.getElementById("searchBox").value;
+  const suggestionsBox = document.getElementById("suggestions");
+  suggestionsBox.innerHTML = "";
+
+  if (!studentNames || query.length === 0) return;
+
+  // Filter student names based on query
+  const filteredData = studentNames.filter((student) =>
+    student.toLowerCase().includes(query.toLowerCase())
+  );
+
+  filteredData.forEach((student) => {
+    const suggestionItem = document.createElement("div");
+    suggestionItem.textContent = student;
+    suggestionItem.classList.add("suggestion-item", "list-group-item");
+
+    suggestionItem.addEventListener("click", () => {
+      document.getElementById("searchBox").value = student;
+      suggestionsBox.innerHTML = "";
+      displayStudentData(student);
+    });
+
+    suggestionsBox.appendChild(suggestionItem);
+  });
+});
+
+
+previous.addEventListener("click",()=>{
+    index=index-1;
+    if(index>=0){
+      displayStudentData(studentNames[index]);
+    }
+    else{
+      alert("No more Students !!!")
+    }
+})
+
+next.addEventListener("click",()=>{
+    index=index+1;
+    if(index<studentNames.length){
+      displayStudentData(studentNames[index]);
+    }
+    else{
+      alert("No more Students !!!")
+    }
+});
+
+
+function changeToNotProject() {
+  document.getElementById("projectLabel").style.display="none";
+  project.parentElement.style.display="none";
+  class_project.parentElement.style.display="none";
+  document.querySelector(".labels").style.gap=".5rem";
+  document.querySelector(".scores").style.gap=".4rem";
+  document.querySelector(".class-scores").style.gap=".4rem";
+  document.querySelector(".left-side").style.gap=".6rem";
+  document.querySelectorAll(".scores-bottom div").forEach(x=>{
+    x.style.gap=".4rem";
+  })
+
+}
