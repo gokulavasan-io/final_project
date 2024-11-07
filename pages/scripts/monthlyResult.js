@@ -67,6 +67,7 @@ async function fetchResultData(path) {
       Attendance: resultData[key].Attendance || 0,
       Behavior: resultData[key].Behavior || 0,
       Project: resultData[key].Project || 0,
+      Remark:resultData[key].Remark||"",
     }));
   }
   return [];
@@ -95,6 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       Attendance: 0,
       Behavior: 0,
       Overall: 0,
+      Remark:"",
     };
   });
 
@@ -156,6 +158,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           Attendance: result.Attendance || 0,
           Behavior: result.Behavior || 0,
           Project: result.Project || 0,
+          Remark:result.Remark||"",
         };
       }
     });
@@ -285,6 +288,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "Behavior",
       "Academic Overall",
       "Overall",
+      "Remark",
     ],
     columns: [
       { data: "student", readOnly: true },
@@ -296,6 +300,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       { data: "Behavior", type: "numeric" },
       { data: "AcademicOverall", type: "numeric", readOnly: true },
       { data: "Overall", type: "numeric", readOnly: true },
+      {data:"Remark",type:"text", width: 80,},
     ],
     cells: function (row, col) {
       const cellProperties = {};
@@ -453,7 +458,7 @@ async function saveOrUpdateResult() {
   const resultData = tableData.reduce((acc, student) => {
     const studentNames = student.student;
     const isChecked = document.getElementById("addProject").checked;
-    if (isChecked) {
+    if (isChecked) {     // if project column exists
       acc[studentNames] = {
         Attendance: student.Attendance || 0,
         Behavior: student.Behavior || 0,
@@ -464,6 +469,7 @@ async function saveOrUpdateResult() {
         Project: student.Project || 0,
         AcademicOverall: student.AcademicOverall || 0,
         Overall: student.Overall || 0,
+        Remark:student.Remark||"",
       };
     } else {
       acc[studentNames] = {
@@ -475,6 +481,7 @@ async function saveOrUpdateResult() {
         ProblemSolving: student.ProblemSolving || 0,
         AcademicOverall: student.AcademicOverall || 0,
         Overall: student.Overall || 0,
+        Remark:student.Remark||"",
       };
     }
     return acc;

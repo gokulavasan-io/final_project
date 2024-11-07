@@ -136,7 +136,7 @@ function displayStudentData(studentName) {
   if (student) {
     name_change(studentName, teacherNames);
     smy_change(section.slice(-1), month.slice(0, 3), year);
-    // changeRemark(student.remarks);
+    changeRemark(student.Remark);
 
     // to update scores
     score_fun(english, student.English);
@@ -206,6 +206,12 @@ function smy_change(sec, mon, yr) {
 }
 
 function changeRemark(remark) {
+  if(remark.length>35){
+    remark=prompt(`Please enter a shorter remark for this student : ${remark}`);
+  }
+  if(remark==""){
+    remark="Nothing !!!";
+  }
   remarks.innerText = remark;
 }
 
