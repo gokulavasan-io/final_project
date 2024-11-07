@@ -26,7 +26,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth();
-
+document.getElementById("reportCard").style.display="none";
 const subjectsAside=document.querySelectorAll(".subjectsAside a");
 subjectsAside.forEach(x=>{
   x.addEventListener("click",()=>{
@@ -111,3 +111,4 @@ document.getElementById("analysisNav").addEventListener("click",()=>{
 
 document.getElementById("user").innerText=userName.slice(0,1).toUpperCase();
 document.getElementById("classNow").textContent = `${section.split("s")[2]}`;
+

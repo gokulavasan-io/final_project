@@ -509,3 +509,7 @@ function showSuccessMessage(str) {
 document.getElementById("backButton").addEventListener("click", () => {
   window.location.href = "../../pages/html/monthlySubjectHome.html";
 });
+
+document.getElementById("seeMarks").addEventListener("click",()=>{
+  window.location.href="../../pages/html/reportCardDownload.html"
+})

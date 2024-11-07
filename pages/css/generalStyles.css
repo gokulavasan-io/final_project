@@ -176,7 +176,7 @@ header a{
     margin-right: 1.1rem;  
 }
 
-.logo{
+header .logo{
     margin-left:2% ;
     font-weight: bolder;
     color: var(--font-color);
