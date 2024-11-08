@@ -30,8 +30,9 @@
             --primary-color: #0e2238;
             --font-color: #fff;
             --border-left: #3b7ddd;
-            --font:poppins;
+            --font: poppins;
         }
+
         .fonts {
             font-family: var(--font);
         }
@@ -45,6 +46,7 @@
             gap: 1rem;
             z-index: 100;
             font-family: poppins;
+            flex-direction: column;
 
         }
 
@@ -71,7 +73,7 @@
         #handsontable-container {
             position: fixed;
             left: 17%;
-            top: 20%;
+            top: 18%;
             font-family: poppins;
             z-index: -100;
         }
@@ -88,13 +90,19 @@
             font-weight: bolder;
         }
 
-        #loading{
+        #loading {
             position: absolute;
             left: 52%;
             top: 48%;
             transform: translate(-50%, -50%);
             font-size: 4rem;
-            color:var(--border-left);
+            color: var(--border-left);
+        }
+
+        .handsontable td {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
     </style>
 
@@ -160,7 +168,7 @@
                 </a>
             </li>
 
-            <li class="sidebar-item">
+            <li class="sidebar-item" id="reportCard">
                 <a href="#" class="sidebar-link">
                     <i class="lni lni-whatsapp"></i>
                     <span>Share report card</span>
@@ -217,9 +225,9 @@
         Successfully Logged Out
     </div>
 
-    <div id="loading" ><i class="fa fa-spinner fa-spin"></i></div>
+    <div id="loading"><i class="fa fa-spinner fa-spin"></i></div>
 
-    
+
     <div id="page-name"><span id="month">xxx</span>&nbsp;&nbsp; month report</div>
 
 

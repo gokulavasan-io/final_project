@@ -155,7 +155,7 @@
                 </a>
             </li>
 
-            <li class="sidebar-item">
+            <li class="sidebar-item" id="reportCard">
                 <a href="#" class="sidebar-link">
                     <i class="lni lni-whatsapp"></i>
                     <span>Share report card</span>
@@ -216,25 +216,25 @@
         <h4 class="mb-3">Subjects</h4>
         <div class="subjects-container">
             <div class="eng-container">
-                <a href="../../pages/html/monthlySubject.html" id="English" class="sub-cards">
+                <a id="English" class="sub-cards">
                     <img src="../../assets/images/home_img/img_english.png" class="img-fluid">
                     <p class="text-center">English</p>
                 </a>
             </div>
             <div class="lifeskills-container">
-                <a href="../../pages/html/monthlySubject.html" id="LifeSkills" class="sub-cards">
+                <a id="LifeSkills" class="sub-cards">
                     <img src="../../assets/images/home_img/img_lifeskills.png" class="img-fluid">
                     <p class="text-center">Life Skills</p>
                 </a>
             </div>
             <div class="tech-container">
-                <a href="../../pages/html/monthlySubject.html" id="Tech" class="sub-cards">
+                <a id="Tech" class="sub-cards">
                     <img src="../../assets/images/home_img/img_tech.png" class="img-fluid">
                     <p class="text-center">Tech</p>
                 </a>
             </div>
             <div class="problem-solving-container">
-                <a href="../../pages/html/monthlySubject.html" id="ProblemSolving" class="sub-cards">
+                <a id="ProblemSolving" class="sub-cards">
                     <img src="../../assets/images/home_img/img_problem-soving.jpeg" class="img-fluid">
                     <p class="text-center">Problem Solving</p>
                 </a>
@@ -260,6 +260,15 @@
 
 
     <script>
+        let subjects=document.querySelectorAll(".subjects-container a");
+        for(let i=0;i<subjects.length;i++){
+            subjects[i].addEventListener("click",()=>{
+                localStorage.setItem("subject",subjects[i].id);
+                window.location.href="../../pages/html/monthlySubject.html";
+            })
+        }
+
+
         const month = localStorage.getItem("month");
         document.getElementById("whichMonth").innerText = month;
     </script>
