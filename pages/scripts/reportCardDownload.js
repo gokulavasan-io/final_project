@@ -171,6 +171,16 @@ function score_fun(sub, score) {
 // background color change for scores
 function color_change(sub) {
   sub.parentElement.style.backgroundColor = scores_color(Number(sub.innerText));
+  if(Number(sub.innerText)<51){
+    sub.parentElement.style.color="white";
+  }
+  else if(Number(sub.innerText)>=51 && Number(sub.innerText)<81){
+    sub.parentElement.style.color="black";
+  }
+  else{
+    sub.parentElement.style.color="black";
+
+  }
 }
 
 // determine which color to change for scores
@@ -300,7 +310,7 @@ document.getElementById("searchBox").addEventListener("input", () => {
 
   if (!studentNames || query.length === 0) return;
 
-  // Filter student names based on query
+  // Filter student names based on search
   const filteredData = studentNames.filter((student) =>
     student.toLowerCase().includes(query.toLowerCase())
   );

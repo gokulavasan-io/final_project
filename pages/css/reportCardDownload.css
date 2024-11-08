@@ -226,10 +226,15 @@ h4{
     justify-content: center;
     border-radius: 50px;
     align-items: center; 
+    gap: 1px;
 }
 
 .scores-top p span{
     font-size: .85rem;
+}
+
+.scores-top p span:first-child{
+    font-weight: 600;
 }
 
 .personal-score .labels{
@@ -308,9 +313,15 @@ h4{
     align-items: center;
     border-radius: 50px;
     height: 50%;
+    gap: 1px;
+
 }
 .scores-bottom p span{
     font-size: .85rem;
+}
+
+.scores-bottom p span:first-child{
+    font-weight: 600;
 }
 
 .bottomContainer p{
