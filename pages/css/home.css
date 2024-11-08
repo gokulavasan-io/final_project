@@ -50,3 +50,11 @@
 }
 
 
+#progressmsg{
+    position: fixed;
+    top: 60%;
+    left: 35%;
+    font-family: var(--font);
+    font-size: 3rem;
+    font-weight: bold;
+}
