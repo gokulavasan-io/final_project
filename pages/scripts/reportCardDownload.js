@@ -228,6 +228,11 @@ function changeRemark(remark) {
 // // to download report-card container as jpg
 
 downloadNow.addEventListener("click", function () {
+    downloadReportCardNow();
+});
+
+
+function downloadReportCardNow() {
   html2canvas(card, { willReadFrequently: true }).then((canvas) => {
     canvas.toBlob(function (imageData) {
       const link = document.createElement("a");
@@ -241,7 +246,7 @@ downloadNow.addEventListener("click", function () {
       URL.revokeObjectURL(link.href);
     }, "image/jpeg",1.0);
   });
-});
+}
 
 
 function download_all_student( student_sec) {
@@ -365,3 +370,31 @@ function changeToNotProject() {
   })
 
 }
+
+
+window.addEventListener('keydown', function (e) {
+  if (e.keyCode == 37) {
+    index=index-1;
+    if(index>=0){
+      displayStudentData(studentNames[index]);
+    }
+    else{
+      alert("No more Students !!!")
+    }
+      
+  }
+  if (e.keyCode == 39) {
+    index=index+1;
+    if(index<studentNames.length){
+      displayStudentData(studentNames[index]);
+    }
+    else{
+      alert("No more Students !!!")
+    }
+      
+  }
+  if(e.keyCode==13){
+    downloadReportCardNow();
+  }
+
+});
