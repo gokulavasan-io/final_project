@@ -221,9 +221,15 @@ h4{
     background-color: white;
     border: 1px solid black;
     width: 5rem;
+    height: 15%;
     display: flex;
     justify-content: center;
     border-radius: 50px;
+    align-items: center; 
+}
+
+.scores-top p span{
+    font-size: .85rem;
 }
 
 .personal-score .labels{
@@ -299,7 +305,12 @@ h4{
     width: 5rem;
     display: flex;
     justify-content: center;
+    align-items: center;
     border-radius: 50px;
+    height: 50%;
+}
+.scores-bottom p span{
+    font-size: .85rem;
 }
 
 .bottomContainer p{
