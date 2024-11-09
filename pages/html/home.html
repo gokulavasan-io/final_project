@@ -132,6 +132,8 @@
         <div id="logoutMessage" class="popup">
             Successfully Logged Out
         </div>
+    <div id="loading" ><i class="fa fa-spinner fa-spin"></i></div>
+
 
         <div id="showClassesForLead">
             <div>Choose Class</div>
@@ -143,13 +145,89 @@
         </div>
 
         <div class="main-container">
+            <div class="baseData">
+                <div class="gender">
+                    <h6>Gender</h6>
+                    <div class="count">
+                        <div>
+                            <label for=""><i class="fa fa-male" aria-hidden="true"></i>&nbsp; Male</label>
+                            <label for=""><i class="fa fa-female"></i>&nbsp;Female</label>
+                        </div>
+                        <div>
+                            <div id="male">00</div>
+                            <div id="female">00</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="age">
+                    <h6>Age</h6>
+                    <div class="count">
+                        <div>17 - <span id="age17">00</span></div>
+                        <div>18 - <span id="age18">00</span></div>
+                        <div>19 - <span id="age19">00</span></div>
+                        <div>20 - <span id="age20">00</span></div>
+                        <div>21 - <span id="age21">00</span></div>
+                        
+                    </div>
+                </div>
+                <div class="medium">
+                    <h6>Medium</h6>
+                    <div class="count">
+                        <div>
+                            <label for="">English</label>
+                            <label for="">Tamil/Malayalam</label>
+                        </div>
+                        <div>
+                            <div id="engMed">00</div>
+                            <div id="tamMed">00</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="schoolType">
+                    <h6>School Type</h6>
+                    <div class="count">
+                        <div>
+                            <label for="">Private</label>
+                            <label for="">Govt/Govtaided</label>
+                        </div>
+                        <div>
+                            <div id="private">00</div>
+                            <div id="govt">00</div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="category">
+                    <h6>Category</h6>
+                    <div class="count">
+                        <div>A - <span id="catA">00</span></div>
+                        <div>B - <span id="catB">00</span></div>
+                        <div>C+ - <span id="catC">00</span></div>
+                        <div>D - <span id="catD">00</span></div>
+                        <div>E - <span id="catE">00</span></div>
+                        
+                    </div>
+
+                </div>
+                <div class="buttonForMonthChange">
+                    <div class="dropdown" id="forMonth">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Choose month
+                        </button>
+                        <ul class="dropdown-menu" id="monthsButton">
+                            <li><a class="dropdown-item" href="#" id="allMonth">All month</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div class="forClass">
                 <div id="academicTopBottom">
                     <div class="techTable">
                         <table class="table table-bordered ">
                             <thead class="tableHead">
                                 <tr>
-                                    <td style="background-color: rgb(155, 150, 2) !important ; color: white;" colspan="2">Tech</td>
+                                    <td style="background-color: rgb(155, 150, 2) !important ; color: white;" colspan="2" class="subjectHeading">x</td>
                                 </tr>
                                 <tr>
                                     <td style="background-color: green !important ; color: white;">Top</td>
@@ -158,24 +236,24 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td id="techT1" >x1</td>
-                                    <td id="techB1">y1</td>
+                                    <td id="techT1" >x</td>
+                                    <td id="techB1">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="techT2">x2</td>
-                                    <td id="techB2">y2</td>
+                                    <td id="techT2">x</td>
+                                    <td id="techB2">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="techT3">x3</td>
-                                    <td id="techB3">y3</td>
+                                    <td id="techT3">x</td>
+                                    <td id="techB3">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="techT4">x4</td>
-                                    <td id="techB4">y4</td>
+                                    <td id="techT4">x</td>
+                                    <td id="techB4">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="techT5">x5</td>
-                                    <td id="techB5">y5</td>
+                                    <td id="techT5">x</td>
+                                    <td id="techB5">y</td>
                                 </tr>
                                 
                             </tbody>
@@ -185,7 +263,7 @@
                         <table class="table table-bordered ">
                             <thead class="tableHead">
                                 <tr>
-                                    <td style="background-color: rgb(155, 150, 2) !important ; color: white;" colspan="2">Problem Solving</td>
+                                    <td style="background-color: rgb(155, 150, 2) !important ; color: white;" colspan="2" class="subjectHeading">x</td>
                                 </tr>
                                 <tr>
                                     <td style="background-color: green !important ; color: white;">Top</td>
@@ -194,37 +272,59 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td id="psT1">x1</td>
-                                    <td id="psB1">y1</td>
+                                    <td id="psT1">x</td>
+                                    <td id="psB1">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="psT2">x2</td>
-                                    <td id="psB2">y2</td>
+                                    <td id="psT2">x</td>
+                                    <td id="psB2">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="psT3">x3</td>
-                                    <td id="psB3">y3</td>
+                                    <td id="psT3">x</td>
+                                    <td id="psB3">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="psT4">x4</td>
-                                    <td id="psB4">y4</td>
+                                    <td id="psT4">x</td>
+                                    <td id="psB4">y</td>
                                 </tr>
                                 <tr>
-                                    <td id="psT5">x5</td>
-                                    <td id="psB5">y5</td>
+                                    <td id="psT5">x</td>
+                                    <td id="psB5">y</td>
                                 </tr>
                     
                             </tbody>
                         </table>
                     </div>
                 </div>
+                <div class="graph">
+                    <div >
+                        <canvas id="techChart"></canvas>
+                    </div>
+                    <div >
+                        <canvas id="problemSolvingChart" ></canvas>
+                    </div>
+                </div>
                 
             </div>
-
+            <div class="forManagement">
+                <div class="graphForManagement">
+                    <div >
+                        <canvas id="menglishChart"></canvas>
+                    </div>
+                    <div >
+                        <canvas id="mlsChart" ></canvas>
+                    </div>
+                    <div >
+                        <canvas id="mtechChart"></canvas>
+                    </div>
+                    <div >
+                        <canvas id="mproblemSolvingChart" ></canvas>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
-        <div id="progressmsg">❗Page in progress</div>
 
   
           <script type="module" src="../scripts/home.js"></script>
