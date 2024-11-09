@@ -47,11 +47,17 @@ document.getElementById("logout").addEventListener("click", function () {
 document.getElementById("yes").addEventListener("click", function () {
   signOut(auth)
     .then(() => {
-      deleteCookie("userLoggedIn");
+      deleteCookie("userLoggedIn"); // Assuming you have a deleteCookie function
       showLogoutMessage();
+
+      // Redirect to index.html and disable back navigation
       setTimeout(() => {
-        window.location.href = "../../index.html";
-      }, 100);
+        window.location.replace("../../index.html");
+        history.pushState(null, null, "../../index.html");
+        window.addEventListener("popstate", function (event) {
+          history.pushState(null, null, "../../index.html");
+        });
+      }, 500);
     })
     .catch((error) => {
       console.log("An error happened.");

@@ -25,10 +25,13 @@ const auth = getAuth();
 window.onload = function () {
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // Redirect if the user is already logged in
-      window.location.href = "pages/html/home.html";
+      window.location.replace("pages/html/home.html");
     } else {
       console.log("User is not logged in.");
+      window.history.pushState(null, null, window.location.href);
+      window.addEventListener("popstate", function () {
+      window.history.pushState(null, null, window.location.href);
+      });
     }
   });
 };
