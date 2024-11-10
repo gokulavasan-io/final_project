@@ -177,14 +177,19 @@ async function fetchMonthsForButton(section) {
 
 async function monthsReadyForbutton() {
   await Promise.all(classes.map(fetchMonthsForButton));
+
+  // Sort months in the expected order
   monthsForSelection.sort(
     (a, b) => orderedMonths.indexOf(a) - orderedMonths.indexOf(b)
   );
 
-  // Dynamically populate month dropdown items only if data exists for each month
   for (const month of monthsForSelection) {
     const data = await fetchStudentMarks(month);
-    if (Object.keys(data).length > 0) {  // Only add the month if data exists
+    
+    console.log(`Checking month: ${month}`, data); // Debugging: log data for each month
+
+    // Check if the month has complete numeric data for all subjects
+    if (isMonthComplete(data)) {
       let eachMonth = document.createElement("li");
       eachMonth.innerHTML = `<a class="dropdown-item" href="#" id="${month}">${month}</a>`;
       document.getElementById("monthsButton").appendChild(eachMonth);
@@ -195,9 +200,38 @@ async function monthsReadyForbutton() {
         prepareTable(month);
         document.getElementById("forMonth").querySelector("button").textContent = month;
       });
+    } else {
+      console.log(`Incomplete data for month: ${month}`); // Debugging: show incomplete months
     }
   }
 }
+
+// Helper function to check if a month has complete data for all subjects and no all-zero subjects
+function isMonthComplete(data) {
+  const subjects = role === "others" 
+    ? ["English", "LifeSkills", "Tech", "ProblemSolving"] 
+    : role === "Tech" 
+    ? ["Tech", "ProblemSolving"] 
+    : ["English", "LifeSkills"];
+  
+  // Check if each subject has at least one non-zero value across all students
+  const hasNonZeroSubjectValues = subjects.every(subject => {
+    // Ensure the subject exists with a numeric value and is not all zeroes
+    return Object.values(data).some(studentData => 
+      typeof studentData[subject] === "number" && studentData[subject] !== 0
+    );
+  });
+
+  // Ensure all students have numeric data for all subjects and at least one non-zero subject value
+  const isComplete = Object.values(data).every(studentData => 
+    subjects.every(subject => typeof studentData[subject] === "number")
+  );
+
+  return isComplete && hasNonZeroSubjectValues;
+}
+
+
+
 
 
 // Calculate and display top 5 and bottom 5 students based on average scores across all months
@@ -260,14 +294,6 @@ async function calculateAndDisplayTopBottomAverages() {
 }
 
 
-// Helper function to calculate the average of an array of numbers
-function calculateAverage(scores) {
-  const sum = scores.reduce((acc, score) => acc + score, 0);
-  return scores.length ? sum / scores.length : 0;
-}
-
-
-
 
 async  function baseDataFetch() {
   // Construct the document path as a string
@@ -317,76 +343,67 @@ function changeBaseDataCount(data) {
 }
 
 
-//////////////////////////// for graph
-
-// Fetch data for each month and create charts
 async function fetchMonthlyData() {
-  const subject1Data = [];
-  const subject2Data = [];
-  const subject3Data = [];
-  const subject4Data = [];
-  let subjects;
-  if (role === "others") {
-    subjects = ["English", "LifeSkills", "Tech", "ProblemSolving"];
-  } else if (role === "Tech") {
-    subjects = ["Tech", "ProblemSolving"];
-  } else {
-    subjects = ["English", "LifeSkills"];
-  }
-
-  let months = [...monthsForGraph]; // Clone months to avoid modifying the original
+  // Define subjects before using them
+  const subjects = role === "others" 
+    ? ["English", "LifeSkills", "Tech", "ProblemSolving"] 
+    : role === "Tech" 
+    ? ["Tech", "ProblemSolving"] 
+    : ["English", "LifeSkills"];
+  
+  const subjectDataArrays = subjects.map(() => []); // Initialize an array for each subject
+  
+  let months = [...monthsForGraph];
+  
   for (let month of months) {
     const dbRef = ref(database, `/studentMarks/${section}/months/${month}/result/classAverage`);
-    try {
-      const snapshot = await get(dbRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
+    const snapshot = await get(dbRef);
 
-        subject1Data.push(data[subjects[0]]);
-        subject2Data.push(data[subjects[1]]);
-        if (role === "others") {
-          subject3Data.push(data[subjects[2]]);
-          subject4Data.push(data[subjects[3]]);
-        }
-      } else {
-        subject1Data.push(null);
-        subject2Data.push(null);
-        if (role === "others") {
-          subject3Data.push(null);
-          subject4Data.push(null);
-        }
-      }
-    } catch (error) {
-      console.error(`Error fetching data for ${month}:`, error);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      subjects.forEach((subject, i) => {
+        subjectDataArrays[i].push(data[subject] || null); // Add data or null if missing
+      });
+    } else {
+      // If no data exists for the month, push null for each subject
+      subjectDataArrays.forEach(array => array.push(null));
     }
   }
 
-  const calculateAverage = (data) => data.filter((val) => val !== null).reduce((sum, val) => sum + val, 0) / data.filter((val) => val !== null).length;
+  // Check if a month has valid data for all subjects
+  const isValidMonth = (idx) => subjectDataArrays.every(subjectData => subjectData[idx] !== null);
 
-  const subject1Average = calculateAverage(subject1Data);
-  const subject2Average = calculateAverage(subject2Data);
-  const subject3Average = calculateAverage(subject3Data);
-  const subject4Average = calculateAverage(subject4Data);
+  // Filter months and data for only those months where all subjects have data
+  const validMonths = months.filter((_, idx) => isValidMonth(idx));
+  const validSubjectDataArrays = subjectDataArrays.map(subjectData =>
+    subjectData.filter((_, idx) => isValidMonth(idx))
+  );
 
-  subject1Data.push(subject1Average);
-  subject2Data.push(subject2Average);
-  if (role === "others") {
-    subject3Data.push(subject3Average);
-    subject4Data.push(subject4Average);
-  }
-  months.push("Total");
+  // Add "Total" at the end of valid months and calculate averages for each subject data array
+  validMonths.push("Total");
+  validSubjectDataArrays.forEach((dataArray, i) => {
+    const avg = calculateAverage(dataArray);
+    validSubjectDataArrays[i] = [...dataArray, avg]; // Add the average to the end
+  });
 
+  // Plot the data if available
   if (role !== "others") {
-    createChart('techChart', `${subjects[0]} Average by Month`, months, subject1Data);
-    createChart('problemSolvingChart', `${subjects[1]} Average by Month`, months, subject2Data);
+    createChart('techChart', `${subjects[0]} Average by Month`, validMonths, validSubjectDataArrays[0]);
+    createChart('problemSolvingChart', `${subjects[1]} Average by Month`, validMonths, validSubjectDataArrays[1]);
   } else {
-    createChart('menglishChart', `${subjects[0]} Average by Month`, months, subject1Data);      
-    createChart('mlsChart', `${subjects[1]} Average by Month`, months, subject2Data);
-    createChart('mtechChart', `${subjects[2]} Average by Month`, months, subject3Data);
-    createChart('mproblemSolvingChart', `${subjects[3]} Average by Month`, months, subject4Data);
+    createChart('menglishChart', `${subjects[0]} Average by Month`, validMonths, validSubjectDataArrays[0]);
+    createChart('mlsChart', `${subjects[1]} Average by Month`, validMonths, validSubjectDataArrays[1]);
+    createChart('mtechChart', `${subjects[2]} Average by Month`, validMonths, validSubjectDataArrays[2]);
+    createChart('mproblemSolvingChart', `${subjects[3]} Average by Month`, validMonths, validSubjectDataArrays[3]);
   }
 }
 
+// Helper function to calculate the average of an array of numbers, ignoring nulls
+function calculateAverage(dataArray) {
+  const validData = dataArray.filter(val => val !== null); // Exclude nulls from the average calculation
+  const sum = validData.reduce((acc, val) => acc + val, 0);
+  return validData.length ? sum / validData.length : 0;
+}
 
 
 function createChart(chartId, label, labels, data) {
