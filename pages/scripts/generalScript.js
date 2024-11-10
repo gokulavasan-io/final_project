@@ -26,6 +26,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth();
+
+
+const favIcon = document.createElement("link");
+favIcon.rel = "icon";
+favIcon.type = "image/x-icon";
+favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
+document.head.appendChild(favIcon);
+
+
+
 document.getElementById("reportCard").style.display="none";
 const subjectsAside=document.querySelectorAll(".subjectsAside a");
 subjectsAside.forEach(x=>{

@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@11.0.0/dist/handsontable.full.min.css">
     <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
 
 </head>
@@ -135,12 +136,22 @@
     
 
     <div class="main-container">
-    <div id="attendanceTable"></div>
+        <div id="attendanceTable"></div>
+    </div> 
 
-    <button class="btn" id="countBtn">Count Attendance</button>
-    <button class="btn" id="dailyCount">daily count</button>
 
-    <div id="dailyCountsTable"></div>
+    <!-- Loading Spinner and Progress -->
+<div id="loadingOverlay" style="display: none;">
+    <div id="spinner" class="spinner"></div>
+    <p id="progressMessage">Calculating scores... 0% complete</p>
+  </div>
+
+    <div class="buttonsContainer">
+        <button class="btn btn-danger" id="countBtn">Count Attendance</button>
+     <button class="btn btn-danger" id="dailyCount">daily count</button> 
+    </div>
+
+   <!-- <div id="dailyCountsTable"></div>
 
 
     <div id="remarksList">
@@ -156,8 +167,7 @@
             <tbody id="remarksBody">
             </tbody>
         </table>
-    </div>
-    </div>
+    </div>-->
 
 
 

@@ -1,12 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  get,
-  child,
-  update,remove,
-  set,
-} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+import Handsontable from 'https://cdn.jsdelivr.net/npm/handsontable@11.0.0/+esm'; // Import Handsontable
 
 // Firebase configuration
 const firebaseConfig = {
@@ -18,357 +12,311 @@ const firebaseConfig = {
   appId: "1:716679557063:web:603a78f59045ceeaf133e2",
 };
 
-
-
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+let hot;
 const container = document.getElementById('attendanceTable');
-
-// Attendance dropdown values
-const attendanceOptions = [
-    'P', // Present
-    'A', // Absent
-    'LA', // Late Arrival
-    'AP', // Approved Permission
-    'SL', // Sick Leave
-    'CL', // Casual Leave
-    'HL'  // Half Day Leave
+const attendanceOptions = ['P', 'A', 'LA', 'AP', 'SL', 'CL', 'HL'];
+let columns = [
+  { data: 'name', type: 'text', readOnly: true, title: 'Name' }
 ];
+const attendanceTypes = [
+  'Present', 'Absent', 'Late Arrival', 'Approved Permission',
+  'Sick Leave', 'Casual Leave', 'Half Day Leave', 'TotalScore',
+  'Percentage', 'Student Percentage'
+];
+const monthName = localStorage.getItem("dataSet"); // Month name from localStorage
+const section=localStorage.getItem("section");
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date(Date.parse(monthName + " 1, 2024")).getMonth(); // Get month index
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // Days in the current month
 
-// Month string to month index mapping
-function getMonthIndex(monthName) {
-  const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-  ];
-  return monthNames.indexOf(monthName);
+async function fetchStudentNames() {
+  try {
+    const docRef = collection(db, `FSSA/studentsBaseData/${section}`); // Use 'db' instead of 'firestore'
+    const docSnap = await getDocs(docRef);
+
+    if (!docSnap.empty) {
+      const studentNames = docSnap.docs.map((doc) => doc.id); // Get student names
+      if (Array.isArray(studentNames) && studentNames.length > 0) {
+        return studentNames.map(name => {
+          // For each student, create an object with a 'name' and placeholders for each day
+          const student = { name };
+          const totalDays = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+
+          // Add placeholder for each day
+          for (let day = 1; day <= totalDays; day++) {
+            student[`day${day}`] = ''; // Empty or default value for each day
+          }
+
+          return student;
+        });
+      } else {
+        console.error("No student names found for the selected class.");
+        alert("No student names found for the selected class.");
+        return [];
+      }
+    } else {
+      console.log("No such document!");
+      alert("No such document for the selected class.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching document:", error);
+    alert("Error fetching student names.");
+    return [];
+  }
 }
 
-// Define month and year
-const monthName = localStorage.getItem("dataSet"); // Replace this with the desired month name
-const currentYear = new Date().getFullYear();
-const currentMonth = getMonthIndex(monthName);
+function initializeTable(students) {
 
-// Define columns array outside the if block
-let columns = [{ data: 'name', type: 'text', readOnly: true, title: 'Name' }];
-const nonWorkingDays = [];
-
-// Validate month name
-if (currentMonth === -1) {
-  console.error("Invalid month name");
-} else {
-  // Get the number of days in the specified month
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  // Generate day headers and identify weekends (non-working days)
   for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(currentYear, currentMonth, day);
-      const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
+    const date = new Date(currentYear, currentMonth, day);
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
 
-      columns.push({
-          data: `day${day}`,
-          type: 'dropdown',
-          title: `Day ${day}`,
-          source: attendanceOptions,
-          readOnly: false,
-          className: isWeekend ? 'non-working' : '' // Apply 'non-working' class if weekend
-      });
-
-      if (isWeekend) {
-          nonWorkingDays.push(`day${day}`);
-      }
+    columns.push({
+      data: `day${day}`,
+      type: 'dropdown',
+      title: ` ${day}/${currentMonth}`,
+      source: attendanceOptions,
+      readOnly: false,
+      className: isWeekend ? 'non-working' : '' // Apply 'non-working' class if weekend
+    });
   }
 
-  // Use columns and nonWorkingDays as needed
-  console.log(columns);
-  console.log(nonWorkingDays);
-}
 
-// Add columns for each attendance type (Present, Absent, etc.)
-const attendanceTypes = [
-    'Present', 'Absent', 'Late Arrival', 'Approved Permission',
-    'Sick Leave', 'Casual Leave', 'Half Day Leave', 'TotalScore',
-    'Percentage', 'Student Percentage'
-];
-
-attendanceTypes.forEach(type => {
+  attendanceTypes.forEach(type => {
     columns.push({
-        data: type,
-        type: 'numeric',
-        readOnly: true,
-        title: type
+      data: type,
+      type: 'numeric',
+      readOnly: true,
+      title: type
     });
-});
+  });
 
-// Now `columns` is available for further use, e.g., populating a table or creating a UI
-
-
-// Initial sample data for attendance (add your own)
-const data = [
-    { name: 'John Doe' },
-    { name: 'Jane Smith' },
-    { name: 'Alice Johnson' }
-];
-
-// Initialize Handsontable
-const hot = new Handsontable(container, {
-    data,
-    columns,
+  // Initialize Handsontable with configuration
+   hot = new Handsontable(container, {
+    data: students,
+    columns: columns,
     rowHeaders: true,
     colHeaders: columns.map(col => col.title),
     licenseKey: 'non-commercial-and-evaluation',
-    persistentState: false,
-    scrollHorizontally: true,
-    scrollVertically: true,
-    fixedColumnsStart: 1,
+    fixedColumnsLeft: 1,
+    licenseKey: "non-commercial-and-evaluation",
+    width: "100%",
+    height: "100%",
+    stretchH: "all",
+    overflow: "hidden",
+    autoColumnSize: true,
+    autoRowSize: true,
     contextMenu: {
-        items: {
-            "markAsHoliday": {
-                name: "Mark this day as holiday",
-                callback: function (_, selection) {
-                    if (selection && selection[0] && typeof selection[0].start.col !== 'undefined') {
-                        const col = selection[0].start.col;
-
-                        // Only apply holiday marking to day columns (not the name column or the attendance columns)
-                        if (col > 0 && col <= daysInMonth) {
-                            for (let row = 0; row < data.length; row++) {
-                                hot.setCellMeta(row, col, 'className', 'holiday');
-                            }
-                            hot.render();
-                        }
-                    }
+      items: {
+        "markAsHoliday": {
+          name: "Mark this day as holiday",
+          callback: function (_, selection) {
+            if (selection && selection[0] && typeof selection[0].start.col !== 'undefined') {
+              const col = selection[0].start.col;
+              if (col > 0 && col <= daysInMonth) {
+                for (let row = 0; row < students.length; row++) {
+                  hot.setCellMeta(row, col, 'className', 'holiday');
                 }
-            },
-            "removeHoliday": {
-                name: "Remove holiday",
-                callback: function (_, selection) {
-                    if (selection && selection[0] && typeof selection[0].start.col !== 'undefined') {
-                        const col = selection[0].start.col;
-
-                        // Only remove holiday marking for columns with 'holiday' class (i.e., already marked as holiday)
-                        if (col > 0 && col <= daysInMonth) {
-                            for (let row = 0; row < data.length; row++) {
-                                if (hot.getCellMeta(row, col).className === 'holiday') {
-                                    hot.setCellMeta(row, col, 'className', '');
-                                }
-                            }
-                            hot.render();
-                        }
-                    }
-                }
-            },
-            "addRemark": {
-                name: "Add a remark...",
-                callback: function (_, selection) {
-                    if (selection && selection[0]) {
-                        const row = selection[0].start.row;
-                        const col = selection[0].start.col;
-
-                        // Get the student's name and day (column title)
-                        const studentName = data[row].name;
-                        const day = columns[col].title;
-
-                        // Prompt for a remark
-                        const remark = prompt("Enter your remark:");
-                        if (remark) {
-                            // Display the remark below the table
-                            const remarksBody = document.getElementById("remarksBody");
-                            const rowElement = document.createElement("tr");
-                            rowElement.innerHTML = `<td>${studentName}</td><td>${day}</td><td>${remark}</td>`;
-                            remarksBody.appendChild(rowElement);
-
-                            // Optionally, add a visual indicator on the cell (e.g., change background color)
-                            hot.setCellMeta(row, col, 'className', 'remarked');
-                            hot.render();
-                        }
-                    }
-                }
+                hot.render();
+              }
             }
+          }
+        },
+        "removeHoliday": {
+          name: "Remove holiday",
+          callback: function (_, selection) {
+            if (selection && selection[0] && typeof selection[0].start.col !== 'undefined') {
+              const col = selection[0].start.col;
+              if (col > 0 && col <= daysInMonth) {
+                for (let row = 0; row < students.length; row++) {
+                  if (hot.getCellMeta(row, col).className === 'holiday') {
+                    hot.setCellMeta(row, col, 'className', '');
+                  }
+                }
+                hot.render();
+              }
+            }
+          }
+        },
+        "addRemark": {
+          name: "Add a remark...",
+          callback: function (_, selection) {
+            if (selection && selection[0]) {
+              const row = selection[0].start.row;
+              const col = selection[0].start.col;
+              const studentName = students[row].name;
+              const day = columns[col].title;
+              const remark = prompt("Enter your remark:");
+              if (remark) {
+                const remarksBody = document.getElementById("remarksBody");
+                const rowElement = document.createElement("tr");
+                rowElement.innerHTML = `<td>${studentName}</td><td>${day}</td><td>${remark}</td>`;
+                remarksBody.appendChild(rowElement);
+                hot.setCellMeta(row, col, 'className', 'remarked');
+                hot.render();
+              }
+            }
+          }
         }
+      }
     },
     afterChange: function (changes, source) {
-        if (source === 'edit' && changes) {
-            hot.render(); // Force a single render after batch updates
-        }
-    },
-    cells: function (row, col) {
-        const cellProperties = {};
-        const prop = this.instance.colToProp(col);
-
-        // Apply non-working days style (red for weekends)
-        if (nonWorkingDays.includes(prop)) {
-            cellProperties.className = 'non-working';
-        }
-
-        return cellProperties;
+      if (source === 'edit' && changes) {
+        hot.render();
+      }
     }
+  });
+
+  // Set a height and width for the container to trigger scrolling
+  container.style.height = '600px';
+  container.style.width = '100%';
+}
+
+// Fetch student names and initialize the table
+fetchStudentNames().then((students) => {
+  if (students.length > 0) {
+    initializeTable(students);  // Initialize the table after fetching student names
+  } else {
+    console.log("No students found.");
+  }
+}).catch(error => {
+  console.error("Error fetching students:", error);
 });
+
+
+// Show loading animation
+function showLoading() {
+  document.getElementById('loadingOverlay').style.display = 'flex';
+  document.getElementById('countBtn').disabled = true;  // Disable the button
+}
+
+// Hide loading animation
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.display = 'none';
+  document.getElementById('countBtn').disabled = false;  // Re-enable the button
+}
+
+// Update progress message
+function updateProgress(current, total) {
+  const percentage = Math.round((current / total) * 100);
+  const message = `Calculating scores... ${percentage}% complete`;
+  document.getElementById('progressMessage').textContent = message;
+}
+
 
 function updateAttendanceCounts() {
-    let dailyCounts = [];
+  showLoading();
+  let dailyCounts = [];
+  const students = hot.getData();
+  const totalStudents = students.length;
+  let currentStudentIndex = 0;
 
-    for (let day = 1; day <= daysInMonth; day++) {
-        dailyCounts[day] = {
-            'Present': 0,
-            'Absent': 0,
-            'Late Arrival': 0,
-            'Approved Permission': 0,
-            'Sick Leave': 0,
-            'Casual Leave': 0,
-            'Half Day Leave': 0
-        };
-    }
+  // Initialize daily counts
+  for (let day = 1; day <= daysInMonth; day++) {
+    dailyCounts[day] = {
+      'Present': 0,
+      'Absent': 0,
+      'Late Arrival': 0,
+      'Approved Permission': 0,
+      'Sick Leave': 0,
+      'Casual Leave': 0,
+      'Half Day Leave': 0
+    };
+  }
 
-    for (let row = 0; row < data.length; row++) {
-        let count = {
-            'Present': 0,
-            'Absent': 0,
-            'Late Arrival': 0,
-            'Approved Permission': 0,
-            'Sick Leave': 0,
-            'Casual Leave': 0,
-            'Half Day Leave': 0
-        };
+  function processStudent() {
+    if (currentStudentIndex < students.length) {
+      const student = students[currentStudentIndex];
+      let count = {
+        'Present': 0,
+        'Absent': 0,
+        'Late Arrival': 0,
+        'Approved Permission': 0,
+        'Sick Leave': 0,
+        'Casual Leave': 0,
+        'Half Day Leave': 0
+      };
+      let workingDays = 0;
 
-        let workingDays = 0;
-
-        for (let col = 1; col <= daysInMonth; col++) {
-            const value = hot.getDataAtCell(row, col);
-            const cellClass = hot.getCellMeta(row, col).className;
-
-            if (nonWorkingDays.includes(`day${col}`) || cellClass === 'holiday') continue;
-
-            switch (value) {
-                case 'P':
-                    count['Present']++;
-                    dailyCounts[col]['Present']++;
-                    break;
-                case 'A':
-                    count['Absent']++;
-                    dailyCounts[col]['Absent']++;
-                    break;
-                case 'LA':
-                    count['Late Arrival']++;
-                    dailyCounts[col]['Late Arrival']++;
-                    break;
-                case 'AP':
-                    count['Approved Permission']++;
-                    dailyCounts[col]['Approved Permission']++;
-                    break;
-                case 'SL':
-                    count['Sick Leave']++;
-                    dailyCounts[col]['Sick Leave']++;
-                    break;
-                case 'CL':
-                    count['Casual Leave']++;
-                    dailyCounts[col]['Casual Leave']++;
-                    break;
-                case 'HL':
-                    count['Half Day Leave']++;
-                    dailyCounts[col]['Half Day Leave']++;
-                    break;
-            }
-            workingDays++;
+      for (let col = 1; col <= daysInMonth; col++) {
+        const value = hot.getDataAtCell(currentStudentIndex, col);
+        switch (value) {
+          case 'P':
+            count['Present']++;
+            dailyCounts[col]['Present']++;
+            break;
+          case 'A':
+            count['Absent']++;
+            dailyCounts[col]['Absent']++;
+            break;
+          case 'LA':
+            count['Late Arrival']++;
+            dailyCounts[col]['Late Arrival']++;
+            break;
+          case 'AP':
+            count['Approved Permission']++;
+            dailyCounts[col]['Approved Permission']++;
+            break;
+          case 'SL':
+            count['Sick Leave']++;
+            dailyCounts[col]['Sick Leave']++;
+            break;
+          case 'CL':
+            count['Casual Leave']++;
+            dailyCounts[col]['Casual Leave']++;
+            break;
+          case 'HL':
+            count['Half Day Leave']++;
+            dailyCounts[col]['Half Day Leave']++;
+            break;
         }
+        workingDays++;
+      }
 
-        columns.slice(-10, -3).forEach((col, idx) => {
-            const type = col.title;
-            hot.setDataAtCell(row, columns.length - 10 + idx, count[type]);
-        });
+      // Update attendance columns
+      attendanceTypes.forEach((type, idx) => {
+        const score = type === 'TotalScore' ? calculateTotalScore(count) : count[type];
+        hot.setDataAtCell(currentStudentIndex, columns.length - 10 + idx, score);
+      });
 
-        const totalScore = calculateTotalScore(count);
-        hot.setDataAtCell(row, columns.length - 3, totalScore);
+      const totalScore = calculateTotalScore(count);
+      const percentage = (totalScore / workingDays) * 100;
+      const studentPercentage = (count['Present'] / workingDays) * 100;
 
-        const percentage = (totalScore / workingDays) * 100;
-        const studentPercentage = (count['Present'] / workingDays) * 100;
+      hot.setDataAtCell(currentStudentIndex, columns.length - 3, totalScore);
+      hot.setDataAtCell(currentStudentIndex, columns.length - 2, percentage.toFixed(2));
+      hot.setDataAtCell(currentStudentIndex, columns.length - 1, studentPercentage.toFixed(2));
+      updateProgress(currentStudentIndex + 1, totalStudents);
 
-        hot.setDataAtCell(row, columns.length - 2, percentage.toFixed(2));
-        hot.setDataAtCell(row, columns.length - 1, studentPercentage.toFixed(2));
+      currentStudentIndex++;
+      setTimeout(processStudent, 0);  // Schedule next iteration
     }
+    else{
+      hideLoading(); 
+    }
+  }
 
-    displayDailyCounts(dailyCounts);
+  processStudent(); // Start the process
 }
 
-const dailyCountsContainer = document.getElementById('dailyCountsTable');
-let dailyCountsHot = new Handsontable(dailyCountsContainer, {
-data: [],  // Start with an empty data array
-colHeaders: ['Day', 'Present', 'Absent', 'Late Arrival', 'Approved Permission', 'Sick Leave', 'Casual Leave', 'Half Day Leave'],
-columns: [
-{ data: 'Day', type: 'text', readOnly: true },
-{ data: 'Present', type: 'numeric', readOnly: true },
-{ data: 'Absent', type: 'numeric', readOnly: true },
-{ data: 'Late Arrival', type: 'numeric', readOnly: true },
-{ data: 'Approved Permission', type: 'numeric', readOnly: true },
-{ data: 'Sick Leave', type: 'numeric', readOnly: true },
-{ data: 'Casual Leave', type: 'numeric', readOnly: true },
-{ data: 'Half Day Leave', type: 'numeric', readOnly: true }
-],
-licenseKey: 'non-commercial-and-evaluation',
-rowHeaders: true,
-columnSorting: true ,// Enable sorting only
-renderAllRows: true, // Render all rows at once
-width: dailyCountsContainer.offsetWidth, // Set container width to prevent horizontal scrolling
-stretchH: 'all', // Stretch columns to container width
-height: 'auto' // Adjust height as needed to ensure all rows are displayed
-});
-
-// Update data for the daily counts Handsontable
-function displayDailyCounts(dailyCounts) {
-const dailyCountsData = [];
-
-for (let day = 1; day <= daysInMonth; day++) {
-const prop = `day${day}`;
-const anyHoliday = data.some((_, row) => hot.getCellMeta(row, day).className === 'holiday');
-
-if (!nonWorkingDays.includes(prop) && !anyHoliday) {
-dailyCountsData.push({
-Day: `Day ${day}`,
-Present: dailyCounts[day]['Present'],
-Absent: dailyCounts[day]['Absent'],
-'Late Arrival': dailyCounts[day]['Late Arrival'],
-'Approved Permission': dailyCounts[day]['Approved Permission'],
-'Sick Leave': dailyCounts[day]['Sick Leave'],
-'Casual Leave': dailyCounts[day]['Casual Leave'],
-'Half Day Leave': dailyCounts[day]['Half Day Leave']
-});
-}
-}
-
-// Update Handsontable data
-dailyCountsHot.loadData(dailyCountsData);
-}
-// Trigger daily count updates on the "Count Attendance" button click
-document.getElementById('dailyCount').addEventListener('click', function () {
-    updateAttendanceCounts(); // Trigger the count update
-});
 
 // Function to calculate total score based on the attendance counts
 function calculateTotalScore(count) {
-    let totalScore = 0;
+  let totalScore = 0;
 
-    // Calculate the score based on the provided formula
-    totalScore += count['Present'];
-    totalScore += (count['Late Arrival'] >= 3 ? 0.5 : count['Late Arrival']);
-    totalScore += (count['Approved Permission'] > 2 ? 0.5 : count['Approved Permission']);
-    totalScore += count['Half Day Leave'] * 0.5;
-    totalScore += count['Sick Leave'] <= 2 ? count['Sick Leave'] : 0;
-    totalScore += count['Casual Leave'];
+  totalScore += count['Present'];
+  totalScore += (count['Late Arrival'] >= 3 ? 0.5 : count['Late Arrival']);
+  totalScore += (count['Approved Permission'] > 2 ? 0.5 : count['Approved Permission']);
+  totalScore += count['Half Day Leave'] * 0.5;
+  totalScore += count['Sick Leave'] <= 2 ? count['Sick Leave'] : 0;
+  totalScore += count['Casual Leave'];
 
-    return totalScore;
+  return totalScore;
 }
 
-// Add event listener for "Count Attendance" button
-document.getElementById('countBtn').addEventListener('click', function () {
-    updateAttendanceCounts(); // Trigger the count update when button is clicked
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-    // Listen for holiday marking and trigger re-calculation
-    hot.addHook('afterSetCellMeta', function (row, col, key, value) {
-        if (key === 'className' && (value === 'holiday' || value === '')) {
-            updateAttendanceCounts(); // Recalculate attendance counts whenever holiday status changes
-        }
-    });
-});
-
-
-
-
+// Trigger daily count updates on the "Count Attendance" button
+document.getElementById('countBtn').addEventListener('click', updateAttendanceCounts);
