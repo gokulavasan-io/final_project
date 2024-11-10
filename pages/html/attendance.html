@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Entry Page</title>
+    <title>Attendance</title>
 
     <link rel="stylesheet" href="../css/attendance.css">
     <link rel="stylesheet" href="../css/generalStyles.css">
-     <!-- Bootstrap links -->
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap links -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- line-icons css and font awesome -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -21,9 +23,9 @@
 </head>
 
 <body>
-     <!-- aside bar -->
-     <aside id="sidebar">
-            
+    <!-- aside bar -->
+    <aside id="sidebar">
+
         <ul class="sidebar-nav mt-5">
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link" id="backButton">
@@ -38,8 +40,8 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#auth"
+                    aria-expanded="false" aria-controls="auth">
                     <i class="lni lni-book"></i>
                     <span>Subjects</span>
                 </a>
@@ -56,18 +58,18 @@
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link" id="problem-solving">Problem Solving</a>
                     </li>
-                    
+
                 </ul>
             </li>
-            
+
             <li class="sidebar-item">
-                <a  class="sidebar-link" href="#" id="attendance">
+                <a class="sidebar-link" href="#" id="attendance">
                     <i class="fa fa-calendar" aria-hidden="true"></i>
                     <span>Attendance</span>
                 </a>
             </li>
             <li class="sidebar-item">
-                <a  class="sidebar-link " id="monthlyReport" href="./monthlyHome.html">
+                <a class="sidebar-link " id="monthlyReport" href="./monthlyHome.html">
                     <i class="fa fa-list-alt" aria-hidden="true"></i>
                     <span>Monthly report</span>
                 </a>
@@ -77,15 +79,15 @@
                     <i class="lni lni-bar-chart"></i>
                     <span>Analysis</span>
                 </a>
-            </li> 
-            
+            </li>
+
             <li class="sidebar-item" id="reportCard">
                 <a href="#" class="sidebar-link">
                     <i class="lni lni-whatsapp"></i>
                     <span>Share report card</span>
                 </a>
             </li>
-            
+
         </ul>
 
         <div class="d-flex sidebar-footer">
@@ -97,15 +99,15 @@
             </div>
         </div>
     </aside>
-    
-    
+
+
 
     <header class="w-100 position-fixed top-0">
         <div class="logo">Toodle</div>
         <div class="d-flex gap-2 align-items-center">
             <button class="btn btn-danger " id="changeClass" style="display: none;">Choose Class</button>
             <div id="classNow">X</div>
-            </div>
+        </div>
         <div class="user">
             <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
         </div>
@@ -133,25 +135,44 @@
     <div id="logoutMessage" class="popup">
         Successfully Logged Out
     </div>
-    
+
 
     <div class="main-container">
         <div id="attendanceTable"></div>
-    </div> 
+    </div>
+
+    <!-- Popup container for statistics -->
+    <div id="attendancePopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtn">&times;</span>
+            <h3>Student Statistics</h3>
+            <div id="attendancePopupTable" class="popup-table-container"></div>
+        </div>
+    </div>
+
+    <!-- Daily Statistics Popup -->
+    <div id="dailyAttendancePopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtnForDaily">&times;</span>
+        <h3>Daily Attendance Statistics</h3>
+        <div id="dailyAttendancePopupTable" style="margin-top: 20px;"></div>
+    
+        </div>    
+    </div>
 
 
     <!-- Loading Spinner and Progress -->
-<div id="loadingOverlay" style="display: none;">
-    <div id="spinner" class="spinner"></div>
-    <p id="progressMessage">Calculating scores... 0% complete</p>
-  </div>
-
-    <div class="buttonsContainer">
-        <button class="btn btn-danger" id="countBtn">Count Attendance</button>
-     <button class="btn btn-danger" id="dailyCount">daily count</button> 
+    <div id="loadingOverlay" style="display: none;">
+        <div id="Spinner"><i class="fa fa-spinner fa-spin"></i></div>
+        <p id="progressMessage">Calculating scores... 0% complete</p>
     </div>
 
-   <!-- <div id="dailyCountsTable"></div>
+    <div class="buttonsContainer">
+        <button class="btn btn-danger" id="countBtn">Student Statistics</button>
+        <button class="btn btn-danger" id="dailyCount">Daily Statistics</button>
+    </div>
+
+    <!-- <div id="dailyCountsTable"></div>
 
 
     <div id="remarksList">
