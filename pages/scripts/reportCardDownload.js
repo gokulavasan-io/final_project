@@ -219,9 +219,9 @@ function changeRemark(remark) {
   if(remark.length>35){
     remark=prompt(`Please enter a shorter remark for this student : ${remark}`);
   }
-  if(remark==""){
-    remark="Nothing !!!";
-  }
+  // if(remark==""){
+  //   remark="";
+  // }
   remarks.innerText = remark;
 }
 

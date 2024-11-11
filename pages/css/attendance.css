@@ -17,6 +17,20 @@
 
 }
 
+.monthNameCont{
+    position: fixed;
+    top: 10%;
+    left: 7%;
+}
+.monthNameCont div{
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: var(--font);
+}
+.monthNameCont div span{
+    color: red;
+}
+
 .main-container {
     position: fixed;
     top: 18%;
@@ -149,4 +163,24 @@
 
 .popup-table-container {
     margin-top: 20px;
+}
+
+
+#forRemarks{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+    background-color: #e8d77382;
+    color: var(--font-color);
+    padding: 1rem 3rem;
+    font-weight: bold;
+    border-radius: 10px;
+    align-items: center;
+    width: 300px;
+    gap: 1rem;
+    display: none;
+    border: 1px solid rgb(91, 90, 90);
+    font-family: var(--font);
 }

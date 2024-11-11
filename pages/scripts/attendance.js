@@ -1,5 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import {
+  getDatabase,
+  get,
+  update,
+  ref,
+  set,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import {
   getFirestore,
   collection,
   getDocs,
@@ -19,23 +26,14 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const firebase = getDatabase();
 let hot;
 const container = document.getElementById("attendanceTable");
 const attendanceOptions = ["P", "A", "LA", "AP", "SL", "CL", "HL"];
 let columns = [{ data: "name", type: "text", readOnly: true, title: "Name" }];
-const attendanceTypes = [
-  "Present",
-  "Absent",
-  "Late Arrival",
-  "Approved Permission",
-  "Sick Leave",
-  "Casual Leave",
-  "Half Day Leave",
-  "TotalScore",
-  "Percentage",
-  "Student Percentage",
-];
+
 const monthName = localStorage.getItem("dataSet"); // Month name from localStorage
+document.getElementById("monthName").innerText = monthName;
 const section = localStorage.getItem("section");
 const currentYear = new Date().getFullYear();
 const currentMonth = new Date(Date.parse(monthName + " 1, 2024")).getMonth(); // Get month index
@@ -93,7 +91,7 @@ function initializeTable(students) {
     columns.push({
       data: `day${day}`,
       type: "dropdown",
-      title: ` ${day}/${currentMonth}`,
+      title: ` ${day}/${currentMonth + 1}`,
       source: attendanceOptions,
       readOnly: false,
       className: isWeekend ? "non-working" : "", // Apply 'non-working' class if weekend
@@ -162,18 +160,37 @@ function initializeTable(students) {
               const col = selection[0].start.col;
               const studentName = students[row].name;
               const day = columns[col].title;
-              const remark = prompt("Enter your remark:");
-              if (remark) {
-                const remarksBody = document.getElementById("remarksBody");
-                const rowElement = document.createElement("tr");
-                rowElement.innerHTML = `<td>${studentName}</td><td>${day}</td><td>${remark}</td>`;
-                remarksBody.appendChild(rowElement);
-                hot.setCellMeta(row, col, "className", "remarked");
-                hot.render();
-              }
+        
+              // Display the remark input area
+              const forRemarks = document.getElementById("forRemarks");
+              forRemarks.style.display = "flex";
+
+              // Set up Cancel button
+              document.getElementById("cancel").onclick = () => {
+                forRemarks.style.display = "none";
+              };
+        
+              // Set up Confirm button
+              document.getElementById("confirm").onclick = () => {
+                const remark = document.getElementById("newRemark").value;
+                  if (remark) {
+                  const remarksBody = document.getElementById("remarksBody");
+                  const rowElement = document.createElement("tr");
+                  rowElement.innerHTML = `<td>${studentName}</td><td>${day}</td><td>${remark}</td>`;
+                  remarksBody.appendChild(rowElement);
+        
+                  // Add cell highlight
+                  hot.setCellMeta(row, col, "className", "remarked");
+                  hot.render();
+                  
+                  // Clear the input and hide the remark input area
+                  document.getElementById("newRemark").value = "";
+                  forRemarks.style.display = "none";
+                }
+              };
             }
           },
-        },
+        }        
       },
     },
     afterChange: function (changes, source) {
@@ -188,11 +205,46 @@ function initializeTable(students) {
   container.style.width = "100%";
 }
 
-// Fetch student names and initialize the table
+// Function to fetch attendance data from Firebase
+async function fetchAttendanceData(studentName) {
+  const studentRef = ref(
+    firebase,
+    `/studentMarks/${section}/Attendance/${monthName}/${studentName}`
+  );
+  try {
+    const snapshot = await get(studentRef);
+    if (snapshot.exists()) {
+      return snapshot.val(); // Return the attendance data for this student
+    } else {
+      console.log(`No attendance data found for ${studentName}`);
+      return null; // Return null if no data exists
+    }
+  } catch (error) {
+    console.error(`Error fetching data for ${studentName}:`, error);
+    return null;
+  }
+}
+
+// Function to populate initial data with Firebase data if available
+async function populateInitialData(students) {
+  for (const student of students) {
+    const attendanceData = await fetchAttendanceData(student.name);
+
+    if (attendanceData) {
+      // Merge attendance data into the student's row
+      for (let day = 1; day <= daysInMonth; day++) {
+        student[`day${day}`] = attendanceData[day - 1] || ""; // Use Firebase data or default to empty
+      }
+    }
+  }
+  initializeTable(students); // Initialize table with populated data
+}
+
+// Fetch student names, populate data, and initialize the table
 fetchStudentNames()
   .then((students) => {
     if (students.length > 0) {
-      initializeTable(students); // Initialize the table after fetching student names
+      populateInitialData(students); // Populate data before initializing the table
     } else {
       console.log("No students found.");
     }
@@ -262,7 +314,7 @@ function showAttendancePopup(statistics) {
   ];
 
   // Initialize the popup Handsontable
-  new Handsontable(container, {
+  window.monthlyAttendanceData = new Handsontable(container, {
     data: statistics,
     colHeaders: columns.map((col) => col.title),
     columns: columns,
@@ -277,18 +329,15 @@ function showAttendancePopup(statistics) {
 
 // Close the popup when the close button is clicked
 document.getElementById("closePopupBtn").addEventListener("click", function () {
+  saveMonthlyData();
   document.getElementById("attendancePopup").style.display = "none";
 });
-document
-  .getElementById("closePopupBtnForDaily")
-  .addEventListener("click", function () {
-    document.getElementById("dailyAttendancePopup").style.display = "none";
-  });
 
 document
   .getElementById("dailyCount")
   .addEventListener("click", showDailyStatistics);
 
+// Function to show the popup and initialize the Handsontable
 function showDailyStatisticsPopup(dailyCounts) {
   // Show the popup
   const popup = document.getElementById("dailyAttendancePopup");
@@ -308,7 +357,7 @@ function showDailyStatisticsPopup(dailyCounts) {
   ];
 
   // Initialize Handsontable for daily statistics
-  new Handsontable(container, {
+  const hot = new Handsontable(container, {
     data: dailyCounts,
     colHeaders: columns.map((col) => col.title),
     columns: columns,
@@ -318,6 +367,16 @@ function showDailyStatisticsPopup(dailyCounts) {
     stretchH: "all",
     licenseKey: "non-commercial-and-evaluation",
     readOnly: true,
+  });
+
+  // Close button for the popup
+  const closeButton = document.getElementById("closePopupBtnForDaily");
+  closeButton.addEventListener("click", function () {
+    // Save data when the popup is closed
+    saveDailyAttendanceData(dailyCounts);
+
+    // Close the popup
+    document.getElementById("dailyAttendancePopup").style.display = "none";
   });
 }
 
@@ -494,3 +553,154 @@ function showDailyStatistics() {
   showDailyStatisticsPopup(dailyCounts);
   hideLoading();
 }
+
+async function saveAttendanceData() {
+  const data = hot.getData(); // Get the data from Handsontable
+
+  data.forEach((row) => {
+    const studentName = row[0]; // Assuming the first column is the student's name
+    const studentData = row.slice(1); // The rest of the row data (attendance info)
+
+    const studentRef = ref(
+      firebase,
+      `/studentMarks/${section}/Attendance/${monthName}/${studentName}`
+    );
+
+    // Check if the student data already exists
+    get(studentRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          // If data exists, use update to directly update the array
+          update(studentRef, studentData)
+            .then(() => {
+              console.log(`Data for ${studentName} updated successfully!`);
+            })
+            .catch((error) => {
+              console.error("Error updating data: ", error);
+            });
+        } else {
+          // If data doesn't exist, use set to directly set the array
+          set(studentRef, studentData)
+            .then(() => {
+              console.log(`Data for ${studentName} saved successfully!`);
+            })
+            .catch((error) => {
+              console.error("Error saving data: ", error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking data existence: ", error);
+      });
+  });
+}
+
+// Button event listener to save data
+document.getElementById("save").addEventListener("click", saveAttendanceData);
+
+// Function to save data to the specified path
+async function saveDailyAttendanceData(dailyCounts) {
+  const path = "/studentMarks/ClassB/Attendance/November/dailyData"; // Path where you want to save the data
+
+  // Reference to the path where the data is stored
+  const dailyDataRef = ref(firebase, path);
+
+  // Check if data already exists at the specified path
+  get(dailyDataRef)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        // If data exists, update it with new values
+        // Ensure dailyCounts is an object when using update
+        update(dailyDataRef, { dailyCounts })
+          .then(() => {
+            console.log("Attendance data updated successfully!");
+          })
+          .catch((error) => {
+            console.error("Error updating data: ", error);
+          });
+      } else {
+        // If data doesn't exist, use set to save it
+        set(dailyDataRef, dailyCounts)
+          .then(() => {
+            console.log("Attendance data saved successfully!");
+          })
+          .catch((error) => {
+            console.error("Error saving data: ", error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking data existence: ", error);
+    });
+}
+
+// Function to save attendance data before closing the popup
+async function saveMonthlyData() {
+  // Get data from the Handsontable instance
+  const attendanceData = monthlyAttendanceData.getData(); // Get the data from Handsontable
+
+  // Format the data as an object using student names as keys
+  const formattedData = {};
+  attendanceData.forEach((row) => {
+    const studentName = row[0]; // Assuming the first column is the student's name
+    formattedData[studentName] = {
+      present: row[1],
+      absent: row[2],
+      lateArrival: row[3],
+      approvedPermission: row[4],
+      sickLeave: row[5],
+      casualLeave: row[6],
+      halfDayLeave: row[7],
+      totalScore: row[8],
+      percentage: row[9],
+      studentPercentage: row[10],
+    };
+  });
+
+  const path = `/studentMarks/${section}/Attendance/${monthName}/attendanceData`; // Path to save data
+
+  // Save or update data in Firebase
+  const attendanceDataRef = ref(firebase, path);
+  get(attendanceDataRef)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        // Update if data already exists
+        update(attendanceDataRef, formattedData)
+          .then(() => {
+            console.log("Attendance data updated successfully!");
+          })
+          .catch((error) => {
+            console.error("Error updating data: ", error);
+          });
+      } else {
+        // Set if data does not exist
+        set(attendanceDataRef, formattedData)
+          .then(() => {
+            console.log("Attendance data saved successfully!");
+          })
+          .catch((error) => {
+            console.error("Error saving data: ", error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking data existence: ", error);
+    });
+}
+
+window.addEventListener("beforeunload", function () {
+  saveAttendanceData();
+});
+
+
+
+document.getElementById("cancel").addEventListener("click", function () {
+  document.getElementById("forRemarks").style.display = "none";
+});
+
+
+document.getElementById("confirm").addEventListener("click", function () {
+
+  
+
+})

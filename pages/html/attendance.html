@@ -161,6 +161,10 @@
     </div>
 
 
+    <div class="monthNameCont">
+        <div>Month : <span id="monthName"></span></div>
+    </div>
+
     <!-- Loading Spinner and Progress -->
     <div id="loadingOverlay" style="display: none;">
         <div id="Spinner"><i class="fa fa-spinner fa-spin"></i></div>
@@ -168,27 +172,19 @@
     </div>
 
     <div class="buttonsContainer">
-        <button class="btn btn-danger" id="countBtn">Student Statistics</button>
-        <button class="btn btn-danger" id="dailyCount">Daily Statistics</button>
+        <div class="btn btn-primary" id="save">Save</div>
+        <button class="btn btn-success" id="countBtn">Student Statistics</button>
+        <button class="btn btn-success" id="dailyCount">Daily Statistics</button>
     </div>
 
-    <!-- <div id="dailyCountsTable"></div>
 
-
-    <div id="remarksList">
-        <h3>Remarks</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Student Name</th>
-                    <th>Day</th>
-                    <th>Remark</th>
-                </tr>
-            </thead>
-            <tbody id="remarksBody">
-            </tbody>
-        </table>
-    </div>-->
+    <div id="forRemarks">
+        <input type="text" id="newRemark" class="form-control" placeholder="Remark" />
+        <div id="buttonsforRemarks">
+            <button class="btn btn-danger" id="cancel">Cancel</button>
+            <button class="btn btn-success" id="confirm">Confirm</button>
+        </div>
+    </div>
 
 
 
