@@ -62,7 +62,7 @@
 .main-container{
     position: fixed;
     top: 17%;
-    left: 30%;
+    left: 28%;
     height: 80%;
     width: 65%;
 
@@ -81,6 +81,16 @@
     align-items: flex-start;
     gap: .4rem;
 
+}
+
+.page-name div{
+    display: flex;
+    gap: .3rem;
+    font-weight: bolder;
+    align-items:center;
+}
+.page-name div h5{
+    color: red;
 }
 
 .page-name p {
@@ -131,8 +141,8 @@
 .forChart {
     position: fixed;
     top: 35%;
-    left: 5%;
-    height: 30%;
+    left: 8%;
+    height: 25%;
     width: 20%;
     font-family: var(--font);
     z-index: -100;

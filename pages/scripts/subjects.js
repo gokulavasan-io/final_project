@@ -23,43 +23,10 @@ const database = getDatabase(app);
 const pageTitle = localStorage.getItem("pageTitle");
 const section = localStorage.getItem("section");
 let deleteMode = false;
-
+let month;
 const deleteBtn = document.getElementById("delete-btn");
 const newMarkBtn = document.getElementById("new-mark");
-const orderedMonths = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
-function getCurrentMonth() {
-  return orderedMonths[new Date().getMonth()];
-}
-
-async function checkOrCreateMonth() {
-  const subject_name = document.getElementById("page-name").innerText;
-  const month = getCurrentMonth();
-  const monthPath = `studentMarks/${section}/months/${month}/${subject_name}`;
-
-  const monthRef = ref(database, monthPath);
-  const snapshot = await get(monthRef);
-
-  if (!snapshot.exists()) {
-    await set(monthRef, { created: true });
-    console.log(`${month} has been created in Firebase.`);
-  } else {
-    console.log(`${month} already exists in Firebase.`);
-  }
-}
 
 function getAllData() {
   const subject_name = document.getElementById("page-name").innerText;
@@ -114,8 +81,7 @@ function getAllData() {
       if (snapshot.exists()) {
         const data = snapshot.val();
         // Sort dataset names based on the months order
-        const sortedMonths = Object.keys(data)
-          .sort((a, b) => orderedMonths.indexOf(a) - orderedMonths.indexOf(b));
+        const sortedMonths = Object.keys(data);
 
         sortedMonths.forEach((name) => {
           const div = document.createElement("div");

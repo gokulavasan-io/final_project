@@ -45,7 +45,9 @@ let marksAdded = [];
 
 // Fetch dataset names and marks, then display in Handsontable
 async function fetchDataAndDisplay() {
-  document.getElementById("renameDatasetInput").placeholder = month;
+
+  document.getElementById("subjectOfTheTable").innerText = `${subject}-`;
+  document.getElementById("monOfTheSubject").innerText = month;
   const datasetPath = `/studentMarks/${section}/months/${month}/${subject}`;
   const tableContainer = document.getElementById("table");
   const studentData = {};
@@ -266,6 +268,60 @@ async function updateCountTable(scoreRanges) {
     )}%`;
   });
 }
+
+document.getElementById("saveAverageData").addEventListener("click",saveFirstTwoColumnsData);
+
+function getFirstTwoColumnsData() {
+  const tableData = hotForAllMarks.getData();
+  const firstTwoColumnsData = {};
+
+  tableData.forEach(row => {
+    const name = row[0];
+    let average = row[1];
+
+    // If average is a string but can be converted to a number, convert it
+    if (typeof average === 'string' && !isNaN(parseFloat(average))) {
+      average = parseFloat(average); // Convert string to number
+    }
+
+    // Ensure average is a number, default to 0 if invalid
+    average = (typeof average === "number" && !isNaN(average)) ? average : 0;
+
+    if (name) {
+      firstTwoColumnsData[name] = { Average: average };
+    }
+  });
+
+  return firstTwoColumnsData;
+}
+
+
+async function saveFirstTwoColumnsData() {
+  const datasetPath = `/studentMarks/${section}/months/${month}/averageOf${subject}`;
+  const dataToSave = getFirstTwoColumnsData();
+
+  try {
+    // Check if the dataset already exists
+    const datasetRef = ref(db, datasetPath);
+    const snapshot = await get(datasetRef);
+
+    if (snapshot.exists()) {
+      // Dataset exists, update it
+      await update(datasetRef, dataToSave);
+      console.log("Dataset updated successfully.");
+      showSuccessMessage("Data Saved successfully");
+    } else {
+      // Dataset does not exist, create it
+      await set(datasetRef, dataToSave);
+      showSuccessMessage("Data Saved successfully");
+      console.log("Dataset created successfully.");
+    }
+  } catch (error) {
+    console.error("Error saving data:", error);
+  }
+}
+
+
 
 // for generation table///////////////////////////////////
 let hot;

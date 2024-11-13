@@ -100,52 +100,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   });
 
-  // Function to fetch and average subject marks
   async function fetchAndAverageMarks(subject) {
-    const monthPath = `/studentMarks/${section}/months/${month}/${subject}`;
+    const monthPath = `/studentMarks/${section}/months/${month}/averageOf${subject}`;
     const fileRef = ref(database, monthPath);
-    const markSums = {};
-    const markCounts = {};
-
+    
     const fileSnapshot = await get(fileRef);
+    const result = {};
+  
     if (fileSnapshot.exists()) {
-      const fileNames = Object.keys(fileSnapshot.val());
-      await Promise.all(
-        fileNames.map(async (fileName) => {
-          const marksRef = ref(
-            database,
-            `/studentMarks/${section}/${subject}/${fileName}/students`
-          );
-          const marksSnapshot = await get(marksRef);
-          if (marksSnapshot.exists()) {
-            const marks = marksSnapshot.val();
-            if (Array.isArray(marks)) {
-              marks.forEach(([studentName, , mark]) => {
-                const numericMark =
-                  typeof mark === "number" && !isNaN(mark) ? mark : 0;
-                if (studentName) {
-                  markSums[studentName] =
-                    (markSums[studentName] || 0) + numericMark;
-                  markCounts[studentName] = (markCounts[studentName] || 0) + 1;
-                }
-              });
-            }
-          }
-        })
-      );
-    }
+      const averages = fileSnapshot.val();
+      console.log(`Fetched averages for ${subject}:`, averages);
 
-    // Calculate averages for each student
-    studentNames.forEach((studentName) => {
-      const average = markCounts[studentName]
-        ? markSums[studentName] / markCounts[studentName]
-        : 0;
-      studentData[studentName][subject] = average;
-    });
+      Object.keys(averages).forEach((studentName) => {
+        let average = averages[studentName].Average; 
+        console.log(typeof(average));
+        
+        average = parseFloat(average);
+        
+        if (typeof average === 'number' && !isNaN(average)) {
+          if (studentData[studentName]) {
+            studentData[studentName][subject] = average.toFixed(2); 
+          }
+        } else {
+          console.error(`Invalid average value for ${studentName}:`, average);
+        }
+      });
+    } else {
+      console.log(`No data found for subject: ${subject}`);
+    }
   }
 
-  // Calculate marks for all subjects
-  await Promise.all(subjects.map(fetchAndAverageMarks));
+await Promise.all(subjects.map(fetchAndAverageMarks));
+
 
   // Fetch result data if exists, and populate Attendance and Behavior
   const resultData = await fetchResultData(resultPath);
@@ -228,13 +214,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     subjects.forEach((subject) => {
       classAverage[subject] = parseFloat(
         (
-          Object.values(studentData).reduce(
-            (sum, student) => sum + student[subject],
-            0
+          Object.values(studentData).reduce((sum, student) => 
+            sum + (parseFloat(student[subject]) || 0), 0
           ) / totalStudents
         ).toFixed(1)
       );
     });
+    
 
     let forAO = 4;
     let forO = 6;
