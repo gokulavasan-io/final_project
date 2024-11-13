@@ -7,6 +7,8 @@ import {
   update,
   get,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+
+
 import {
   getFirestore,
   collection,
@@ -27,6 +29,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
+
+
 let hot;
 let colors=["red","yellow","green","absent"];
 

@@ -1,0 +1,337 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+*,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+}
+
+:root {
+    --primary-color: #0e2238;
+    --font-color: #fff;
+    --border-left: #3b7ddd;
+    --font:poppins;
+}
+
+
+/* styles for the page */
+
+.main-container{
+    position: fixed;
+    top: 17%;
+    left: 30%;
+    height: 80%;
+    width: 65%;
+
+}
+
+.page-name {
+    position: fixed;
+    top: 10%;
+    left: 7%;
+    font-weight: bolder;
+    font-family: var(--font);
+    color: var(--primary-color);
+    z-index: -10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .4rem;
+
+}
+
+.page-name p {
+    margin-bottom: 0;
+}
+
+
+.error {
+    background-color: rgb(0, 0, 0) !important;
+    text-decoration: line-through;
+    color: white !important;
+}
+
+.red {
+    background-color: red !important;
+    font-family: var(--font) !important;
+    color: white !important;
+    font-weight: bold;
+    text-align: center !important;
+
+}
+
+.yellow {
+    background-color: yellow !important;
+    font-family: var(--font) !important;
+    color: black !important;
+    font-weight: bold;
+    text-align: center !important;
+
+}
+
+.green {
+    background-color: green !important;
+    color: rgb(255, 255, 255) !important;
+    font-family: var(--font) !important;
+    font-weight: bold;
+    text-align: center !important;
+
+}
+
+.absent {
+    color: blue !important;
+    font-weight: bold;
+    font-family: var(--font) !important;
+    text-align: center !important;
+}
+
+.forChart {
+    position: fixed;
+    top: 35%;
+    left: 5%;
+    height: 30%;
+    width: 20%;
+    font-family: var(--font);
+    z-index: -100;
+
+}
+
+
+.fonts {
+    font-family: var(--font) !important;
+}
+
+.countTable {
+    height: 10%;
+    width: 10% !important;
+    position: fixed;
+    bottom: 2%;
+    left: 6%;
+    z-index: -100;
+    border: 1px solid black;
+}
+
+th {
+    font-family: var(--font);
+    font-weight: bolder;
+}
+
+.table th {
+    background-color: var(--border-left) !important;
+    color: white !important;
+    font-family: var(--font);
+}
+
+td {
+    text-align: center;
+    font-weight: bolder;
+    font-family: var(--font);
+}
+.handsontable td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+#loading{
+    position: absolute;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color:var(--border-left);
+}
+
+
+/* for generating tables */
+
+
+#forAddingNewMarkFull .page-name {
+    position: fixed;
+    top: 2%;
+    left: 3%;
+    font-weight: bolder;
+    font-family: var(--font);
+    color: var(--primary-color);
+    z-index: -10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .4rem;
+    font-size: 1.5rem;
+
+}
+
+#forAddingNewMarkFull{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black with opacity */
+    overflow: auto;
+    /* Enable scroll if needed */
+    padding-top: 60px;
+
+}
+
+#forAddingNewMark{
+    width: 80%;
+    height: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+.forChartNew {
+    position: absolute;
+    top: 30%;
+    right: -7%;
+    height: 30%;
+    width: 30%;
+    font-family: var(--font);
+}
+.countTableforNew,.countTableForSeeMaks{
+    height: 10% !important;
+    width: 10% !important;
+    position: absolute;
+    bottom: 2%;
+    right: 2%;
+    border: 1px solid black;
+    border-radius: 10px !important;
+}
+/* ,#handsontableForSeeMarks */
+#handsontableForNew {
+    position: absolute;
+    top: 7%;
+    left: 25%;
+    z-index: -10;
+}
+
+.file-name {
+    position: fixed;
+    top: 10%;
+    left: 3%;
+    display: flex;
+    flex-direction: column;
+    font-weight: bolder;
+    color: var(--border-left);
+    z-index: -10;
+    font-family: var(--font);
+}
+
+.buttons {
+    position: fixed;
+    top: 9%;
+    right: 3%;
+    font-family: var(--font);
+}
+
+
+
+
+.close-btn {
+    color: #ff0000;
+    float: right;
+    margin-right:10px ;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: rgb(173, 6, 6);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+
+
+/* for existing mark */
+
+
+#forSeeMarksFull{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black with opacity */
+    overflow: auto;
+    /* Enable scroll if needed */
+    padding-top: 60px;
+
+}
+
+#forSeeMarks{
+    width: 80%;
+    height: 90%;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    overflow: hidden;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe;
+    border-radius: 10px;
+}
+
+#handsontableForExist{
+    position: absolute;
+    top: 7%;
+    left: 25%;
+}
+
+.file-name-for-See-Marks{
+    position: fixed;
+    top: 10%;
+    left: 3%;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    font-weight: bolder;
+    color: var(--border-left);
+    z-index: -10;
+    font-family: var(--font);
+}
+
+.file-name-for-See-Marks p {
+    margin-bottom: 0;
+}
+
+
+.countTableForExist{
+    height: 10% !important;
+    width: 10% !important;
+    position: absolute;
+    bottom: 2%;
+    right: 2%;
+    border: 1px solid black;
+    border-radius: 10px !important;
+}
+
+.chartForExist{
+    position: absolute;
+    bottom: 5%;
+    left: 3%;
+    height: 30%;
+    width: 20%;
+    font-family: var(--font);
+    z-index: -100;
+}

@@ -197,9 +197,9 @@ function scores_color(score) {
 // change student and teachers name
 function name_change(student_name, teach_name) {
   let temp=student_name;
-  if(student_name.length>15){
-      student_name = prompt(`Please enter a smaller name for this student " ${student_name} " `);
-  }
+  // if(student_name.length>15){
+  //     student_name = prompt(`Please enter a smaller name for this student " ${student_name} " `);
+  // }
   if(student_name.length<3){
       student_name=prompt(`Please Enter a valid name for this student " ${temp} "`)
   }
