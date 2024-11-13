@@ -127,6 +127,13 @@
             <button class="btn btn-danger" id="no">No</button>
         </div>
     </div>
+    <div id="delete-warning">
+        <div>Are you sure want to delete this mark from this month ?</div>
+        <div class="yes-no mt-4">
+            <button class="btn btn-success" id="yesForRemoveMark">Yes</button>
+            <button class="btn btn-danger" id="noForRemoveMark">No</button>
+        </div>
+    </div>
 
 
     <div id="logoutMessage" class="popup">
@@ -147,8 +154,9 @@
         </div>
     </div>
     <div class="buttons">
-        <button class="btn btn-success" id="updateData">Update</button>
+        <button class="btn btn-success" id="updateData">Save</button>
         <button class="btn btn-success" id="newTest">New Test</button>
+        <button id="add-btn" class="btn btn-success ">Add marks</button>
     </div>
     <div id="newTestName">
         <input type="text" name="" id="">
@@ -196,14 +204,15 @@
 
     <div id="forAddingNewMarkFull">
         <div id="forAddingNewMark" >
-    <span class="close-btn" id="closeBtnForNewMark">&times;</span>
+            
+             <span class="close-btn" id="closeBtnForNewMark">&times;</span>
 
-            <div class="page-name">New Mark</div>
+            <div id="newMark">New <span id="subjectNew"></span> Mark : <span id="monthNew"></span></div>
             <div id="handsontableForNew"></div>
     
         <div class="file-name">
             <label for="datasetName" class="form-label">File Name:</label>
-            <input type="text" id="datasetName" class="form-control" placeholder="month_<name>" />
+            <input type="text" id="datasetName" class="form-control" placeholder="Test name" />
             <label for="totalMarks" class="form-label mt-4">Total mark :</label>
             <input type="number" id="totalMarks" class="form-control" placeholder="Enter total marks" />
             <button class="btn btn-danger mt-2" id="calculate">calculate</button>
@@ -259,8 +268,9 @@
         <div id="forSeeMarks">
     <span class="close-btn" id="closeBtnForExist">&times;</span>
             
-            <div id="handsontableForExist"></div>
+    <div id="handsontableForExist"></div>
 
+    <div class="monthNameForExistingMark">Month : <span id="monthExist"></span></div>
     <div class="file-name-for-See-Marks">
         <div class="d-flex flex-column gap-1">
             <p>File name : </p>
@@ -275,6 +285,8 @@
     </div>
     <div class="buttons">
         <button class="btn btn-success" id="updateDataForExists">Update</button>
+        <button class="btn btn-danger" id="removeFromMonth">Remove from month</button>
+
     </div>
     <div class="chartForExist">
         <canvas id="chartForExist"></canvas>
@@ -314,6 +326,23 @@
         </div>
     </div>
 
+
+    <!-- for adding existing marks -->
+
+    <div class="addMarksContainer">
+        <div class="ConfirmButton">
+        <button class="btn btn-warning" id="cancelAdd">cancel</button>
+        <button class="btn btn-success" id="confirmAdd">confirm</button>
+        </div>
+    </div>
+
+    <div id="forEmptyMonth">
+        <img src="../../assets/images/monthlySubjects_img/img_emty-folder.png" class="img-fluid" alt="">
+        <div>
+            <p>There are no tests added yet.</p>
+            <p>Add your first test by <span id="addNewTestByClick">clicking here</span></p>
+        </div>
+    </div>
 
 
     <script type="module" src="../scripts/monthlySubjectMarks.js"></script>

@@ -1,10 +1,13 @@
 // section month
 
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import {
   getDatabase,
-  ref,set,update,get,
+  ref,
+  set,
+  update,
+  get,
+  remove,
   child,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import {
@@ -12,7 +15,6 @@ import {
   collection,
   getDocs,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
-
 
 // Firebase configuration
 const firebaseConfig = {
@@ -29,14 +31,22 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const firestore = getFirestore(app);
 
-let colors=["red","yellow","green","absent"];
+let hotForAllMarks;
+let pieChart;
+let colors = ["red", "yellow", "green", "absent"];
+let month = localStorage.getItem("month");
+let subject = localStorage.getItem("subject");
+const section = localStorage.getItem("section");
+let marksAdded = [];
 
-let month="January";
+
+
+
 
 // Fetch dataset names and marks, then display in Handsontable
 async function fetchDataAndDisplay() {
-    document.getElementById("renameDatasetInput").placeholder=month;
-  const datasetPath = `/studentMarks/ClassA/months/${month}/English`;
+  document.getElementById("renameDatasetInput").placeholder = month;
+  const datasetPath = `/studentMarks/${section}/months/${month}/${subject}`;
   const tableContainer = document.getElementById("table");
   const studentData = {};
   let columnHeaders = ["Name", "Average"]; // Add "Average" to the column headers
@@ -46,17 +56,17 @@ async function fetchDataAndDisplay() {
   const datasetSnapshot = await get(child(ref(db), datasetPath));
   if (datasetSnapshot.exists()) {
     const datasets = Object.keys(datasetSnapshot.val());
-
+    document.getElementById("forEmptyMonth").style.display="none";
     // Step 2: Fetch marks for each dataset
     for (const dataset of datasets) {
-      const marksPath = `/studentMarks/ClassA/English/${dataset}`;
+      const marksPath = `/studentMarks/${section}/${subject}/${dataset}`;
       const marksSnapshot = await get(child(ref(db), marksPath));
       if (marksSnapshot.exists()) {
         const data = marksSnapshot.val().students;
-
+        
         // Add dataset name to column headers
         columnHeaders.push(dataset);
-
+        marksAdded.push(dataset);
         // Populate studentData with names and marks for each dataset
         data.forEach((student) => {
           const name = student[0];
@@ -109,11 +119,10 @@ async function fetchDataAndDisplay() {
       height: "auto", // Set table height to fit content
       licenseKey: "non-commercial-and-evaluation",
       readOnly: true, // Make everything readonly
-    fixedColumnsLeft: 2,
+      fixedColumnsLeft: 2,
       afterOnCellMouseDown: function (event, coords) {
         // Check if the clicked cell is in the header row (row index -1)
-        if (coords.row === -1 && coords.col > 0) {
-          // console.log(`Dataset Name: ${columnHeaders[coords.col]}`);
+        if (coords.row === -1 && coords.col > 1) {
           fetchAndDisplayData(columnHeaders[coords.col]);
         }
       },
@@ -123,7 +132,7 @@ async function fetchDataAndDisplay() {
             if (col > 0) {
               // Skip the "Name" column (col 0)
               const average = parseFloat(
-                hot.getDataAtCell(row, columnHeaders.indexOf("Average"))
+                hotForAllMarks.getDataAtCell(row, columnHeaders.indexOf("Average"))
               );
               let colorClass = "";
 
@@ -137,135 +146,151 @@ async function fetchDataAndDisplay() {
               }
 
               // Apply the color class to the cell
-              hot.setCellMeta(row, col, "className", colorClass);
-              hot.render(); // Re-render the table to apply changes
+              hotForAllMarks.setCellMeta(row, col, "className", colorClass);
+              hotForAllMarks.render(); // Re-render the table to apply changes
             }
           });
         }
       },
     };
 
-    const hot = new Handsontable(tableContainer, hotSettings);
+    if(hotForAllMarks){
+        hotForAllMarks.destroy();
+    }
+
+    hotForAllMarks = new Handsontable(tableContainer, hotSettings);
     const ctx = document.getElementById("myChart").getContext("2d");
 
-  // Check if there's an existing chart, and destroy it if so
-
-  // Create a new chart 
- let pieChart = new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels: ["81-100", "51-80", "0-50"],
-      datasets: [
-        {
-          data: [avgData.green, avgData.yellow, avgData.red],
-          backgroundColor: ["#4CAF50", "#FFEB3B", "#F44336"],
-          borderColor: ["#4CAF50", "#FFEB3B", "#F44336"],
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: "top",
-        },
-        tooltip: {
-          callbacks: {
-            label: function (tooltipItem) {
-              return tooltipItem.label + ": " + tooltipItem.raw + " students";
+    // Check if there's an existing chart, and destroy it if so
+    if (pieChart) {
+      pieChart.destroy();
+    }
+    // Create a new chart
+    pieChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: ["81-100", "51-80", "0-50"],
+        datasets: [
+          {
+            data: [avgData.green, avgData.yellow, avgData.red],
+            backgroundColor: ["#4CAF50", "#FFEB3B", "#F44336"],
+            borderColor: ["#4CAF50", "#FFEB3B", "#F44336"],
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          tooltip: {
+            callbacks: {
+              label: function (tooltipItem) {
+                return tooltipItem.label + ": " + tooltipItem.raw + " students";
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  updateCountTable(Object.values(avgData));
+    updateCountTable(Object.values(avgData));
 
     let colorsApplied = false; // Flag to track if colors are applied
 
-    document.getElementById("showColors").addEventListener("click", function () {
-      hot.getData().forEach((row, rowIndex) => {
-        if (rowIndex >= 0) { // Skip the header row
-          row.forEach((cell, colIndex) => {
-            if (colIndex > 0 && colIndex < columnHeaders.length) { // Skip "Name" and "Average" columns
-              const cellValue = parseFloat(cell);
-              let colorClass = "";
+    document
+      .getElementById("showColors")
+      .addEventListener("click", function () {
+        hotForAllMarks.getData().forEach((row, rowIndex) => {
+          if (rowIndex >= 0) {
+            // Skip the header row
+            row.forEach((cell, colIndex) => {
+              if (colIndex > 0 && colIndex < columnHeaders.length) {
+                // Skip "Name" and "Average" columns
+                const cellValue = parseFloat(cell);
+                let colorClass = "";
 
-              // Determine color based on cell value
-              if (cellValue >= 81) {
-                colorClass = "green";
-              } else if (cellValue >= 51) {
-                colorClass = "yellow";
-              } else if (!isNaN(cellValue)) { // If cell has a valid number less than 51
-                colorClass = "red";
+                // Determine color based on cell value
+                if (cellValue >= 81) {
+                  colorClass = "green";
+                } else if (cellValue >= 51) {
+                  colorClass = "yellow";
+                } else if (!isNaN(cellValue)) {
+                  // If cell has a valid number less than 51
+                  colorClass = "red";
+                }
+
+                // Toggle cell color based on the `colorsApplied` state
+                if (colorsApplied) {
+                  hotForAllMarks.setCellMeta(rowIndex, colIndex, "className", ""); // Clear color
+                  document.getElementById("showColors").innerText =
+                    "Show Colors";
+                } else {
+                  hotForAllMarks.setCellMeta(rowIndex, colIndex, "className", colorClass); // Apply color
+                  document.getElementById("showColors").innerText =
+                    "Remove Colors";
+                }
               }
+            });
+          }
+        });
 
-              // Toggle cell color based on the `colorsApplied` state
-              if (colorsApplied) {
-                hot.setCellMeta(rowIndex, colIndex, "className", ""); // Clear color
-                document.getElementById("showColors").innerText="Show Colors";
+        hotForAllMarks.render(); // Re-render the table to apply changes
 
-              } else {
-                hot.setCellMeta(rowIndex, colIndex, "className", colorClass); // Apply color
-                document.getElementById("showColors").innerText="Remove Colors";
-
-              }
-            }
-          });
-        }
+        // Toggle the colorsApplied state
+        colorsApplied = !colorsApplied;
       });
+  }
+  else{
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("forEmptyMonth").style.display="flex";
 
-      hot.render(); // Re-render the table to apply changes
-
-      // Toggle the colorsApplied state
-      colorsApplied = !colorsApplied;
-    });
+    
   }
 }
 
 fetchDataAndDisplay();
 
-
 async function updateCountTable(scoreRanges) {
-    let totalStudents=scoreRanges.reduce((a,b)=>a+b);
-    let colors=["green","yellow","red"];
-    let percentage=(n)=>{return Math.round((n/totalStudents)*100)}
-      colors.forEach((x,i)=>{
-          document.getElementById(`${x}Count`).innerText=scoreRanges[i];
-        document.getElementById(`${x}Percent`).innerText=`${percentage(scoreRanges[i])}%`;
-  
-      })    
+  let totalStudents = scoreRanges.reduce((a, b) => a + b);
+  let colors = ["green", "yellow", "red"];
+  let percentage = (n) => {
+    return Math.round((n / totalStudents) * 100);
+  };
+  colors.forEach((x, i) => {
+    document.getElementById(`${x}Count`).innerText = scoreRanges[i];
+    document.getElementById(`${x}Percent`).innerText = `${percentage(
+      scoreRanges[i]
+    )}%`;
+  });
 }
 
-
-
-
 // for generation table///////////////////////////////////
+let hot;
 
 
+["addNewTestByClick", "newTest"].forEach(id => {
+  document.getElementById(id).addEventListener("click", showNewMarkContainer);
+});
 
-document.getElementById("newTest").addEventListener("click",()=>{
-  
-  document.getElementById("forAddingNewMarkFull").style.display="block";
+function showNewMarkContainer(){
+  document.getElementById("subjectNew").innerText =subject;
+  document.getElementById("monthNew").innerText = month;
+  document.getElementById("forAddingNewMarkFull").style.display = "block";
   if (hot) {
     hot.render();
   }
-})
-document.getElementById("closeBtnForNewMark").addEventListener("click",()=>{
-  document.getElementById("forAddingNewMarkFull").style.display="none";
-})
+}
 
-let hot;
+document.getElementById("closeBtnForNewMark").addEventListener("click", () => {
+  document.getElementById("forAddingNewMarkFull").style.display = "none";
+  fetchDataAndDisplay();
+});
+
 
 document.addEventListener("DOMContentLoaded", async function () {
-
-  const pageTitle ="English";
-  const section = localStorage.getItem("section");
-
-  // document.querySelector(".page-name").textContent = `New ${pageTitle} Mark`;
-
   const container = document.getElementById("handsontableForNew");
   let data = [];
   let Students = [];
@@ -310,9 +335,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const totalMarksInput = document.getElementById("totalMarks");
   let totalMarks = parseInt(totalMarksInput.value);
 
-
   // Initialize Handsontable
-   hot = new Handsontable(container, {
+  hot = new Handsontable(container, {
     data: data,
     colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
     columns: [
@@ -364,13 +388,11 @@ document.addEventListener("DOMContentLoaded", async function () {
               } else {
                 hot.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
               }
-            }  
+            }
           }
           hot.render();
         });
-
       }
-      
     },
   });
   // Button to calculate total marks
@@ -393,14 +415,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         hot.setDataAtCell(row, 2, average.toFixed(2));
 
         // Set the cell color based on the average value
-        if(average=="Absent"){
-          hot.setCellMeta(row, 2, "className", "absent"); 
-        }
-        else if (average <= 50 && !isNaN(average)) {
+        if (average == "Absent") {
+          hot.setCellMeta(row, 2, "className", "absent");
+        } else if (average <= 50 && !isNaN(average)) {
           hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
-        } else if (average > 50 && average < 81 &&!isNaN(average)) {
+        } else if (average > 50 && average < 81 && !isNaN(average)) {
           hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
-        } else if(!isNaN(average)) {
+        } else if (!isNaN(average)) {
           hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
         }
       }
@@ -410,22 +431,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function saveDataToFirebase(customName) {
     const dbRef = ref(db);
-    const dataPath = `studentMarks/${section}/${pageTitle}`;
-    const month = customName.split("_")[0];
-    const orderedMonths = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
+    const dataPath = `studentMarks/${section}/${subject}`;
 
     // Check for existing datasets
     try {
@@ -448,17 +454,15 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else {
           // Save new dataset
           await set(ref(db, `${dataPath}/${customName}`), saveData);
-          orderedMonths.forEach(async (x) => {
-            if (x.includes(month)) {
-              await addToMonth(section, pageTitle, x, customName);
-            }
-          });
+          await addToMonth(section, subject, month, customName);
+
           showSuccessMessage("Data saved successfully.");
         }
       } else {
         // Save new dataset
         await set(ref(db, `${dataPath}/${customName}`), saveData);
         showSuccessMessage("Data saved successfully.");
+        document.getElementById("forEmptyMonth").style.display="none";
 
       }
 
@@ -499,7 +503,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 });
 
-
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -518,7 +521,6 @@ async function addToMonth(section, subject, month, dataSetName) {
   }
 }
 
-
 let analysisChart; // Variable to hold the chart instance
 
 async function createChart() {
@@ -529,10 +531,10 @@ async function createChart() {
   const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
   for (let row = 0; row < hot.countRows(); row++) {
     const mark = hot.getDataAtCell(row, 2);
-      if (mark === "Absent") scoreRanges["Absent"]++;
-      if (mark >= 81&& !isNaN(mark)) scoreRanges["81-100"]++;
-      else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
-      else if(!isNaN(mark)) scoreRanges["0-50"]++;
+    if (mark === "Absent") scoreRanges["Absent"]++;
+    if (mark >= 81 && !isNaN(mark)) scoreRanges["81-100"]++;
+    else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
+    else if (!isNaN(mark)) scoreRanges["0-50"]++;
   }
   updateCountTableForNew(Object.values(scoreRanges));
   // Destroy previous chart if it exists
@@ -561,46 +563,36 @@ async function createChart() {
   });
 }
 
-
 async function updateCountTableForNew(scoreRanges) {
-  let totalStudents=scoreRanges.reduce((a,b)=>a+b);
-  let percentage=(n)=>{return Math.round((n/totalStudents)*100)}
-    colors.forEach((x,i)=>{
-        document.getElementById(`${x}CountNew`).innerText=scoreRanges[i];
-      document.getElementById(`${x}PercentNew`).innerText=`${percentage(scoreRanges[i])}%`;
-
-    })    
+  let totalStudents = scoreRanges.reduce((a, b) => a + b);
+  let percentage = (n) => {
+    return Math.round((n / totalStudents) * 100);
+  };
+  colors.forEach((x, i) => {
+    document.getElementById(`${x}CountNew`).innerText = scoreRanges[i];
+    document.getElementById(`${x}PercentNew`).innerText = `${percentage(
+      scoreRanges[i]
+    )}%`;
+  });
 }
 
+//  for already exists  ==> key: goto exist
 
-
-
-//  for already exists  ==> key: gotoexist
-
-
-
-
-const existContainer=document.getElementById("forSeeMarksFull");
+const existContainer = document.getElementById("forSeeMarksFull");
 let hotForExists;
-let analysisChartForExists; // Variable to hold the chart instance
-
-// const datasetName = localStorage.getItem("dataSet");
-let datasetName ;
-const section = localStorage.getItem("section");
-// const pageTitle = localStorage.getItem("pageTitle");
-const pageTitle ="English";
+let analysisChartForExists; 
+document.getElementById("monthExist").innerText=month;
+let datasetName;
 
 function fetchAndDisplayData(datasetNameFromTable) {
-  console.log(datasetNameFromTable);
-  datasetName=datasetNameFromTable;
-  console.log(datasetName);
-  
-  
-  
-  existContainer.style.display="block"
-  const dataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
+  datasetName = datasetNameFromTable;
+
+  existContainer.style.display = "block";
+  const dataPath = `studentMarks/${section}/${subject}/${datasetName}`;
   const dbRef = ref(db);
-  const renameDatasetInput = document.getElementById("renameDatasetInputForSeeMarks");
+  const renameDatasetInput = document.getElementById(
+    "renameDatasetInputForSeeMarks"
+  );
   const totalMarksInput = document.getElementById("totalMarksForSeeMarks");
 
   if (renameDatasetInput) renameDatasetInput.placeholder = datasetName;
@@ -611,7 +603,7 @@ function fetchAndDisplayData(datasetNameFromTable) {
       if (snapshot.exists()) {
         const firebaseData = snapshot.val();
         const container = document.getElementById("handsontableForExist");
-  document.getElementById("loading").style.display = "none";
+        document.getElementById("loading").style.display = "none";
 
         hotForExists = new Handsontable(container, {
           data: firebaseData.students,
@@ -635,7 +627,7 @@ function fetchAndDisplayData(datasetNameFromTable) {
             if (source === "edit") {
               createChart();
               const totalMarks = parseFloat(totalMarksInput.value);
-          
+
               changes.forEach(([row, prop, oldValue, newValue]) => {
                 if (prop === 1) {
                   // Check if the "Marks" column is edited
@@ -643,7 +635,7 @@ function fetchAndDisplayData(datasetNameFromTable) {
                     if (newValue === "A" || newValue === "a") {
                       // Accept "A" as valid input for "absent"
                       hotForExists.setDataAtCell(row, 2, "Absent");
-                      hotForExists.setCellMeta(row, 2, "className", "absent"); 
+                      hotForExists.setCellMeta(row, 2, "className", "absent");
                     } else if (!isNaN(newValue)) {
                       // Handle numeric input
                       if (newValue > totalMarks) {
@@ -656,7 +648,9 @@ function fetchAndDisplayData(datasetNameFromTable) {
                       }
                     } else {
                       // Reject other non-numeric strings
-                      alert('Only numeric values or "A" are allowed in the Marks column.');
+                      alert(
+                        'Only numeric values or "A" are allowed in the Marks column.'
+                      );
                       hotForExists.setDataAtCell(row, 1, oldValue); // Revert to the old value
                     }
                   } else {
@@ -667,9 +661,7 @@ function fetchAndDisplayData(datasetNameFromTable) {
               hotForExists.render(); // Ensure the table re-renders
               createChartForExist();
             }
-          }
-          
-          
+          },
         });
 
         const totalMarks = firebaseData.totalMarks || 100;
@@ -696,26 +688,27 @@ function fetchAndDisplayData(datasetNameFromTable) {
 function updateCellColor(row, average) {
   if (average === "Absent") {
     hotForExists.setCellMeta(row, 2, "className", "absent");
-  } else if (average>=0&&average < 51) {
+  } else if (average >= 0 && average < 51) {
     hotForExists.setCellMeta(row, 2, "className", "red");
-  } else if (average>50&&average < 81) {
+  } else if (average > 50 && average < 81) {
     hotForExists.setCellMeta(row, 2, "className", "yellow");
-  } else if(!isNaN(average)) {
+  } else if (!isNaN(average)) {
     hotForExists.setCellMeta(row, 2, "className", "green");
   }
 }
 
 function updateDataInFirebase(dataSet) {
-  // const datasetNameForUpdate = localStorage.getItem("dataSet");
-  const dataPath = `studentMarks/${section}/${pageTitle}/${dataSet}`;
-  
+  const dataPath = `studentMarks/${section}/${subject}/${dataSet}`;
+
   if (!hotForExists) {
     console.log("Handsontable instance is not initialized.");
     return;
   }
-  
-  const updatedData = hotForExists.getData();  // Get the data from Handsontable instance
-  const totalMarksInput = document.getElementById("totalMarksForSeeMarks").value;
+
+  const updatedData = hotForExists.getData(); // Get the data from Handsontable instance
+  const totalMarksInput = document.getElementById(
+    "totalMarksForSeeMarks"
+  ).value;
 
   if (!updatedData || updatedData.length === 0) {
     console.error("No data available in Handsontable to update.");
@@ -734,14 +727,13 @@ function updateDataInFirebase(dataSet) {
   set(datasetRef, saveData)
     .then(() => {
       console.log("Data successfully updated in Firebase.");
-      showSuccessMessage("Dataset Updated successfully!");
+      showSuccessMessage("Data Updated successfully!");
     })
     .catch((error) => {
       console.error("Error updating data in Firebase:", error);
       alert("Failed to update data.");
     });
 }
-
 
 function recalculateAverages(totalMarks) {
   if (!hotForExists || isNaN(totalMarks) || totalMarks <= 0) return;
@@ -774,13 +766,13 @@ function recalculateAverages(totalMarks) {
   createChartForExist();
 }
 
-
-
 const updateTotalMarksButton = document.getElementById("updateTotalMarks");
 
 if (updateTotalMarksButton) {
   updateTotalMarksButton.addEventListener("click", () => {
-    const totalMarks = parseFloat(document.getElementById("totalMarksForSeeMarks").value);
+    const totalMarks = parseFloat(
+      document.getElementById("totalMarksForSeeMarks").value
+    );
     if (!isNaN(totalMarks) && totalMarks > 0) {
       recalculateAverages(totalMarks); // Recalculate based on new total marks
     } else {
@@ -788,7 +780,6 @@ if (updateTotalMarksButton) {
     }
   });
 }
-
 
 // Event listener for the "Update Data" button
 const updateDataButton = document.getElementById("updateDataForExists");
@@ -805,20 +796,14 @@ if (updateDataButton) {
 }
 let isEdited = false;
 // Track changes to rename input
-const renameDatasetInput = document.getElementById("renameDatasetInputForSeeMarks");
+const renameDatasetInput = document.getElementById(
+  "renameDatasetInputForSeeMarks"
+);
 if (renameDatasetInput) {
   renameDatasetInput.addEventListener("input", () => {
     isEdited = true;
   });
 }
-
-// Auto-save data to Firebase when the page is closed or reloaded
-window.addEventListener("beforeunload", function (event) {
-  if (isEdited) {
-    renameDataset();
-  }
-  updateDataInFirebase();
-});
 
 document.addEventListener("DOMContentLoaded", () => {
   createChartForExist();
@@ -827,15 +812,15 @@ document.addEventListener("DOMContentLoaded", () => {
 async function createChartForExist() {
   if (!hotForExists) {
     console.log("Handsontable instance not initialized.");
-    return; 
+    return;
   }
   const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
   for (let row = 0; row < hotForExists.countRows(); row++) {
     const mark = hotForExists.getDataAtCell(row, 2);
-      if (mark === "Absent") scoreRanges["Absent"]++;
-      if (mark >= 81&& !isNaN(mark)) scoreRanges["81-100"]++;
-      else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
-      else if(!isNaN(mark)) scoreRanges["0-50"]++;
+    if (mark === "Absent") scoreRanges["Absent"]++;
+    if (mark >= 81 && !isNaN(mark)) scoreRanges["81-100"]++;
+    else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
+    else if (!isNaN(mark)) scoreRanges["0-50"]++;
   }
   updateCountTableExists(Object.values(scoreRanges));
   // Destroy previous chart if it exists
@@ -864,32 +849,17 @@ async function createChartForExist() {
   });
 }
 
-const orderedMonths = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 // Rename dataset function
 async function renameDataset() {
-  const renameDatasetInput = document.getElementById("renameDatasetInputForSeeMarks");
+  const renameDatasetInput = document.getElementById(
+    "renameDatasetInputForSeeMarks"
+  );
   const newDatasetName = capitalizeFirstLetter(renameDatasetInput.value.trim());
   const section = localStorage.getItem("section");
-  const pageTitle = localStorage.getItem("pageTitle");
-  // const datasetName = localStorage.getItem("dataSet");
-  const oldDataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
+  const oldDataPath = `studentMarks/${section}/${subject}/${datasetName}`;
 
   if (newDatasetName && newDatasetName !== datasetName) {
-    const newDataPath = `studentMarks/${section}/${pageTitle}/${newDatasetName}`;
+    const newDataPath = `studentMarks/${section}/${subject}/${newDatasetName}`;
     const dbRef = ref(db);
 
     try {
@@ -900,14 +870,7 @@ async function renameDataset() {
 
         // Set data to the new path
         await set(ref(db, newDataPath), oldData);
-
-        let oldMonth = datasetName.split("_")[0];
-        orderedMonths.forEach(async (x) => {
-          if (x.includes(oldMonth)) {
-            await removeFromMonth(section, pageTitle, x, datasetName);
-          }
-        });
-
+        await removeFromMonth(section, subject, month, datasetName);
 
         // Delete old dataset
         await set(ref(db, oldDataPath), null);
@@ -915,12 +878,7 @@ async function renameDataset() {
         // Update the local dataset name and input placeholder
         localStorage.setItem("dataSet", newDatasetName);
         renameDatasetInput.placeholder = newDatasetName;
-        let newMonth = newDatasetName.split("_")[0];
-        orderedMonths.forEach(async (x) => {
-          if (x.includes(newMonth)) {
-            await addToMonth(section, pageTitle, x, newDatasetName);
-          }
-        });
+        await addToMonth(section, subject, month, newDatasetName);
 
         // Display success message
         showSuccessMessage("Dataset renamed successfully!");
@@ -953,8 +911,6 @@ function showSuccessMessage(message) {
   }
 }
 
-
-
 async function removeFromMonth(section, subject, month, dataSetName) {
   const datasetRef = ref(
     db,
@@ -963,24 +919,165 @@ async function removeFromMonth(section, subject, month, dataSetName) {
   try {
     await remove(datasetRef);
     console.log(`Successfully deleted: ${dataSetName}`);
+    location.reload();
   } catch (error) {
     console.error("Failed to delete dataset:", dataSetName, error);
   }
 }
 
-
-
 async function updateCountTableExists(scoreRanges) {
-  let totalStudents=scoreRanges.reduce((a,b)=>a+b);
-  let percentage=(n)=>{return Math.round((n/totalStudents)*100)}
-    colors.forEach((x,i)=>{
-        document.getElementById(`${x}CountExists`).innerText=scoreRanges[i];
-      document.getElementById(`${x}PercentExists`).innerText=`${percentage(scoreRanges[i])}%`;
-
-    })    
+  let totalStudents = scoreRanges.reduce((a, b) => a + b);
+  let percentage = (n) => {
+    return Math.round((n / totalStudents) * 100);
+  };
+  colors.forEach((x, i) => {
+    document.getElementById(`${x}CountExists`).innerText = scoreRanges[i];
+    document.getElementById(`${x}PercentExists`).innerText = `${percentage(
+      scoreRanges[i]
+    )}%`;
+  });
 }
 
+document.getElementById("closeBtnForExist").addEventListener("click", () => {
+  if (isEdited) {
+    renameDataset();
+  }
+  updateDataInFirebase(datasetName);
+  existContainer.style.display = "none";
+  fetchDataAndDisplay();
+});
 
-document.getElementById("closeBtnForExist").addEventListener("click",()=>{
-    existContainer.style.display="none";
-})
+document
+  .getElementById("removeFromMonth")
+  .addEventListener("click", function () {
+    document.getElementById("delete-warning").style.display = "block";
+  });
+
+document
+  .getElementById("yesForRemoveMark")
+  .addEventListener("click", function () {
+    removeFromMonth(section, subject, month, datasetName);
+    showSuccessMessage("successfully removed from the month");
+    fetchDataAndDisplay();
+    document.getElementById("delete-warning").style.display = "none";
+  });
+
+document
+  .getElementById("noForRemoveMark")
+  .addEventListener("click", function () {
+    document.getElementById("delete-warning").style.display = "none";
+  });
+
+const addMarksContainer = document.querySelector(".addMarksContainer");
+const addButton = document.getElementById("add-btn");
+
+const fetchAndDisplayDatasetNames = async () => {
+  try {
+    // Show the addMarksContainer
+    addMarksContainer.style.display = "flex";
+    addMarksContainer.innerHTML = `<div class="ConfirmButton">
+          <button class="btn btn-warning" id="cancelAdd">cancel</button>
+          <button class="btn btn-success" id="confirmAdd">confirm</button>
+      </div>`; // Clear previous data but keep ConfirmButton
+
+    // Reference to the Firebase path
+    const dbRef = ref(db, `/studentMarks/${section}/${subject}`);
+    const snapshot = await get(dbRef);
+
+    // Fetch current datasets in marks-container
+
+    const currentDatasets = marksAdded;
+    let hasNewDatasets = false; // Flag to check if there are new datasets
+
+    // Check if data exists
+    if (snapshot.exists()) {
+      const marksData = snapshot.val();
+
+      // Loop through the keys and create divs for each dataset name
+      Object.keys(marksData).forEach((datasetName) => {
+        // Only show datasets that are not already in the marks-container
+        if (!currentDatasets.includes(datasetName)) {
+          hasNewDatasets = true; // Found at least one new dataset
+
+          // Create a new div for each dataset name
+          const datasetDiv = document.createElement("div");
+          datasetDiv.className = "marks-detail";
+          datasetDiv.textContent = datasetName;
+
+          // Toggle selection on click for adding datasets
+          datasetDiv.addEventListener("click", () => {
+            datasetDiv.classList.toggle("selected");
+          });
+
+          // Append each div to the addMarksContainer (before ConfirmButton)
+          addMarksContainer.insertBefore(
+            datasetDiv,
+            addMarksContainer.querySelector(".ConfirmButton")
+          );
+        }
+      });
+    }
+
+    // If no new datasets were found, show a message
+    if (!hasNewDatasets) {
+      const noNewDataMessage = document.createElement("div");
+      noNewDataMessage.className = "marks-detail";
+      noNewDataMessage.textContent = "All Mark files are already added.";
+      addMarksContainer.insertBefore(
+        noNewDataMessage,
+        addMarksContainer.querySelector(".ConfirmButton")
+      );
+    }
+
+    // Re-add event listeners for confirm and cancel buttons each time data is loaded
+    document.getElementById("confirmAdd").addEventListener("click", confirmAdd);
+    document.getElementById("cancelAdd").addEventListener("click", cancelAdd);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    const errorMessage = document.createElement("p");
+    errorMessage.textContent = "Error fetching data";
+    addMarksContainer.insertBefore(
+      errorMessage,
+      addMarksContainer.querySelector(".ConfirmButton")
+    );
+  }
+};
+
+addButton.addEventListener("click", fetchAndDisplayDatasetNames);
+
+// Function to confirm selection and append dataset names to Firebase
+const confirmAdd = async () => {
+  const selectedDivs = addMarksContainer.querySelectorAll(".selected");
+  const selectedData = {};
+
+  for (const selectedDiv of selectedDivs) {
+    const datasetName = selectedDiv.textContent;
+
+    // Store the selected dataset name in the object
+    selectedData[datasetName] = true; // Just to store it as a key with a dummy value
+  }
+
+  // Append the selected dataset names to Firebase at the specified path
+  try {
+    // Use update to append the dataset names
+    await update(
+      ref(db, `/studentMarks/${section}/months/${month}/${subject}`),
+      selectedData
+    );
+    console.log("Data successfully appended to Firebase.");
+    
+    // Hide addMarksContainer after confirming
+    addMarksContainer.style.display = "none";
+    addMarksContainer.innerHTML = ""; 
+    fetchDataAndDisplay();
+    // Fetch and display the updated marks in marks-container
+  } catch (error) {
+    console.error("Error appending data to Firebase:", error);
+  }
+};
+
+// Function for canceling selection
+const cancelAdd = () => {
+  addMarksContainer.style.display = "none";
+  addMarksContainer.innerHTML = ""; 
+};

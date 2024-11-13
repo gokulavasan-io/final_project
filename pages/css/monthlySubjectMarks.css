@@ -19,6 +19,46 @@
 
 /* styles for the page */
 
+#forEmptyMonth{
+    width: 30%;
+    position: fixed;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    display: none;
+    flex-direction: column;
+    align-items: center;gap: 2rem;
+}
+#forEmptyMonth img{
+    width: 40%;
+    
+}
+
+#forEmptyMonth p{
+    margin-bottom: 0 !important;
+    font-weight: bold;
+
+}
+
+#forEmptyMonth>div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    color: red;
+}
+
+#addNewTestByClick{
+    color: #095ab0;
+    font-weight: bolder;
+    transition: 300ms all ease;
+}
+
+#addNewTestByClick:hover{
+    color:var(--primary-color);
+    cursor: pointer;
+}
+
 .main-container{
     position: fixed;
     top: 17%;
@@ -180,6 +220,7 @@ td {
     /* Enable scroll if needed */
     padding-top: 60px;
 
+
 }
 
 #forAddingNewMark{
@@ -260,8 +301,25 @@ td {
 
 
 
+
+
 /* for existing mark */
 
+
+.monthNameForExistingMark{
+    position: absolute;
+    top: 3%;
+    left: 3%;
+
+    font-size: 1.2rem;
+    font-family: var(--font);
+    font-weight: bolder;
+    color: var(--primary-color);
+
+}
+.monthNameForExistingMark span{
+    color: red;
+}
 
 #forSeeMarksFull{
     display: none;
@@ -334,4 +392,115 @@ td {
     width: 20%;
     font-family: var(--font);
     z-index: -100;
+}
+
+#newMark{
+    font-size: 1rem;
+    font-family: var(--font);
+    color: var(--primary-color);
+    font-weight: bolder;
+    display: inline-block;
+    position: fixed;
+    top: 3%;
+    left: 3%;
+}
+#subjectNew{
+    color: red;
+}
+#monthNew{
+    color: green;
+}
+
+#forSeeMarks .buttons{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#delete-warning{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+    background-color: var(--primary-color);
+    color: var(--font-color);
+    padding: 1rem 3rem;
+    font-weight: bold;
+    border-radius: 10px;
+    display: none;
+    z-index: 200;
+
+}
+
+.yes-no{
+    display: flex;
+    justify-content: space-around;
+    color: var(--font-color);
+}
+
+.yes-no button{
+    font-weight: bolder;
+}
+
+
+.addMarksContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100000;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 50%;
+    height: 50%;
+    background-color: antiquewhite;
+    border-radius: 1rem;
+    padding: 1rem;
+    display: none;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    font-family: Poppins;
+}
+.addMarksContainer .marks-detail{
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+
+.ConfirmButton {
+    position: absolute;
+    bottom: 1rem;
+    right: 2rem;
+    display: flex;
+    gap: 1rem;
+    font-family: Poppins;
+}
+
+.selected {
+    background-color: #d3e9ff; /* Light blue background to indicate selection */
+    border: 2px solid #007bff;
+    color: var(--primary-color);
+}
+
+
+.marks-detail{
+    color: var(--font-color);
+    background-color: rgb(3, 177, 3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 10px;
+    gap: 1rem;
+    transition: transform 300ms ease;
+    height: 6rem;
+    min-width: 8rem;
+    max-width: min-content;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;}
+.marks-detail:hover{
+    background-color: rgb(8, 114, 2);
+    transform: scale(.97);
+    cursor: pointer;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 }
