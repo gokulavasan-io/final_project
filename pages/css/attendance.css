@@ -84,6 +84,9 @@
     position: fixed;
     top: 10%;
     right: 3%;
+    display: flex;
+    width: fit-content;
+    gap: .5rem;
 }
 
 
@@ -184,3 +187,24 @@
     border: 1px solid rgb(91, 90, 90);
     font-family: var(--font);
 }
+
+
+#loading{
+    position: absolute;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color:var(--border-left);
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font);
+    gap: 1rem;
+    align-items: center;
+
+}
+
+#loading div{
+    font-size: 1rem;
+}
+

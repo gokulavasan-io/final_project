@@ -136,6 +136,12 @@
         Successfully Logged Out
     </div>
 
+    <div id="successMessage" class="popup"></div>
+    <div id="loading">
+        <span><i class="fa fa-spinner fa-spin"></i></span>
+        <div>please wait ...</div>
+    </div>
+
 
     <div class="main-container">
         <div id="attendanceTable"></div>
@@ -154,10 +160,10 @@
     <div id="dailyAttendancePopup" class="tablePopup">
         <div class="popup-content">
             <span class="close-btn" id="closePopupBtnForDaily">&times;</span>
-        <h3>Daily Attendance Statistics</h3>
-        <div id="dailyAttendancePopupTable" style="margin-top: 20px;"></div>
-    
-        </div>    
+            <h3>Daily Attendance Statistics</h3>
+            <div id="dailyAttendancePopupTable" style="margin-top: 20px;"></div>
+
+        </div>
     </div>
 
 
@@ -172,6 +178,7 @@
     </div>
 
     <div class="buttonsContainer">
+        <button class="btn btn-secondary">Remarks</button>
         <div class="btn btn-primary" id="save">Save</div>
         <button class="btn btn-success" id="countBtn">Student Statistics</button>
         <button class="btn btn-success" id="dailyCount">Daily Statistics</button>

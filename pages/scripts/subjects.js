@@ -210,3 +210,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
   getAllData();
 });
+
+
+const orderedMonths = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+
+function getCurrentMonth() {
+  return orderedMonths[new Date().getMonth()];
+}
+
+
+async function checkOrCreateMonth() {
+  const subject_name = document.getElementById("page-name").innerText;
+  const month = getCurrentMonth();
+  const monthPath = `studentMarks/${section}/months/${month}/${subject_name}`;
+
+  const monthRef = ref(database, monthPath);
+  const snapshot = await get(monthRef);
+  if (!snapshot.exists()) {
+    await set(monthRef, { created: true });
+    console.log(`${month} has been created in Firebase.`);
+  } else {
+    console.log(`${month} already exists in Firebase.`);
+  }
+}

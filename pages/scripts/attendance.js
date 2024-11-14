@@ -80,6 +80,7 @@ async function fetchStudentNames() {
   }
 }
 
+// Function to initialize the Handsontable once with empty student data
 function initializeTable(students) {
   // Only include the 'name' column and one column for each day
   columns = [{ data: "name", type: "text", readOnly: true, title: "Name" }];
@@ -100,7 +101,7 @@ function initializeTable(students) {
 
   // Initialize Handsontable with updated configuration
   hot = new Handsontable(container, {
-    data: students,
+    data: students,  // Initially empty student data will be replaced later
     columns: columns,
     rowHeaders: true,
     colHeaders: columns.map((col) => col.title),
@@ -173,24 +174,17 @@ function initializeTable(students) {
               // Set up Confirm button
               document.getElementById("confirm").onclick = () => {
                 const remark = document.getElementById("newRemark").value;
-                  if (remark) {
-                  const remarksBody = document.getElementById("remarksBody");
-                  const rowElement = document.createElement("tr");
-                  rowElement.innerHTML = `<td>${studentName}</td><td>${day}</td><td>${remark}</td>`;
-                  remarksBody.appendChild(rowElement);
-        
                   // Add cell highlight
                   hot.setCellMeta(row, col, "className", "remarked");
                   hot.render();
                   
-                  // Clear the input and hide the remark input area
+                  console.log(remark);
                   document.getElementById("newRemark").value = "";
                   forRemarks.style.display = "none";
-                }
               };
             }
           },
-        }        
+        }
       },
     },
     afterChange: function (changes, source) {
@@ -205,11 +199,11 @@ function initializeTable(students) {
   container.style.width = "100%";
 }
 
-// Function to fetch attendance data from Firebase
+// Function to fetch attendance data from Firebase, including class names
 async function fetchAttendanceData(studentName) {
   const studentRef = ref(
     firebase,
-    `/studentMarks/${section}/Attendance/${monthName}/${studentName}`
+    `/studentMarks/${section}/Attendance/${monthName}/attendanceData/${studentName}`
   );
   try {
     const snapshot = await get(studentRef);
@@ -225,26 +219,12 @@ async function fetchAttendanceData(studentName) {
   }
 }
 
-// Function to populate initial data with Firebase data if available
-async function populateInitialData(students) {
-  for (const student of students) {
-    const attendanceData = await fetchAttendanceData(student.name);
-
-    if (attendanceData) {
-      // Merge attendance data into the student's row
-      for (let day = 1; day <= daysInMonth; day++) {
-        student[`day${day}`] = attendanceData[day - 1] || ""; // Use Firebase data or default to empty
-      }
-    }
-  }
-  initializeTable(students); // Initialize table with populated data
-}
-
-// Fetch student names, populate data, and initialize the table
+// Fetch student names, initialize an empty table, and then populate data
 fetchStudentNames()
   .then((students) => {
     if (students.length > 0) {
-      populateInitialData(students); // Populate data before initializing the table
+      initializeTable(students); // Initialize the table with the empty student data structure
+      populateInitialData(students); // Then populate the data and update the table
     } else {
       console.log("No students found.");
     }
@@ -252,6 +232,68 @@ fetchStudentNames()
   .catch((error) => {
     console.error("Error fetching students:", error);
   });
+
+
+  
+  async function populateInitialData(students) {
+    for (const student of students) {
+      const studentAttendance = await fetchAttendanceData(student.name);
+  
+      if (studentAttendance) {
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dayIndex = day;
+          const dayData = studentAttendance[dayIndex];
+  
+          if (dayData) {
+            const dayKey = `day${day}`;
+            student[dayKey] = dayData.value || "";
+  
+            // Log the className to verify it exists
+            if (dayData.className) {
+              console.log(`Setting class for ${student.name} on day ${day}: ${dayData.className}`);
+            }
+          }
+        }
+      }
+    }
+  
+    // Load data into Handsontable
+    hot.loadData(students);
+  
+    // After data is loaded, apply metadata
+    hot.updateSettings({
+      afterLoadData: function () {
+        applyCellMetadata(students);
+      },
+    });
+  
+    // Hide loading message
+    document.getElementById("loading").style.display = "none";
+  }
+  
+  function applyCellMetadata(students) {
+    students.forEach((student, rowIndex) => {
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayKey = `day${day}`;
+        const dayData = student[dayKey];
+  
+        if (dayData && dayData.className && hot) {
+          // Set the metadata
+          hot.setCellMeta(rowIndex, day, "className", dayData.className);
+          console.log(`Applying class '${dayData.className}' to row ${rowIndex}, col ${day}`);
+        }
+      }
+    });
+  
+    // Render the table to apply metadata
+    hot.render();
+  }
+  
+  
+
+
+
+
 
 // Show loading animation
 function showLoading() {
@@ -472,7 +514,6 @@ function updateAttendanceCounts() {
   processStudent(); // Start the process
 }
 
-// Show daily statistics excluding weekends and holidays
 function showDailyStatistics() {
   showLoading();
 
@@ -488,6 +529,7 @@ function showDailyStatistics() {
     if (!(isWeekend || isHoliday)) {
       dailyCounts.push({
         day: `${day}/ ${currentMonth + 1}`,
+        dayIndex: day, // Store the original day index for easier lookup
         present: 0,
         absent: 0,
         lateArrival: 0,
@@ -523,27 +565,31 @@ function showDailyStatistics() {
       }
 
       const value = student[col];
+      const dailyStat = dailyCounts.find((d) => d.dayIndex === col); // Find the correct entry by day index
+      if (!dailyStat) continue; // Skip if no corresponding dailyStat found (for safety)
+
+      // Update the attendance counts based on attendance type
       switch (value) {
         case "P":
-          dailyCounts[col - 1].present++;
+          dailyStat.present++;
           break;
         case "A":
-          dailyCounts[col - 1].absent++;
+          dailyStat.absent++;
           break;
         case "LA":
-          dailyCounts[col - 1].lateArrival++;
+          dailyStat.lateArrival++;
           break;
         case "AP":
-          dailyCounts[col - 1].approvedPermission++;
+          dailyStat.approvedPermission++;
           break;
         case "SL":
-          dailyCounts[col - 1].sickLeave++;
+          dailyStat.sickLeave++;
           break;
         case "CL":
-          dailyCounts[col - 1].casualLeave++;
+          dailyStat.casualLeave++;
           break;
         case "HL":
-          dailyCounts[col - 1].halfDayLeave++;
+          dailyStat.halfDayLeave++;
           break;
       }
     }
@@ -554,53 +600,74 @@ function showDailyStatistics() {
   hideLoading();
 }
 
+
 async function saveAttendanceData() {
   const data = hot.getData(); // Get the data from Handsontable
+  const attendanceData = {}; // Object to store attendance data with class names
 
-  data.forEach((row) => {
+  // Loop through each row (student)
+  data.forEach((row, rowIndex) => {
     const studentName = row[0]; // Assuming the first column is the student's name
-    const studentData = row.slice(1); // The rest of the row data (attendance info)
+    const studentData = {}; // Object to store attendance data for each student
 
-    const studentRef = ref(
-      firebase,
-      `/studentMarks/${section}/Attendance/${monthName}/${studentName}`
-    );
+    // Loop through each cell in the row, skipping the name column (index 0)
+    row.slice(1).forEach((value, colIndex) => {
+      const dayIndex = colIndex + 1; // Adjust for zero-based index to match days
+      const cellMeta = hot.getCellMeta(rowIndex, dayIndex);
+      const className = cellMeta.className || ""; // Get class name or empty string if none
 
-    // Check if the student data already exists
-    get(studentRef)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          // If data exists, use update to directly update the array
-          update(studentRef, studentData)
-            .then(() => {
-              console.log(`Data for ${studentName} updated successfully!`);
-            })
-            .catch((error) => {
-              console.error("Error updating data: ", error);
-            });
-        } else {
-          // If data doesn't exist, use set to directly set the array
-          set(studentRef, studentData)
-            .then(() => {
-              console.log(`Data for ${studentName} saved successfully!`);
-            })
-            .catch((error) => {
-              console.error("Error saving data: ", error);
-            });
-        }
-      })
-      .catch((error) => {
-        console.error("Error checking data existence: ", error);
-      });
+      // Store cell value and class name in the studentData object
+      studentData[`${dayIndex}`] = {
+        value: value,
+        className: className
+      };
+    });
+
+    // Add each student's data to the attendanceData object, using the student's name as the key
+    attendanceData[studentName] = studentData;
   });
+
+  // Define Firebase path for saving data
+  const path = `/studentMarks/${section}/Attendance/${monthName}/attendanceData`;
+  const attendanceDataRef = ref(firebase, path);
+
+  // Save or update data in Firebase
+  get(attendanceDataRef)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        // Update if data already exists
+        update(attendanceDataRef, attendanceData)
+          .then(() => {
+            console.log("Attendance data updated successfully!");
+          })
+          .catch((error) => {
+            console.error("Error updating data: ", error);
+          });
+      } else {
+        // Set if data does not exist
+        set(attendanceDataRef, attendanceData)
+          .then(() => {
+            console.log("Attendance data saved successfully!");
+          })
+          .catch((error) => {
+            console.error("Error saving data: ", error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking data existence: ", error);
+    });
+
+  showSuccessMessage("Attendance data saved successfully!");
 }
+
 
 // Button event listener to save data
 document.getElementById("save").addEventListener("click", saveAttendanceData);
 
 // Function to save data to the specified path
 async function saveDailyAttendanceData(dailyCounts) {
-  const path = "/studentMarks/ClassB/Attendance/November/dailyData"; // Path where you want to save the data
+  const path = `/studentMarks/${section}/Attendance/${monthName}/dailyData`; // Path where you want to save the data
 
   // Reference to the path where the data is stored
   const dailyDataRef = ref(firebase, path);
@@ -657,7 +724,7 @@ async function saveMonthlyData() {
     };
   });
 
-  const path = `/studentMarks/${section}/Attendance/${monthName}/attendanceData`; // Path to save data
+  const path = `/studentMarks/${section}/months/${monthName}/attendanceData`; // Path to save data
 
   // Save or update data in Firebase
   const attendanceDataRef = ref(firebase, path);
@@ -688,9 +755,6 @@ async function saveMonthlyData() {
     });
 }
 
-window.addEventListener("beforeunload", function () {
-  saveAttendanceData();
-});
 
 
 
@@ -704,3 +768,17 @@ document.getElementById("confirm").addEventListener("click", function () {
   
 
 })
+
+
+
+// Function to show success message
+function showSuccessMessage(message) {
+  const successMessageDiv = document.getElementById("successMessage");
+  if (successMessageDiv) {
+    successMessageDiv.innerText = message;
+    successMessageDiv.style.display = "block";
+    setTimeout(() => {
+      successMessageDiv.style.display = "none";
+    }, 3000);
+  }
+}
