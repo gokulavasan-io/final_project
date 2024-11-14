@@ -112,8 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log(`Fetched averages for ${subject}:`, averages);
 
       Object.keys(averages).forEach((studentName) => {
-        let average = averages[studentName].Average; 
-        console.log(typeof(average));
+        let average = averages[studentName].Average;
         
         average = parseFloat(average);
         
@@ -156,6 +155,11 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
 
   // Prepare table data with computed AcademicOverall and Overall
   tableData = Object.values(studentData).map((student) => {
+    student.English = parseFloat(student.English);
+    student.LifeSkills = parseFloat(student.LifeSkills);
+    student.Tech = parseFloat(student.Tech);
+    student.ProblemSolving = parseFloat(student.ProblemSolving);
+    
     student.AcademicOverall = parseFloat(
       (
         (student.English +
@@ -165,7 +169,8 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
         subjects.length
       ).toFixed(1)
     );
-
+    
+    
     // Calculate Overall including Attendance and Behavior
     const overallMarks = [
       student.English,
@@ -329,7 +334,7 @@ function handleAfterChange(changes) {
   if (changes) {
     changes.forEach(([row, prop, oldValue, newValue]) => {
       // Retrieve updated data directly from Handsontable
-      const student = hot.getSourceDataAtRow(row);
+      const student = hot.getSourceDataAtRow(row);     
 
       // Calculate AcademicOverall based on specific subjects
       if (
