@@ -269,7 +269,6 @@ async function updateCountTable(scoreRanges) {
   });
 }
 
-document.getElementById("saveAverageData").addEventListener("click",saveFirstTwoColumnsData);
 
 function getFirstTwoColumnsData() {
   const tableData = hotForAllMarks.getData();
@@ -321,6 +320,12 @@ async function saveFirstTwoColumnsData() {
   }
 }
 
+document.getElementById("saveAverageData").addEventListener("click",saveFirstTwoColumnsData);
+window.addEventListener("beforeunload", function (e) {
+  setTimeout(async () => {
+    await saveFirstTwoColumnsData();
+  }, 0);
+});
 
 
 // for generation table///////////////////////////////////
@@ -530,17 +535,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  // Add an event listener for beforeunload to save data before reloading or closing the page
-  window.addEventListener("beforeunload", (event) => {
-    const customName = capitalizeFirstLetter(
-      document.getElementById("datasetName").value.trim().replaceAll("/", "-")
-    );
-    if (!isDataSaved) {
-      // Show alert only if data is not saved
-      event.returnValue =
-        "You have unsaved changes. Are you sure you want to leave?";
-    }
-  });
 
   // Manual save button
   document
