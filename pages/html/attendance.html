@@ -178,19 +178,11 @@
     </div>
 
     <div class="buttonsContainer">
+        <button class="btn btn-danger" id="remarks">Remarks</button>
         <button class="btn btn-secondary" id="holidaysShow">Holidays</button>
-        <div class="btn btn-primary" id="save">Save</div>
+        <button class="btn btn-primary" id="save">Save</button>
         <button class="btn btn-success" id="countBtn">Student Statistics</button>
         <button class="btn btn-success" id="dailyCount">Daily Statistics</button>
-    </div>
-
-
-    <div id="forRemarks">
-        <input type="text" id="newRemark" class="form-control" placeholder="Remark" />
-        <div id="buttonsforRemarks">
-            <button class="btn btn-danger" id="cancel">Cancel</button>
-            <button class="btn btn-success" id="confirm">Confirm</button>
-        </div>
     </div>
 
 
@@ -200,6 +192,32 @@
             <span class="close-btn" id="closePopupBtnForHoliday">&times;</span>
             <h3>Holidays List</h3>
             <div id="holidaysList" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <div id="forHoliday">
+        <input type="text" id="newHoliday" class="form-control" placeholder="Reason" />
+        <div>
+            <button class="btn btn-danger" id="cancelHoliday">Cancel</button>
+            <button class="btn btn-success" id="confirmHoliday">Confirm</button>
+        </div>
+    </div>
+
+
+    <!-- remarks  -->
+        <div id="forRemarks">
+            <input type="text" id="newRemark" class="form-control" placeholder="Remark" />
+            <div>
+                <button class="btn btn-danger" id="cancel">Cancel</button>
+                <button class="btn btn-success" id="confirm">Confirm</button>
+            </div>
+        </div>
+
+     <div id="remarksListPopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtnForRemarks">&times;</span>
+            <h3>Remarks List</h3>
+            <div id="remarksList" style="margin-top: 20px;"></div>
         </div>
     </div>
 

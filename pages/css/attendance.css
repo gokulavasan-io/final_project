@@ -17,17 +17,20 @@
 
 }
 
-.monthNameCont{
+.monthNameCont {
     position: fixed;
     top: 10%;
     left: 7%;
+    z-index: -1000;
 }
-.monthNameCont div{
+
+.monthNameCont div {
     font-size: 1.5rem;
     font-weight: bold;
     font-family: var(--font);
 }
-.monthNameCont div span{
+
+.monthNameCont div span {
     color: red;
 }
 
@@ -50,35 +53,6 @@
     /* Red color for non-working days */
 }
 
-.holiday {
-    background-color: #ffd700 !important;
-    /* Gold color for holidays */
-}
-
-.remarked {
-    background-color: #e0e0e0 !important;
-    /* Light gray background for remarked cells */
-}
-
-#remarksList {
-    margin-top: 20px;
-}
-
-#remarksList table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#remarksList th,
-#remarksList td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-#remarksList th {
-    background-color: #f2f2f2;
-}
 
 .buttonsContainer {
     position: fixed;
@@ -106,6 +80,28 @@
     z-index: 9999;
     font-family: var(--font);
 }
+
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    z-index: 9999;
+    font-family: var(--font);
+}
+
+#loading div {
+    font-size: 1rem;
+}
+
 
 
 
@@ -136,14 +132,17 @@
     width: 81%;
     height: 80% !important;
 
+
 }
-.popup-content h3{
+
+.popup-content h3 {
     color: var(--border-left);
     text-align: center;
     font-family: var(--font);
 }
 
-#attendancePopupTable,#dailyAttendancePopupTable {
+#attendancePopupTable,
+#dailyAttendancePopupTable {
     height: 90% !important;
     width: max-content;
     text-align: center;
@@ -169,62 +168,74 @@
 }
 
 
-#forRemarks{
+#forRemarks,#forHoliday {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     flex-direction: column;
-    background-color: #e8d77382;
-    color: var(--font-color);
+    background-color: #2b2b2b; /* Deep gray */
+    color: #f5f5f5; /* Light text for contrast */
     padding: 1rem 3rem;
     font-weight: bold;
     border-radius: 10px;
     align-items: center;
-    width: 300px;
+    width: 50%;
     gap: 1rem;
     display: none;
-    border: 1px solid rgb(91, 90, 90);
+    border: 1px solid #444444; /* Subtle darker border */
     font-family: var(--font);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Slightly heavier shadow */
 }
 
 
-#loading{
-    position: absolute;
-    left: 52%;
-    top: 48%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color:var(--border-left);
+
+#forRemarks>div,#forHoliday>div{
+    display: flex;
+    gap: 2rem;
+}
+
+.remark-item,.holiday-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: var(--font);
+    width: 30%;
+    position: relative;
+    text-wrap: wrap;
     display: flex;
     flex-direction: column;
-    font-family: var(--font);
+    flex-wrap: wrap;
+    word-break: break-word;
+    font-size: 90%;
+}
+
+#remarksList,#holidaysList {
+    display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
+    justify-content: center;
+    text-wrap: wrap;
+    height: 90%;
+    overflow: auto;
+    align-items: stretch;
+}
+
+.holiday-item{
     align-items: center;
-
+    justify-content: center;
 }
 
-#loading div{
-    font-size: 1rem;
+.studentName{
+    font-weight: bold;
+    color: rgb(149, 0, 25);
 }
 
+.btnForSC{
+    margin-bottom: 10px;
+}
 
-
-#holidays-list {
-    padding: 10px;
-    border: 1px solid #ddd;
-    margin-top: 10px;
-  }
-  
-  .holiday-item {
-    padding: 5px;
-    background-color: #f0f0f0;
-    margin-bottom: 5px;
-    cursor: pointer;
-  }
-  
-  .holiday-item:hover {
-    background-color: #e0e0e0;
-  }
-  
 
