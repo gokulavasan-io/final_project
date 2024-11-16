@@ -226,8 +226,6 @@ async function populateInitialData(students) {
   }
   initializeTable(students); // Initialize table with populated data
   document.getElementById("loading").style.display = "none";
-
-
 }
 
 // Fetch student names, populate data, and initialize the table
@@ -235,7 +233,6 @@ fetchStudentNames()
   .then((students) => {
     if (students.length > 0) {
       populateInitialData(students); // Populate data before initializing the table
-
     } else {
       console.log("No students found.");
     }
@@ -263,14 +260,23 @@ function updateProgress(current, total) {
   document.getElementById("progressMessage").textContent = message;
 }
 
-// Function to calculate total score based on the attendance counts
 function calculateTotalScore(count) {
   let totalScore = 0;
 
   totalScore += count["Present"];
-  totalScore += count["Late Arrival"] >= 3 ? 0.5 : count["Late Arrival"];
-  totalScore +=
-    count["Approved Permission"] > 2 ? 0.5 : count["Approved Permission"];
+
+  if (count["Late Arrival"] < 3) {
+    totalScore += count["Late Arrival"]; // Full points if less than 3
+  } else {
+    totalScore += 2 + Math.floor((count["Late Arrival"] - 2) / 3) * 0.5;
+  }
+
+  if (count["Approved Permission"] < 3) {
+    totalScore += count["Approved Permission"]; // Full points if less than 3
+  } else {
+    totalScore += 2 + Math.floor((count["Approved Permission"] - 2) / 3) * 0.5;
+  }
+
   totalScore += count["Half Day Leave"] * 0.5;
   totalScore += count["Sick Leave"] <= 2 ? count["Sick Leave"] : 0;
   totalScore += count["Casual Leave"];
@@ -320,7 +326,7 @@ function showAttendancePopup(statistics) {
 
 // Close the popup when the close button is clicked
 document.getElementById("closePopupBtn").addEventListener("click", function () {
-  saveMonthlyData();
+  saveStudentData();
   document.getElementById("attendancePopup").style.display = "none";
 });
 
@@ -601,7 +607,7 @@ async function saveDailyAttendanceData(dailyCounts) {
 }
 
 // Function to save attendance data before closing the popup
-async function saveMonthlyData() {
+async function saveStudentData() {
   // Get data from the Handsontable instance
   const attendanceData = monthlyAttendanceData.getData(); // Get the data from Handsontable
 
@@ -623,7 +629,7 @@ async function saveMonthlyData() {
     };
   });
 
-  const path = `/studentMarks/${section}/Attendance/${monthName}/attendanceData`; // Path to save data
+  const path = `/studentMarks/${section}/months/${monthName}/Attendance`; // Path to save data
 
   // Save or update data in Firebase
   const attendanceDataRef = ref(firebase, path);
@@ -718,7 +724,9 @@ async function markHoliday(columnIndex) {
 
   // Save holiday details to Firebase (update the correct path)
   try {
-    const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr.split("/").join("-")}`;
+    const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr
+      .split("/")
+      .join("-")}`;
 
     const holidayData = {
       date: dateStr,
@@ -741,7 +749,9 @@ async function removeHolidayFromTable(columnIndex) {
 
     // Remove the holiday from Firebase
     try {
-      const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr.split("/").join("-")}`;
+      const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr
+        .split("/")
+        .join("-")}`;
       await remove(ref(firebase, holidayPath)); // Delete holiday data from Firebase
       console.log(`Holiday on ${dateStr} removed from Firebase.`);
     } catch (error) {
@@ -774,7 +784,6 @@ async function removeHolidayFromTable(columnIndex) {
 const holidaysListPopup = document.getElementById("holidaysListPopup");
 
 document.getElementById("holidaysShow").addEventListener("click", () => {
-
   holidaysListPopup.style.display = "block";
 });
 
@@ -783,8 +792,6 @@ document
   .addEventListener("click", () => {
     holidaysListPopup.style.display = "none";
   });
-
-
 
 async function initializeHolidayList() {
   console.log("Initializing holiday list...");
@@ -841,8 +848,6 @@ async function initializeHolidayList() {
   }
 }
 
-  
-
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
   initializeHolidayList();
-})
+});

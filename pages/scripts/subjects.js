@@ -27,7 +27,6 @@ let month;
 const deleteBtn = document.getElementById("delete-btn");
 const newMarkBtn = document.getElementById("new-mark");
 
-
 function getAllData() {
   const subject_name = document.getElementById("page-name").innerText;
   const dataPath = `studentMarks/${section}/${subject_name}`;
@@ -46,14 +45,13 @@ function getAllData() {
   } else {
     newPElement.innerText = "New Marks";
   }
-  
+
   const addSymbol = document.createElement("i");
   addSymbol.classList.add("fa", "fa-plus");
   // Append the "New Marks" div to the container
   newDiv.appendChild(addSymbol);
   newDiv.appendChild(newPElement);
   container.appendChild(newDiv);
-
 
   newDiv.addEventListener("click", function () {
     if (pageTitle === "Attendance") {
@@ -64,7 +62,7 @@ function getAllData() {
         datasetDiv.classList.add("marks-detail");
         datasetDiv.innerHTML = `<p>${datasetName}</p>`;
         container.appendChild(datasetDiv);
-  
+
         // Save dataset name to Firebase
         const dataPath = `studentMarks/${section}/Attendance/${datasetName}`;
         set(ref(database, dataPath), { created: true });
@@ -211,7 +209,6 @@ document.addEventListener("DOMContentLoaded", function () {
   getAllData();
 });
 
-
 const orderedMonths = [
   "January",
   "February",
@@ -227,17 +224,28 @@ const orderedMonths = [
   "December",
 ];
 
-
 function getCurrentMonth() {
   return orderedMonths[new Date().getMonth()];
 }
 
-
 async function checkOrCreateMonth() {
-  const subject_name = document.getElementById("page-name").innerText;
+  const Attendance = document.getElementById("page-name").innerText;
   const month = getCurrentMonth();
-  const monthPath = `studentMarks/${section}/months/${month}/${subject_name}`;
+  const attendancePath = `studentMarks/${section}/Attendance/${month}`;
+  const attendanceRef = ref(database, attendancePath);
+  const attendanceSnap = await get(attendanceRef);
 
+  if(!attendanceSnap.exists()){
+    await set(attendanceRef, { created: true });
+    console.log(`${month} has been created in Firebase.`);
+    location.reload();
+  }
+else{
+  console.log(`${month} already in attendance`);
+  
+}
+
+  const monthPath = `studentMarks/${section}/months/${month}/${Attendance}`;
   const monthRef = ref(database, monthPath);
   const snapshot = await get(monthRef);
   if (!snapshot.exists()) {
