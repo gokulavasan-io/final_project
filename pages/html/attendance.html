@@ -178,7 +178,7 @@
     </div>
 
     <div class="buttonsContainer">
-        <button class="btn btn-secondary">Remarks</button>
+        <button class="btn btn-secondary" id="holidaysShow">Holidays</button>
         <div class="btn btn-primary" id="save">Save</div>
         <button class="btn btn-success" id="countBtn">Student Statistics</button>
         <button class="btn btn-success" id="dailyCount">Daily Statistics</button>
@@ -193,6 +193,15 @@
         </div>
     </div>
 
+
+     <!-- Daily Statistics Popup -->
+     <div id="holidaysListPopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtnForHoliday">&times;</span>
+            <h3>Holidays List</h3>
+            <div id="holidaysList" style="margin-top: 20px;"></div>
+        </div>
+    </div>
 
 
     <script type="module" src="../scripts/attendance.js"></script>

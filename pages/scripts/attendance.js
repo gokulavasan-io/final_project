@@ -3,6 +3,7 @@ import {
   getDatabase,
   get,
   update,
+  remove,
   ref,
   set,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
@@ -80,7 +81,6 @@ async function fetchStudentNames() {
   }
 }
 
-// Function to initialize the Handsontable once with empty student data
 function initializeTable(students) {
   // Only include the 'name' column and one column for each day
   columns = [{ data: "name", type: "text", readOnly: true, title: "Name" }];
@@ -101,7 +101,7 @@ function initializeTable(students) {
 
   // Initialize Handsontable with updated configuration
   hot = new Handsontable(container, {
-    data: students,  // Initially empty student data will be replaced later
+    data: students,
     columns: columns,
     rowHeaders: true,
     colHeaders: columns.map((col) => col.title),
@@ -116,43 +116,29 @@ function initializeTable(students) {
     contextMenu: {
       items: {
         markAsHoliday: {
-          name: "Mark this day as holiday",
-          callback: function (_, selection) {
-            if (
-              selection &&
-              selection[0] &&
-              typeof selection[0].start.col !== "undefined"
-            ) {
-              const col = selection[0].start.col;
-              if (col > 0 && col <= daysInMonth) {
-                for (let row = 0; row < students.length; row++) {
-                  hot.setCellMeta(row, col, "className", "holiday");
-                }
-                hot.render();
-              }
-            }
+          name: "markHoliday",
+          callback: function (key, selection) {
+            const columnIndex = selection[0].start.col; // Get the column index of the selected cell
+            markHoliday(columnIndex); // Mark this column as a holiday
+          },
+          disabled: function (key, selection) {
+            return false; // Always enable for this example
           },
         },
         removeHoliday: {
           name: "Remove holiday",
-          callback: function (_, selection) {
+          callback: async function (_, selection) {
             if (
               selection &&
               selection[0] &&
               typeof selection[0].start.col !== "undefined"
             ) {
-              const col = selection[0].start.col;
-              if (col > 0 && col <= daysInMonth) {
-                for (let row = 0; row < students.length; row++) {
-                  if (hot.getCellMeta(row, col).className === "holiday") {
-                    hot.setCellMeta(row, col, "className", "");
-                  }
-                }
-                hot.render();
-              }
+              const col = selection[0].start.col; // Get the column index from the selected cell
+              await removeHolidayFromTable(col); // Call the separate function to remove the holiday
             }
           },
         },
+
         addRemark: {
           name: "Add a remark...",
           callback: function (_, selection) {
@@ -161,7 +147,7 @@ function initializeTable(students) {
               const col = selection[0].start.col;
               const studentName = students[row].name;
               const day = columns[col].title;
-        
+
               // Display the remark input area
               const forRemarks = document.getElementById("forRemarks");
               forRemarks.style.display = "flex";
@@ -170,21 +156,28 @@ function initializeTable(students) {
               document.getElementById("cancel").onclick = () => {
                 forRemarks.style.display = "none";
               };
-        
+
               // Set up Confirm button
               document.getElementById("confirm").onclick = () => {
                 const remark = document.getElementById("newRemark").value;
+                if (remark) {
+                  const remarksBody = document.getElementById("remarksBody");
+                  const rowElement = document.createElement("tr");
+                  rowElement.innerHTML = `<td>${studentName}</td><td>${day}</td><td>${remark}</td>`;
+                  remarksBody.appendChild(rowElement);
+
                   // Add cell highlight
                   hot.setCellMeta(row, col, "className", "remarked");
                   hot.render();
-                  
-                  console.log(remark);
+
+                  // Clear the input and hide the remark input area
                   document.getElementById("newRemark").value = "";
                   forRemarks.style.display = "none";
+                }
               };
             }
           },
-        }
+        },
       },
     },
     afterChange: function (changes, source) {
@@ -199,11 +192,11 @@ function initializeTable(students) {
   container.style.width = "100%";
 }
 
-// Function to fetch attendance data from Firebase, including class names
+// Function to fetch attendance data from Firebase
 async function fetchAttendanceData(studentName) {
   const studentRef = ref(
     firebase,
-    `/studentMarks/${section}/Attendance/${monthName}/attendanceData/${studentName}`
+    `/studentMarks/${section}/Attendance/${monthName}/${studentName}`
   );
   try {
     const snapshot = await get(studentRef);
@@ -219,12 +212,28 @@ async function fetchAttendanceData(studentName) {
   }
 }
 
-// Fetch student names, initialize an empty table, and then populate data
+// Function to populate initial data with Firebase data if available
+async function populateInitialData(students) {
+  for (const student of students) {
+    const attendanceData = await fetchAttendanceData(student.name);
+
+    if (attendanceData) {
+      // Merge attendance data into the student's row
+      for (let day = 1; day <= daysInMonth; day++) {
+        student[`day${day}`] = attendanceData[day - 1] || ""; // Use Firebase data or default to empty
+      }
+    }
+  }
+  initializeTable(students); // Initialize table with populated data
+}
+
+// Fetch student names, populate data, and initialize the table
 fetchStudentNames()
   .then((students) => {
     if (students.length > 0) {
-      initializeTable(students); // Initialize the table with the empty student data structure
-      populateInitialData(students); // Then populate the data and update the table
+      populateInitialData(students); // Populate data before initializing the table
+  document.getElementById("loading").style.display = "none";
+
     } else {
       console.log("No students found.");
     }
@@ -232,68 +241,6 @@ fetchStudentNames()
   .catch((error) => {
     console.error("Error fetching students:", error);
   });
-
-
-  
-  async function populateInitialData(students) {
-    for (const student of students) {
-      const studentAttendance = await fetchAttendanceData(student.name);
-  
-      if (studentAttendance) {
-        for (let day = 1; day <= daysInMonth; day++) {
-          const dayIndex = day;
-          const dayData = studentAttendance[dayIndex];
-  
-          if (dayData) {
-            const dayKey = `day${day}`;
-            student[dayKey] = dayData.value || "";
-  
-            // Log the className to verify it exists
-            if (dayData.className) {
-              console.log(`Setting class for ${student.name} on day ${day}: ${dayData.className}`);
-            }
-          }
-        }
-      }
-    }
-  
-    // Load data into Handsontable
-    hot.loadData(students);
-  
-    // After data is loaded, apply metadata
-    hot.updateSettings({
-      afterLoadData: function () {
-        applyCellMetadata(students);
-      },
-    });
-  
-    // Hide loading message
-    document.getElementById("loading").style.display = "none";
-  }
-  
-  function applyCellMetadata(students) {
-    students.forEach((student, rowIndex) => {
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayKey = `day${day}`;
-        const dayData = student[dayKey];
-  
-        if (dayData && dayData.className && hot) {
-          // Set the metadata
-          hot.setCellMeta(rowIndex, day, "className", dayData.className);
-          console.log(`Applying class '${dayData.className}' to row ${rowIndex}, col ${day}`);
-        }
-      }
-    });
-  
-    // Render the table to apply metadata
-    hot.render();
-  }
-  
-  
-
-
-
-
 
 // Show loading animation
 function showLoading() {
@@ -422,7 +369,7 @@ function showDailyStatisticsPopup(dailyCounts) {
   });
 }
 
-// Update attendance counts excluding weekends and holidays
+// Update attendance counts excluding weekends (Saturdays and Sundays)
 function updateAttendanceCounts() {
   showLoading();
   const students = hot.getData();
@@ -445,11 +392,10 @@ function updateAttendanceCounts() {
 
       for (let col = 1; col <= daysInMonth; col++) {
         const date = new Date(currentYear, currentMonth, col);
-        const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Check for weekend
-        const isHoliday = hot.getCellMeta(0, col).className.includes("holiday"); // Check for holiday
+        const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Check if it's a weekend (Sunday or Saturday)
 
-        // Skip weekends and holidays
-        if (isWeekend || isHoliday) {
+        // Skip if it's a weekend (Sunday or Saturday)
+        if (isWeekend) {
           continue;
         }
 
@@ -477,13 +423,16 @@ function updateAttendanceCounts() {
             count["Half Day Leave"]++;
             break;
         }
+
+        // Increment working days only if it's not a weekend
         workingDays++;
       }
 
-      // Calculate total score and percentage
+      // Calculate total score and percentage, ensure workingDays isn't zero
       const totalScore = calculateTotalScore(count);
-      const percentage = (totalScore / workingDays) * 100;
-      const studentPercentage = (count["Present"] / workingDays) * 100;
+      const percentage = workingDays > 0 ? (totalScore / workingDays) * 100 : 0;
+      const studentPercentage =
+        workingDays > 0 ? (count["Present"] / workingDays) * 100 : 0;
 
       // Push calculated stats to the array for the popup table
       statistics.push({
@@ -514,31 +463,24 @@ function updateAttendanceCounts() {
   processStudent(); // Start the process
 }
 
+// Function to show daily statistics (including all days, no filtering for weekends or holidays)
 function showDailyStatistics() {
   showLoading();
 
   let dailyCounts = [];
 
-  // Initialize the counts array to hold stats for each working day of the month
+  // Initialize the counts array to hold stats for each day of the month (no weekend/holiday filtering)
   for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(currentYear, currentMonth, day);
-    const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
-    const isHoliday = hot.getCellMeta(0, day).className.includes("holiday"); // Check if the cell has the holiday class
-
-    // Only count weekdays (non-weekend days)
-    if (!(isWeekend || isHoliday)) {
-      dailyCounts.push({
-        day: `${day}/ ${currentMonth + 1}`,
-        dayIndex: day, // Store the original day index for easier lookup
-        present: 0,
-        absent: 0,
-        lateArrival: 0,
-        approvedPermission: 0,
-        sickLeave: 0,
-        casualLeave: 0,
-        halfDayLeave: 0,
-      });
-    }
+    dailyCounts.push({
+      day: `${day}/ ${currentMonth + 1}`,
+      present: 0,
+      absent: 0,
+      lateArrival: 0,
+      approvedPermission: 0,
+      sickLeave: 0,
+      casualLeave: 0,
+      halfDayLeave: 0,
+    });
   }
 
   // Check if Handsontable (hot) is initialized
@@ -555,42 +497,33 @@ function showDailyStatistics() {
   // Iterate through each student and update daily counts based on attendance type
   students.forEach((student) => {
     for (let col = 1; col <= daysInMonth; col++) {
-      const date = new Date(currentYear, currentMonth, col);
-      const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
-
-      // Skip if it's a weekend or holiday-marked day
-      const isHoliday = hot.getCellMeta(0, col).className.includes("holiday"); // Check if the cell has the holiday class
-      if (isWeekend || isHoliday) {
-        continue; // Skip this day if it's a weekend or holiday
-      }
-
       const value = student[col];
-      const dailyStat = dailyCounts.find((d) => d.dayIndex === col); // Find the correct entry by day index
-      if (!dailyStat) continue; // Skip if no corresponding dailyStat found (for safety)
 
-      // Update the attendance counts based on attendance type
-      switch (value) {
-        case "P":
-          dailyStat.present++;
-          break;
-        case "A":
-          dailyStat.absent++;
-          break;
-        case "LA":
-          dailyStat.lateArrival++;
-          break;
-        case "AP":
-          dailyStat.approvedPermission++;
-          break;
-        case "SL":
-          dailyStat.sickLeave++;
-          break;
-        case "CL":
-          dailyStat.casualLeave++;
-          break;
-        case "HL":
-          dailyStat.halfDayLeave++;
-          break;
+      // Check that the dailyCounts object is initialized properly before modifying
+      if (dailyCounts[col - 1]) {
+        switch (value) {
+          case "P":
+            dailyCounts[col - 1].present++;
+            break;
+          case "A":
+            dailyCounts[col - 1].absent++;
+            break;
+          case "LA":
+            dailyCounts[col - 1].lateArrival++;
+            break;
+          case "AP":
+            dailyCounts[col - 1].approvedPermission++;
+            break;
+          case "SL":
+            dailyCounts[col - 1].sickLeave++;
+            break;
+          case "CL":
+            dailyCounts[col - 1].casualLeave++;
+            break;
+          case "HL":
+            dailyCounts[col - 1].halfDayLeave++;
+            break;
+        }
       }
     }
   });
@@ -600,74 +533,38 @@ function showDailyStatistics() {
   hideLoading();
 }
 
+///// for saving
 
 async function saveAttendanceData() {
   const data = hot.getData(); // Get the data from Handsontable
-  const attendanceData = {}; // Object to store attendance data with class names
+  const updates = {}; // Object to hold all updates
 
-  // Loop through each row (student)
-  data.forEach((row, rowIndex) => {
+  data.forEach((row) => {
     const studentName = row[0]; // Assuming the first column is the student's name
-    const studentData = {}; // Object to store attendance data for each student
+    const studentData = row.slice(1); // The rest of the row data (attendance info)
 
-    // Loop through each cell in the row, skipping the name column (index 0)
-    row.slice(1).forEach((value, colIndex) => {
-      const dayIndex = colIndex + 1; // Adjust for zero-based index to match days
-      const cellMeta = hot.getCellMeta(rowIndex, dayIndex);
-      const className = cellMeta.className || ""; // Get class name or empty string if none
+    // Prepare the path for the student and save the array directly
+    const path = `/studentMarks/${section}/Attendance/${monthName}/${studentName}`;
 
-      // Store cell value and class name in the studentData object
-      studentData[`${dayIndex}`] = {
-        value: value,
-        className: className
-      };
-    });
-
-    // Add each student's data to the attendanceData object, using the student's name as the key
-    attendanceData[studentName] = studentData;
+    // Assign the array directly to the student's path
+    updates[path] = studentData;
   });
 
-  // Define Firebase path for saving data
-  const path = `/studentMarks/${section}/Attendance/${monthName}/attendanceData`;
-  const attendanceDataRef = ref(firebase, path);
-
-  // Save or update data in Firebase
-  get(attendanceDataRef)
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        // Update if data already exists
-        update(attendanceDataRef, attendanceData)
-          .then(() => {
-            console.log("Attendance data updated successfully!");
-          })
-          .catch((error) => {
-            console.error("Error updating data: ", error);
-          });
-      } else {
-        // Set if data does not exist
-        set(attendanceDataRef, attendanceData)
-          .then(() => {
-            console.log("Attendance data saved successfully!");
-          })
-          .catch((error) => {
-            console.error("Error saving data: ", error);
-          });
-      }
-    })
-    .catch((error) => {
-      console.error("Error checking data existence: ", error);
-    });
-
-  showSuccessMessage("Attendance data saved successfully!");
+  try {
+    // Perform a single multi-location update
+    await update(ref(firebase), updates);
+    console.log("Attendance data saved successfully!");
+  } catch (error) {
+    console.error("Error saving attendance data: ", error);
+  }
 }
-
 
 // Button event listener to save data
 document.getElementById("save").addEventListener("click", saveAttendanceData);
 
 // Function to save data to the specified path
 async function saveDailyAttendanceData(dailyCounts) {
-  const path = `/studentMarks/${section}/Attendance/${monthName}/dailyData`; // Path where you want to save the data
+  const path = "/studentMarks/ClassB/Attendance/November/dailyData"; // Path where you want to save the data
 
   // Reference to the path where the data is stored
   const dailyDataRef = ref(firebase, path);
@@ -724,7 +621,7 @@ async function saveMonthlyData() {
     };
   });
 
-  const path = `/studentMarks/${section}/months/${monthName}/attendanceData`; // Path to save data
+  const path = `/studentMarks/${section}/Attendance/${monthName}/attendanceData`; // Path to save data
 
   // Save or update data in Firebase
   const attendanceDataRef = ref(firebase, path);
@@ -755,30 +652,174 @@ async function saveMonthlyData() {
     });
 }
 
-
-
-
 document.getElementById("cancel").addEventListener("click", function () {
   document.getElementById("forRemarks").style.display = "none";
 });
 
-
 document.getElementById("confirm").addEventListener("click", function () {
+  console.log("hi");
+});
 
-  
+const holidayDiv = document.getElementById("holidaysList");
 
-})
+// Function to mark a column as a holiday
+async function markHoliday(columnIndex) {
+  if (!holidayDiv) {
+    console.error("Holidays list div not found!");
+    return;
+  }
 
+  // Adjust for 1-based indexing
+  const date = new Date(currentYear, currentMonth, columnIndex); // columnIndex starts at 1
+  const dateStr = `${date.getDate()}/${currentMonth + 1}`;
 
+  // Check if the holiday for this columnIndex already exists in the list
+  const existingItem = holidayDiv.querySelector(
+    `[data-column-index='${columnIndex}']`
+  );
+  if (existingItem) {
+    console.warn("This column is already marked as a holiday.");
+    return;
+  }
 
-// Function to show success message
-function showSuccessMessage(message) {
-  const successMessageDiv = document.getElementById("successMessage");
-  if (successMessageDiv) {
-    successMessageDiv.innerText = message;
-    successMessageDiv.style.display = "block";
-    setTimeout(() => {
-      successMessageDiv.style.display = "none";
-    }, 3000);
+  // Prompt for the reason for the holiday
+  const reason = prompt(
+    `Why is ${date.toLocaleString("en-us", {
+      weekday: "long",
+    })}, ${dateStr} a holiday?`
+  );
+  if (!reason) {
+    console.warn("Holiday reason not provided. Aborting.");
+    return;
+  }
+
+  // Create and append the holiday item to the holiday list
+  const holidayItem = document.createElement("div");
+  holidayItem.classList.add("holiday-item");
+  holidayItem.textContent = `Day: ${date.toLocaleString("en-us", {
+    weekday: "long",
+  })}, Date: ${dateStr} - Reason: ${reason}`;
+  holidayItem.setAttribute("data-column-index", columnIndex);
+  holidayDiv.appendChild(holidayItem);
+
+  // Set the "Holiday" value only in the selected column (don't update the entire table)
+  try {
+    for (let row = 0; row < hot.countRows(); row++) {
+      hot.setDataAtCell(row, columnIndex, "Holiday"); // columnIndex is 1-based, so we use columnIndex - 1
+      hot.setCellMeta(row, columnIndex, "readOnly", true); // Make cell read-only
+    }
+    hot.render(); // Re-render the table to apply changes
+  } catch (error) {
+    console.error("Error marking column as a holiday: ", error);
+    return;
+  }
+
+  // Save holiday details to Firebase (update the correct path)
+  try {
+    const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr}`;
+
+    const holidayData = {
+      date: dateStr,
+      reason: reason,
+    };
+
+    await set(ref(firebase, holidayPath), holidayData);
+    console.log("Holiday saved to Firebase successfully!");
+  } catch (error) {
+    console.error("Error saving holiday to Firebase: ", error);
+  }
+}
+
+async function removeHolidayFromTable(columnIndex) {
+  if (columnIndex > 0 && columnIndex <= daysInMonth) {
+    // Validate the column index
+
+    const date = new Date(currentYear, currentMonth, columnIndex); // Create the date from column index
+    const dateStr = `${date.getDate()}/${currentMonth + 1}`; // Format the date string
+
+    // Remove the holiday from Firebase
+    try {
+      const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr}`;
+      await remove(ref(firebase, holidayPath)); // Delete holiday data from Firebase
+      console.log(`Holiday on ${dateStr} removed from Firebase.`);
+    } catch (error) {
+      console.error("Error removing holiday from Firebase: ", error);
+    }
+
+    // Clear the cells in the Handsontable column and reset to default values
+    try {
+      const rowCount = hot.countRows(); // Get the number of rows directly from Handsontable
+
+      for (let row = 0; row < rowCount; row++) {
+        hot.setDataAtCell(row, columnIndex, ""); // Reset the cell content
+        hot.setCellMeta(row, columnIndex, "readOnly", false); // Make the column editable again
+      }
+      hot.render(); // Re-render the table to apply changes
+    } catch (error) {
+      console.error("Error clearing holiday column in Handsontable: ", error);
+    }
+
+    // Remove the holiday item from the holidays list
+    const holidayItem = holidayDiv.querySelector(
+      `[data-column-index='${columnIndex}']`
+    );
+    if (holidayItem) {
+      holidayItem.remove(); // Remove the holiday entry from the list
+    }
+  }
+}
+
+const holidaysListPopup = document.getElementById("holidaysListPopup");
+
+document.getElementById("holidaysShow").addEventListener("click", () => {
+  holidaysListPopup.style.display = "block";
+  initializeHolidayList();
+});
+
+document
+  .getElementById("closePopupBtnForHoliday")
+  .addEventListener("click", () => {
+    holidaysListPopup.style.display = "none";
+  });
+
+// Initialize holidays from Firebase
+async function initializeHolidayList() {
+  if (!holidayDiv) {
+    console.error("Holidays list div not found!");
+    return;
+  }
+
+  try {
+    const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays`;
+    const snapshot = await get(ref(firebase, holidayPath));
+
+    if (snapshot.exists()) {
+      const holidays = snapshot.val();
+
+      // Clear any existing holiday items in the list before adding new ones
+      holidayDiv.innerHTML = "";
+
+      // Populate the holidays list
+      Object.entries(holidays).forEach(([day, holidayDetails]) => {
+        // holidayDetails is an array, the holiday information is at index 1
+        const holiday = holidayDetails[1];
+        if (holiday && holiday.date) {
+          const holidayItem = document.createElement("div");
+          holidayItem.classList.add("holiday-item");
+
+          // Format the date and day name
+          const date = new Date(holiday.date);
+          holidayItem.textContent = `Day: ${date.toLocaleString("en-us", {
+            weekday: "long",
+          })}, Date: ${holiday.date} - Reason: ${holiday.reason}`;
+
+          holidayDiv.appendChild(holidayItem);
+        }
+      });
+    } else {
+      console.log("No holidays found for this month.");
+    }
+  } catch (error) {
+    console.error("Error fetching holidays from Firebase: ", error);
   }
 }
