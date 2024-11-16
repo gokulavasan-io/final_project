@@ -716,7 +716,7 @@ async function markHoliday(columnIndex) {
 
   // Save holiday details to Firebase (update the correct path)
   try {
-    const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr}`;
+    const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr.split("/").join("-")}`;
 
     const holidayData = {
       date: dateStr,
@@ -739,7 +739,7 @@ async function removeHolidayFromTable(columnIndex) {
 
     // Remove the holiday from Firebase
     try {
-      const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr}`;
+      const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr.split("/").join("-")}`;
       await remove(ref(firebase, holidayPath)); // Delete holiday data from Firebase
       console.log(`Holiday on ${dateStr} removed from Firebase.`);
     } catch (error) {
@@ -772,8 +772,8 @@ async function removeHolidayFromTable(columnIndex) {
 const holidaysListPopup = document.getElementById("holidaysListPopup");
 
 document.getElementById("holidaysShow").addEventListener("click", () => {
+
   holidaysListPopup.style.display = "block";
-  initializeHolidayList();
 });
 
 document
@@ -782,10 +782,13 @@ document
     holidaysListPopup.style.display = "none";
   });
 
-// Initialize holidays from Firebase
+
+
 async function initializeHolidayList() {
+  console.log("Initializing holiday list...");
+
   if (!holidayDiv) {
-    console.error("Holidays list div not found!");
+    console.error("Holiday list div not found!");
     return;
   }
 
@@ -794,24 +797,38 @@ async function initializeHolidayList() {
     const snapshot = await get(ref(firebase, holidayPath));
 
     if (snapshot.exists()) {
+      console.log("Holidays found:", snapshot.val());
+
       const holidays = snapshot.val();
 
-      // Clear any existing holiday items in the list before adding new ones
+      // Clear existing items in the list
       holidayDiv.innerHTML = "";
 
-      // Populate the holidays list
-      Object.entries(holidays).forEach(([day, holidayDetails]) => {
-        // holidayDetails is an array, the holiday information is at index 1
-        const holiday = holidayDetails[1];
+      // Iterate over the holidays, where each holiday is keyed by "DD-MM"
+      Object.entries(holidays).forEach(([key, holidayDetails]) => {
+        // key will be in the "DD-MM" format (e.g., "12-11")
+        const holiday = holidayDetails; // holidayDetails contains date and reason
+
         if (holiday && holiday.date) {
           const holidayItem = document.createElement("div");
           holidayItem.classList.add("holiday-item");
 
-          // Format the date and day name
-          const date = new Date(holiday.date);
-          holidayItem.textContent = `Day: ${date.toLocaleString("en-us", {
+          // Split the date string (DD/MM) into day and month
+          const [day, month] = holiday.date.split("/");
+
+          // Use the current year for the date (assuming currentYear is set)
+          const dateStr = `${currentYear}-${month}-${day}`; // Year-Month-Day format (YYYY-MM-DD)
+
+          // Now, create the Date object correctly
+          const date = new Date(dateStr); // Create Date with correct year, month, and day
+
+          // Adjust the day to the correct weekday
+          const dayName = date.toLocaleString("en-us", {
             weekday: "long",
-          })}, Date: ${holiday.date} - Reason: ${holiday.reason}`;
+          });
+
+          // Display the formatted holiday info
+          holidayItem.textContent = `Day: ${dayName}, Date: ${holiday.date} - Reason: ${holiday.reason}`;
 
           holidayDiv.appendChild(holidayItem);
         }
@@ -823,3 +840,9 @@ async function initializeHolidayList() {
     console.error("Error fetching holidays from Firebase: ", error);
   }
 }
+
+  
+
+document.addEventListener("DOMContentLoaded",()=>{
+  initializeHolidayList();
+})
