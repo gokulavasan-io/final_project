@@ -225,6 +225,9 @@ async function populateInitialData(students) {
     }
   }
   initializeTable(students); // Initialize table with populated data
+  document.getElementById("loading").style.display = "none";
+
+
 }
 
 // Fetch student names, populate data, and initialize the table
@@ -232,7 +235,6 @@ fetchStudentNames()
   .then((students) => {
     if (students.length > 0) {
       populateInitialData(students); // Populate data before initializing the table
-  document.getElementById("loading").style.display = "none";
 
     } else {
       console.log("No students found.");
@@ -797,8 +799,6 @@ async function initializeHolidayList() {
     const snapshot = await get(ref(firebase, holidayPath));
 
     if (snapshot.exists()) {
-      console.log("Holidays found:", snapshot.val());
-
       const holidays = snapshot.val();
 
       // Clear existing items in the list
