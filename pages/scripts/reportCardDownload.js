@@ -8,7 +8,7 @@ const english = document.getElementById("rpenglish");
 const life_skills = document.getElementById("rplifeSkills");
 const tech = document.getElementById("rptech");
 const problem_solving = document.getElementById("rpproblemSolving");
-const project = document.getElementById("rpproject");
+const project = document.getElementById("rpExtra");
 const attendance = document.getElementById("rpattendance");
 const behavior = document.getElementById("rpbehavior");
 const overall = document.getElementById("rpoverall");
@@ -16,7 +16,7 @@ const class_eng = document.getElementById("classEng");
 const class_els = document.getElementById("classLS");
 const class_tech = document.getElementById("classTech");
 const class_pb = document.getElementById("classPS");
-const class_project = document.getElementById("classProject");
+const class_project = document.getElementById("classExtra");
 const class_overall = document.getElementById("classOverall");
 const previous = document.getElementById("previous");
 const downloadNow = document.getElementById("downloadNow");
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     hasProject=true;
   }
   if(!hasProject){
-    await changeToNotProject();
+   changeToNotProject();
   }
   displayStudentData(studentNames[index]);
   document.getElementById("loading").style.display = "none";
@@ -358,7 +358,7 @@ next.addEventListener("click",()=>{
 
 
 function changeToNotProject() {
-  document.getElementById("projectLabel").style.display="none";
+  document.getElementById("extraLabel").style.display="none";
   project.parentElement.style.display="none";
   class_project.parentElement.style.display="none";
   document.querySelector(".labels").style.gap=".5rem";
@@ -398,3 +398,25 @@ window.addEventListener('keydown', function (e) {
   }
 
 });
+
+const extraLabel=document.getElementById("extraLabel");
+const extraLabelPopup=document.getElementById("forExtraLabel");
+extraLabel.addEventListener("click",()=>{
+      extraLabelPopup.style.display="flex";
+
+      document.getElementById("cancel").addEventListener("click",() => {
+        extraLabelPopup.style.display = "none";
+      });
+
+
+      document.getElementById("confirm").addEventListener("click",() => {
+        const extraLabelInput=document.getElementById("extraLabelInput").value;
+        if(extraLabelInput=="") {
+          extraLabelPopup.style.display = "none";
+          return;
+        }
+        extraLabel.innerText=extraLabelInput;
+        extraLabelPopup.style.display = "none";
+      })
+  
+})

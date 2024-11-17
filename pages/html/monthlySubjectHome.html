@@ -54,6 +54,7 @@
 
         .sub-cards:hover {
             transform: scale(.95);
+            cursor: pointer;
         }
 
         .sub-cards p {
@@ -66,8 +67,9 @@
             padding: 1rem 0;
         }
 
-        .attendance-container {
-            cursor: pointer;
+        .bottom-container {
+            display: flex;
+            gap: 2.5rem;
         }
 
         #pageTitleForMonthlySubject {
@@ -240,12 +242,20 @@
                 </a>
             </div>
         </div>
-        <h4 class="mt-5 mb-3">Attendance</h4>
-        <div class="attendance-container">
-            <a class="sub-cards" href="../../pages/html/marks.html" id="attendanceMarks">
-                <img src="../../assets/images/home_img/img_attendance.webp" class="img-fluid">
-                <p class="text-center">Attendance</p>
-            </a>
+        <h4 class="mt-5 mb-3">Others</h4>
+        <div class="bottom-container">
+            <div class="attendance-container">
+                <a class="sub-cards" id="attendanceMarks">
+                    <img src="../../assets/images/home_img/img_attendance.webp" class="img-fluid">
+                    <p class="text-center">Attendance</p>
+                </a>
+            </div>
+            <div class="behavior-container">
+                <a class="sub-cards" id="behaviorMarks">
+                    <img src="../../assets/images/home_img/img_attendance.webp" class="img-fluid">
+                    <p class="text-center">Behavior</p>
+                </a>
+            </div>
         </div>
     </main>
 
@@ -253,24 +263,34 @@
     <!-- for Monthly Subjects -->
     <div id="pageTitleForMonthlySubject">Monthly Report : <span id="whichMonth">xxxx</span></div>
     <div id="seeButtons">
-        <button class="btn btn-success" id="seeResult" ><a href="../../pages/html/monthlyResult.html" style="color: white;">See
+        <button class="btn btn-success" id="seeResult"><a href="../../pages/html/monthlyResult.html"
+                style="color: white;">See
                 result</a></button>
     </div>
 
 
 
     <script>
-        let subjects=document.querySelectorAll(".subjects-container a");
-        for(let i=0;i<subjects.length;i++){
-            subjects[i].addEventListener("click",()=>{
-                localStorage.setItem("subject",subjects[i].id);
-                window.location.href="../../pages/html/monthlySubjectMarks.html";
-            })
-        }
-
-
         const month = localStorage.getItem("month");
         document.getElementById("whichMonth").innerText = month;
+
+        let subjects = document.querySelectorAll(".subjects-container a");
+        for (let i = 0; i < subjects.length; i++) {
+            subjects[i].addEventListener("click", () => {
+                localStorage.setItem("subject", subjects[i].id);
+                window.location.href = "../../pages/html/monthlySubjectMarks.html";
+            })
+        }
+        document.getElementById("attendanceMarks").addEventListener("click", () => {
+            localStorage.setItem("dataSet",month);
+            window.location.href = "../../pages/html/attendance.html";
+        })
+        document.getElementById("behaviorMarks").addEventListener("click", () => {
+            localStorage.setItem("subject", "Behavior");
+            window.location.href = "../../pages/html/marks.html";
+        })
+        
+
     </script>
     <script type="module" src="../scripts/generalScript.js"></script>
 

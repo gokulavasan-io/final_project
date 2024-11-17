@@ -80,10 +80,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("month").innerText = month;
   const section = localStorage.getItem("section");
   const resultPath = `/studentMarks/${section}/months/${month}/result`;
+  const attendancePath = `/studentMarks/${section}/months/${month}/Attendance`; // Updated attendance path
   const saveButton = document.getElementById("saveResult");
 
   // Fetch student names and initialize student data
   const studentNames = await fetchStudentNames(section);
+  const attendanceData = await fetchAttendanceData(attendancePath);
   const studentData = {};
   studentNames.forEach((studentName) => {
     studentData[studentName] = {
@@ -93,7 +95,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       Tech: 0,
       ProblemSolving: 0,
       AcademicOverall: 0,
-      Attendance: 0,
+      Attendance: attendanceData[studentName] || "0",
       Behavior: 0,
       Overall: 0,
       Remark:"",
@@ -140,7 +142,6 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
       if (studentData[studentName]) {
         studentData[studentName] = {
           ...studentData[studentName],
-          Attendance: result.Attendance || 0,
           Behavior: result.Behavior || 0,
           Project: result.Project || 0,
           Remark:result.Remark||"",
@@ -287,7 +288,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
       { data: "LifeSkills", type: "numeric", readOnly: true },
       { data: "Tech", type: "numeric", readOnly: true },
       { data: "ProblemSolving", type: "numeric", readOnly: true },
-      { data: "Attendance", type: "numeric" },
+      { data: "Attendance", type: "numeric",readOnly:true },
       { data: "Behavior", type: "numeric" },
       { data: "AcademicOverall", type: "numeric", readOnly: true },
       { data: "Overall", type: "numeric", readOnly: true },
@@ -511,3 +512,24 @@ document.getElementById("backButton").addEventListener("click", () => {
 document.getElementById("seeMarks").addEventListener("click",()=>{
   window.location.href="../../pages/html/reportCardDownload.html"
 })
+
+
+async function fetchAttendanceData(path) {
+  try {
+    const attendanceRef = ref(database, path);
+    const attendanceSnapshot = await get(attendanceRef);
+    if (attendanceSnapshot.exists()) {
+      const attendanceData = attendanceSnapshot.val();
+      const attendancePercentages = {};
+      Object.keys(attendanceData).forEach((studentName) => {
+        attendancePercentages[studentName] = attendanceData[studentName].percentage || "0";
+      });
+      return attendancePercentages;
+    }
+    return {};
+  } catch (error) {
+    console.error("Error fetching attendance data:", error);
+    alert("Error fetching attendance data.");
+    return {};
+  }
+}

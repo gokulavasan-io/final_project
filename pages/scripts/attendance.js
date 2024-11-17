@@ -407,9 +407,13 @@ function updateAttendanceCounts() {
             break;
         }
 
+        if (value != "Holiday") {
+          workingDays++;
+        }
         // Increment working days only if it's not a weekend
-        workingDays++;
       }
+
+      document.querySelector("#attendancePopup p span").innerText = workingDays;
 
       // Calculate total score and percentage, ensure workingDays isn't zero
       const totalScore = calculateTotalScore(count);
@@ -1116,3 +1120,38 @@ function showSuccessMessage(message) {
     }, 3000);
   }
 }
+
+function showDaysCount() {
+  document.getElementById("showDaysCount").style.display="flex";
+  let workingDays = 0;
+  let holidays = 0;
+  let weekends = 0;
+
+  for (let col = 1; col <= daysInMonth; col++) {
+    const date = new Date(currentYear, currentMonth, col);
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+    if (isWeekend) {
+      weekends++;
+    }
+
+    const value = hot.getDataAtCell(1, col);
+    if (value == "Holiday") {
+      holidays++;
+    } else if(!isWeekend){
+      workingDays++;
+    }
+  }
+
+  document.getElementById("totalDays").innerText=daysInMonth;
+  document.getElementById("workingDays").innerText=workingDays;
+  document.getElementById("weekEnds").innerText=weekends;
+  document.getElementById("holidays").innerText=holidays;
+
+}
+
+document.getElementById("infoLogo").addEventListener("click",showDaysCount);
+document.getElementById("closePopupBtnForCount").addEventListener("click",()=>{
+  document.getElementById("showDaysCount").style.display="none";
+});
+

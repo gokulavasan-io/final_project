@@ -448,3 +448,32 @@ h4{
 #searchBox:active{
     border: 1px solid #ccc;
 }
+
+
+
+#forExtraLabel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+    background-color: #2b2b2b; /* Deep gray */
+    color: #f5f5f5; /* Light text for contrast */
+    padding: 1rem 3rem;
+    font-weight: bold;
+    border-radius: 10px;
+    align-items: center;
+    width: 30%;
+    gap: 1rem;
+    display: none;
+    border: 1px solid #444444; /* Subtle darker border */
+    font-family: var(--font);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Slightly heavier shadow */
+}
+
+
+
+#forExtraLabel>div{
+    display: flex;
+    gap: 2rem;
+}

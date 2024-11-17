@@ -189,7 +189,7 @@
                             <label for="" >Life Skills</label>
                             <label for="">Tech</label>
                             <label for="" style="font-size: .96rem;">Problem Solving</label>
-                            <label id="projectLabel">PET 1</label>
+                            <label id="extraLabel">Extra</label>
                             <label for="">Overall</label>
                         </div>
                         <div class="scores">
@@ -197,7 +197,7 @@
                                 <p><span id="rplifeSkills">0</span><span>%</span></p>
                                 <p><span id="rptech">0</span><span>%</span></p>
                                 <p><span id="rpproblemSolving">0</span><span>%</span></p>
-                                <p><span id="rpproject">0</span><span>%</span></p>
+                                <p><span id="rpExtra">0</span><span>%</span></p>
                                 <p><span id="rpoverall">0</span><span>%</span></p>
                         </div>
                         
@@ -207,7 +207,7 @@
                         <p><span id="classLS">0</span><span>%</span></p>
                         <p><span id="classTech">0</span><span>%</span></p>
                         <p><span id="classPS">0</span><span>%</span></p>
-                        <p><span id="classProject">0</span><span>%</span></p>
+                        <p><span id="classExtra">0</span><span>%</span></p>
                         <p class="over"><span id="classOverall">0</span><span>%</span></p>
                     </div>
                     
@@ -275,6 +275,15 @@
             <div id="suggestions" class="list-group"></div> 
         </div>
     </div>
+
+    <div id="forExtraLabel">
+        <input type="text" id="extraLabelInput" class="form-control" placeholder="Enter the label for the extra mark" />
+        <div>
+            <button class="btn btn-danger" id="cancel">Cancel</button>
+            <button class="btn btn-success" id="confirm">Confirm</button>
+        </div>
+    </div>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
