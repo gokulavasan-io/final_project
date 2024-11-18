@@ -151,8 +151,8 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
     document.querySelector(".seebuttons").style.display = "flex";
   }
 
-  // Check if "Project" data exists and set the checkbox accordingly
-  const hasProjectData = resultData.some((student) => student.Project != 0);
+  // Check if "Extra" data exists and set the checkbox accordingly
+  const hasProjectData = resultData.some((student) => student.Extra != 0);
 
   // Prepare table data with computed AcademicOverall and Overall
   tableData = Object.values(studentData).map((student) => {
@@ -181,6 +181,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
       student.Attendance,
       student.Behavior,
     ].filter((mark) => typeof mark === "number" && !isNaN(mark));
+    
 
     student.Overall = Math.round(
       overallMarks.reduce((sum, mark) => sum + mark, 0) / overallMarks.length
@@ -214,7 +215,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
       "ProblemSolving",
       "Attendance",
       "Behavior",
-      "Project",
+      "Extra",
     ];
 
     subjects.forEach((subject) => {
@@ -312,7 +313,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
   document.getElementById("loading").style.display = "none";
   document.getElementById("addProject").checked = hasProjectData;
 
-  // Trigger the toggleProjectColumn function if "Project" data exists
+  // Trigger the toggleProjectColumn function if "Extra" data exists
   if (hasProjectData) {
     toggleProjectColumn({ target: { checked: true } });
   }
@@ -337,9 +338,20 @@ function handleAfterChange(changes) {
       // Retrieve updated data directly from Handsontable
       const student = hot.getSourceDataAtRow(row);     
 
+      let overallDivider=6;
+      let academicOverallDivider=4;
+      if (hot.getColHeader().includes("Extra")) {
+        overallDivider=7;
+        academicOverallDivider=5
+      }
+      console.log("oa : "+overallDivider);
+      console.log("Aoa : "+academicOverallDivider);
+      
+
+
       // Calculate AcademicOverall based on specific subjects
       if (
-        ["English", "LifeSkills", "Tech", "ProblemSolving", "Project"].includes(
+        ["English", "LifeSkills", "Tech", "ProblemSolving", "Extra"].includes(
           prop
         )
       ) {
@@ -351,8 +363,8 @@ function handleAfterChange(changes) {
         ];
 
         // Include Project if present in the Handsontable headers
-        if (hot.getColHeader().includes("Project")) {
-          subjectsToInclude.push("Project");
+        if (hot.getColHeader().includes("Extra")) {
+          subjectsToInclude.push("Extra");
         }
 
         // Calculate AcademicOverall
@@ -361,7 +373,7 @@ function handleAfterChange(changes) {
         }, 0);
 
         student.AcademicOverall = parseFloat(
-          (academicTotal / subjectsToInclude.length).toFixed(1)
+          (academicTotal / academicOverallDivider).toFixed(1)
         );
         hot.setDataAtRowProp(row, "AcademicOverall", student.AcademicOverall);
       }
@@ -375,7 +387,7 @@ function handleAfterChange(changes) {
           "ProblemSolving",
           "Attendance",
           "Behavior",
-          "Project",
+          "Extra",
         ].includes(prop)
       ) {
         const fieldsToInclude = [
@@ -383,22 +395,25 @@ function handleAfterChange(changes) {
           student.LifeSkills,
           student.Tech,
           student.ProblemSolving,
-          student.Attendance,
+          Number(student.Attendance),
           student.Behavior,
         ];
 
         // Add Project if it's included in the Handsontable headers
-        if (hot.getColHeader().includes("Project")) {
-          fieldsToInclude.push(student.Project);
+        if (hot.getColHeader().includes("Extra")) {
+          fieldsToInclude.push(student.Extra);
         }
 
         // Calculate Overall
         const validMarks = fieldsToInclude.filter(
           (mark) => typeof mark === "number" && !isNaN(mark)
         );
+        
         student.Overall = Math.round(
-          validMarks.reduce((sum, mark) => sum + mark, 0) / validMarks.length
+          validMarks.reduce((sum, mark) => sum + mark, 0) / overallDivider
         );
+       
+        
         hot.setDataAtRowProp(row, "Overall", student.Overall);
       }
     });
@@ -418,12 +433,12 @@ function toggleProjectColumn(event) {
     ];
     const newHeaders = [
       ...currentHeaders.slice(0, 5),
-      "Project",
+      "Extra",
       ...currentHeaders.slice(5),
     ];
     hot.updateSettings({ columns: newCols, colHeaders: newHeaders });
   } else {
-    const projectColIndex = hot.getColHeader().indexOf("Project");
+    const projectColIndex = hot.getColHeader().indexOf("Extra");
     if (projectColIndex > -1) {
       hot.updateSettings({
         columns: hot
@@ -437,7 +452,7 @@ function toggleProjectColumn(event) {
   }
   // Recalculate AcademicOverall and Overall for all students
   tableData.forEach((student, row) => {
-    handleAfterChange([[row, "Project", null, student.Project]]); // Trigger recalculation for each row
+    handleAfterChange([[row, "Extra", null, student.Extra]]); // Trigger recalculation for each row
   });
 
   // Refresh the table with updated values
@@ -458,7 +473,7 @@ async function saveOrUpdateResult() {
         LifeSkills: student.LifeSkills || 0,
         Tech: student.Tech || 0,
         ProblemSolving: student.ProblemSolving || 0,
-        Project: student.Project || 0,
+        Project: student.Extra || 0,
         AcademicOverall: student.AcademicOverall || 0,
         Overall: student.Overall || 0,
         Remark:student.Remark||"",
@@ -490,7 +505,7 @@ async function saveOrUpdateResult() {
 
 // Define the column configuration for the Project column
 const projectColumn = {
-  data: "Project",
+  data: "Extra",
   type: "numeric",
   readOnly: false,
 };
