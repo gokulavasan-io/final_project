@@ -83,11 +83,14 @@
         }
 
         #addSubject {
-            position: absolute;
+            position: fixed;
             top: 11%;
             right: 15%;
             font-family: poppins;
             font-weight: bolder;
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
         #loading {
@@ -104,6 +107,8 @@
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
+
+
     </style>
 
 </head>
@@ -247,7 +252,15 @@
 
     <div class="form-check form-switch" id="addSubject">
         <input class="form-check-input" type="checkbox" role="switch" id="addProject">
-        <label class="form-check-label" for="addProject">Extra</label>
+        <div class="col-sm-3 my-1 w-75" >
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">new</div>
+              </div>
+              <input type="text" class="form-control" id="newSubject" placeholder="new subject">
+              <button class="btn btn-primary" id="newSubjectName">save</button>
+            </div>
+          </div>
     </div>
 
 

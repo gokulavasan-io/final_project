@@ -47,43 +47,53 @@
     align-items: center;
     padding: 1rem;
     border-radius: 10px;
-    gap: .5rem;
+    gap: .1rem;
     transition: 300ms all ease;
     height: 6rem;
     cursor: pointer;
     width: 8rem;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+    clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 12%, 46% 12%, 46% 0); /* Folder-like shape */
 
 }
 .new-marks-detail:hover{
     background-color: rgb(178, 2, 70);
     transform: scale(.97);
+    clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 12%, 46% 12%, 46% 0); /* Folder-like shape */
+
 }
 
-.marks-detail{
-    color: var(--font-color);
-    background-color: rgb(3, 177, 3);
+.marks-detail {
+    color: var(--font-color, #ffffff); /* White text for good contrast */
+    background-color: rgb(34, 197, 94); /* Fresh green for primary color */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: 10px; /* Smooth edges */
     gap: 1rem;
-    transition: transform 300ms ease;
+    transition: all 300ms ease; /* Smoother hover effect */
     height: 6rem;
     min-width: 8rem;
     max-width: min-content;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;}
-.marks-detail:hover{
-    background-color: rgb(8, 114, 2);
-    transform: scale(.97);
+    box-shadow: 
+      rgba(0, 0, 0, 0.2) 0px 10px 20px -5px, /* Subtle drop shadow */
+      rgba(0, 0, 0, 0.15) 0px 6px 10px -5px, 
+      rgba(255, 255, 255, 0.15) 0px -2px 4px inset;
+    clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 12%, 46% 12%, 46% 0); /* Folder-like shape */
+  }
+  
+  .marks-detail:hover {
+    background-color: rgb(22, 163, 74); /* Darker green on hover */
+    transform: scale(1.05); /* Slight grow effect */
     cursor: pointer;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+    clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 11%, 46% 11%, 46% 0); /* Keeps the shape */
 }
+  
 
 .marks-container i{
-    font-size: 2rem;
+    font-size: 1.4rem;
 }
 .marks-container p{
     font-weight: bolder;  

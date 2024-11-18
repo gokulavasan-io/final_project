@@ -143,7 +143,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
         studentData[studentName] = {
           ...studentData[studentName],
           Behavior: result.Behavior || 0,
-          Project: result.Project || 0,
+          New: result.Project || 0,
           Remark:result.Remark||"",
         };
       }
@@ -151,8 +151,8 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
     document.querySelector(".seebuttons").style.display = "flex";
   }
 
-  // Check if "Extra" data exists and set the checkbox accordingly
-  const hasProjectData = resultData.some((student) => student.Extra != 0);
+  // Check if "New" data exists and set the checkbox accordingly
+  const hasProjectData = resultData.some((student) => student.New != 0);
 
   // Prepare table data with computed AcademicOverall and Overall
   tableData = Object.values(studentData).map((student) => {
@@ -215,7 +215,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
       "ProblemSolving",
       "Attendance",
       "Behavior",
-      "Extra",
+      "New",
     ];
 
     subjects.forEach((subject) => {
@@ -313,7 +313,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
   document.getElementById("loading").style.display = "none";
   document.getElementById("addProject").checked = hasProjectData;
 
-  // Trigger the toggleProjectColumn function if "Extra" data exists
+  // Trigger the toggleProjectColumn function if "New" data exists
   if (hasProjectData) {
     toggleProjectColumn({ target: { checked: true } });
   }
@@ -340,18 +340,15 @@ function handleAfterChange(changes) {
 
       let overallDivider=6;
       let academicOverallDivider=4;
-      if (hot.getColHeader().includes("Extra")) {
+      if (hot.getColHeader().includes("New")) {
         overallDivider=7;
         academicOverallDivider=5
       }
-      console.log("oa : "+overallDivider);
-      console.log("Aoa : "+academicOverallDivider);
-      
 
 
       // Calculate AcademicOverall based on specific subjects
       if (
-        ["English", "LifeSkills", "Tech", "ProblemSolving", "Extra"].includes(
+        ["English", "LifeSkills", "Tech", "ProblemSolving", "New"].includes(
           prop
         )
       ) {
@@ -363,8 +360,8 @@ function handleAfterChange(changes) {
         ];
 
         // Include Project if present in the Handsontable headers
-        if (hot.getColHeader().includes("Extra")) {
-          subjectsToInclude.push("Extra");
+        if (hot.getColHeader().includes("New")) {
+          subjectsToInclude.push("New");
         }
 
         // Calculate AcademicOverall
@@ -387,7 +384,7 @@ function handleAfterChange(changes) {
           "ProblemSolving",
           "Attendance",
           "Behavior",
-          "Extra",
+          "New",
         ].includes(prop)
       ) {
         const fieldsToInclude = [
@@ -400,8 +397,8 @@ function handleAfterChange(changes) {
         ];
 
         // Add Project if it's included in the Handsontable headers
-        if (hot.getColHeader().includes("Extra")) {
-          fieldsToInclude.push(student.Extra);
+        if (hot.getColHeader().includes("New")) {
+          fieldsToInclude.push(student.New);
         }
 
         // Calculate Overall
@@ -433,12 +430,12 @@ function toggleProjectColumn(event) {
     ];
     const newHeaders = [
       ...currentHeaders.slice(0, 5),
-      "Extra",
+      "New",
       ...currentHeaders.slice(5),
     ];
     hot.updateSettings({ columns: newCols, colHeaders: newHeaders });
   } else {
-    const projectColIndex = hot.getColHeader().indexOf("Extra");
+    const projectColIndex = hot.getColHeader().indexOf("New");
     if (projectColIndex > -1) {
       hot.updateSettings({
         columns: hot
@@ -452,7 +449,7 @@ function toggleProjectColumn(event) {
   }
   // Recalculate AcademicOverall and Overall for all students
   tableData.forEach((student, row) => {
-    handleAfterChange([[row, "Extra", null, student.Extra]]); // Trigger recalculation for each row
+    handleAfterChange([[row, "New", null, student.New]]); // Trigger recalculation for each row
   });
 
   // Refresh the table with updated values
@@ -473,7 +470,7 @@ async function saveOrUpdateResult() {
         LifeSkills: student.LifeSkills || 0,
         Tech: student.Tech || 0,
         ProblemSolving: student.ProblemSolving || 0,
-        Project: student.Extra || 0,
+        Project: student.New || 0,
         AcademicOverall: student.AcademicOverall || 0,
         Overall: student.Overall || 0,
         Remark:student.Remark||"",
@@ -505,7 +502,7 @@ async function saveOrUpdateResult() {
 
 // Define the column configuration for the Project column
 const projectColumn = {
-  data: "Extra",
+  data: "New",
   type: "numeric",
   readOnly: false,
 };
@@ -548,3 +545,49 @@ async function fetchAttendanceData(path) {
     return {};
   }
 }
+
+
+document.getElementById("newSubjectName").addEventListener("click",()=>{
+    const newSubject=document.getElementById("newSubject").value.trim();
+    if(newSubject){
+      const newSubjectNamePath = ref(
+        database,
+        `/studentMarks/${section}/months/${month}/newSubjectName`
+      );
+      set(newSubjectNamePath, newSubject)
+        .then(() => {
+          showSuccessMessage("New subject added successfully!");
+          
+        })
+        .catch((error)=>{
+            console.log("error saving subject name");
+            
+        })
+    }
+    else{
+        alert("Enter a subject name please")
+    }
+})
+
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const newSubject=document.getElementById("newSubject");
+  const newSubjectNamePath = ref(
+    database,
+    `/studentMarks/${section}/months/${month}/newSubjectName`
+  );
+  get(newSubjectNamePath)
+  .then((newSubjectName)=>{
+    if(newSubjectName.exists()){
+      newSubject.placeholder=newSubjectName.val();
+    }
+    else{
+      newSubject.placeholder="New subject";
+    }
+  })
+  .catch((e)=>{
+      console.log(e);  
+  })
+})
+
+
