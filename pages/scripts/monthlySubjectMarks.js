@@ -320,12 +320,6 @@ async function saveFirstTwoColumnsData() {
   }
 }
 
-document.getElementById("saveAverageData").addEventListener("click",saveFirstTwoColumnsData);
-window.addEventListener("beforeunload", function (e) {
-  setTimeout(async () => {
-    await saveFirstTwoColumnsData();
-  }, 0);
-});
 
 
 // for generation table///////////////////////////////////

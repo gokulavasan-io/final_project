@@ -26,7 +26,7 @@ const database = getDatabase(app);
 const firestore = getFirestore(app);
 
 // Global variables
-let hot; // Handsontable instance
+let hot; 
 const month = localStorage.getItem("month");
 const section = localStorage.getItem("section");
 let tableData = [];
@@ -63,9 +63,8 @@ async function fetchResultData(path) {
   if (resultSnapshot.exists()) {
     const resultData = resultSnapshot.val();
     return Object.keys(resultData).map((key) => ({
-      student: key, // Using the key as the student name
+      student: key, 
       Attendance: resultData[key].Attendance || 0,
-      Behavior: resultData[key].Behavior || 0,
       Project: resultData[key].Project || 0,
       Remark:resultData[key].Remark||"",
     }));
@@ -75,7 +74,7 @@ async function fetchResultData(path) {
 
 // Event listener for DOM content load
 document.addEventListener("DOMContentLoaded", async () => {
-  const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving"];
+  const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving","Behavior"];
   const month = localStorage.getItem("month");
   document.getElementById("month").innerText = month;
   const section = localStorage.getItem("section");
@@ -142,7 +141,6 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
       if (studentData[studentName]) {
         studentData[studentName] = {
           ...studentData[studentName],
-          Behavior: result.Behavior || 0,
           New: result.Project || 0,
           Remark:result.Remark||"",
         };
@@ -160,6 +158,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
     student.LifeSkills = parseFloat(student.LifeSkills);
     student.Tech = parseFloat(student.Tech);
     student.ProblemSolving = parseFloat(student.ProblemSolving);
+    student.Behavior = parseFloat(student.Behavior);
     
     student.AcademicOverall = parseFloat(
       (
@@ -290,7 +289,7 @@ await Promise.all(subjects.map(fetchAndAverageMarks));
       { data: "Tech", type: "numeric", readOnly: true },
       { data: "ProblemSolving", type: "numeric", readOnly: true },
       { data: "Attendance", type: "numeric",readOnly:true },
-      { data: "Behavior", type: "numeric" },
+      { data: "Behavior", type: "numeric" ,readOnly:true},
       { data: "AcademicOverall", type: "numeric", readOnly: true },
       { data: "Overall", type: "numeric", readOnly: true },
       {data:"Remark",type:"text", width: 80,},
@@ -348,7 +347,7 @@ function handleAfterChange(changes) {
 
       // Calculate AcademicOverall based on specific subjects
       if (
-        ["English", "LifeSkills", "Tech", "ProblemSolving", "New"].includes(
+        [ "New"].includes(
           prop
         )
       ) {
@@ -378,13 +377,7 @@ function handleAfterChange(changes) {
       // Calculate Overall including additional fields (Attendance and Behavior)
       if (
         [
-          "English",
-          "LifeSkills",
-          "Tech",
-          "ProblemSolving",
-          "Attendance",
-          "Behavior",
-          "New",
+          "New"
         ].includes(prop)
       ) {
         const fieldsToInclude = [
