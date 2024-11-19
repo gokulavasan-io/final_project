@@ -319,7 +319,10 @@ async function saveFirstTwoColumnsData() {
     console.error("Error saving data:", error);
   }
 }
-
+document.getElementById("saveAverageData").addEventListener("click",saveFirstTwoColumnsData);
+window.addEventListener("beforeunload", async ()=> {
+  await saveFirstTwoColumnsData();
+});
 
 
 // for generation table///////////////////////////////////
