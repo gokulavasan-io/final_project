@@ -1,0 +1,516 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+*,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+}
+
+:root {
+    --primary-color: #0e2238;
+    --font-color: #fff;
+    --border-left: #3b7ddd;
+    --font:poppins;
+}
+
+
+/* styles for the page */
+
+#forEmptyMonth{
+    width: 30%;
+    position: fixed;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    display: none;
+    flex-direction: column;
+    align-items: center;gap: 2rem;
+}
+#forEmptyMonth img{
+    width: 40%;
+    
+}
+
+#forEmptyMonth p{
+    margin-bottom: 0 !important;
+    font-weight: bold;
+
+}
+
+#forEmptyMonth>div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    color: red;
+}
+
+#addNewTestByClick{
+    color: #095ab0;
+    font-weight: bolder;
+    transition: 300ms all ease;
+}
+
+#addNewTestByClick:hover{
+    color:var(--primary-color);
+    cursor: pointer;
+}
+
+.main-container{
+    position: fixed;
+    top: 17%;
+    left: 28%;
+    height: 80%;
+    width: 65%;
+
+}
+
+.page-name {
+    position: fixed;
+    top: 10%;
+    left: 7%;
+    font-weight: bolder;
+    font-family: var(--font);
+    color: var(--primary-color);
+    z-index: -10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .4rem;
+
+}
+
+.page-name div{
+    display: flex;
+    gap: .3rem;
+    font-weight: bolder;
+    align-items:center;
+}
+.page-name div h5{
+    color: red;
+}
+
+.page-name p {
+    margin-bottom: 0;
+}
+
+
+.error {
+    background-color: rgb(0, 0, 0) !important;
+    text-decoration: line-through;
+    color: white !important;
+}
+
+.red {
+    background-color: red !important;
+    font-family: var(--font) !important;
+    color: white !important;
+    font-weight: bold;
+    text-align: center !important;
+
+}
+
+.yellow {
+    background-color: yellow !important;
+    font-family: var(--font) !important;
+    color: black !important;
+    font-weight: bold;
+    text-align: center !important;
+
+}
+
+.green {
+    background-color: green !important;
+    color: rgb(255, 255, 255) !important;
+    font-family: var(--font) !important;
+    font-weight: bold;
+    text-align: center !important;
+
+}
+
+.absent {
+    color: blue !important;
+    font-weight: bold;
+    font-family: var(--font) !important;
+    text-align: center !important;
+}
+
+.forChart {
+    position: fixed;
+    top: 35%;
+    left: 8%;
+    height: 25%;
+    width: 20%;
+    font-family: var(--font);
+    z-index: -100;
+
+}
+
+
+.fonts {
+    font-family: var(--font) !important;
+}
+
+.countTable {
+    height: 10%;
+    width: 10% !important;
+    position: fixed;
+    bottom: 2%;
+    left: 6%;
+    z-index: -100;
+    border: 1px solid black;
+}
+
+th {
+    font-family: var(--font);
+    font-weight: bolder;
+}
+
+.table th {
+    background-color: var(--border-left) !important;
+    color: white !important;
+    font-family: var(--font);
+}
+
+td {
+    text-align: center;
+    font-weight: bolder;
+    font-family: var(--font);
+}
+.handsontable td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+#loading{
+    position: absolute;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color:var(--border-left);
+}
+
+
+/* for generating tables */
+
+
+#forAddingNewMarkFull .page-name {
+    position: fixed;
+    top: 2%;
+    left: 3%;
+    font-weight: bolder;
+    font-family: var(--font);
+    color: var(--primary-color);
+    z-index: -10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .4rem;
+    font-size: 1.5rem;
+
+}
+
+#forAddingNewMarkFull{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black with opacity */
+    overflow: auto;
+    /* Enable scroll if needed */
+    padding-top: 60px;
+
+
+}
+
+#forAddingNewMark{
+    width: 80%;
+    height: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+
+.forChartNew {
+    position: absolute;
+    top: 30%;
+    right: -7%;
+    height: 30%;
+    width: 30%;
+    font-family: var(--font);
+}
+.countTableforNew,.countTableForSeeMaks{
+    height: 10% !important;
+    width: 10% !important;
+    position: absolute;
+    bottom: 2%;
+    right: 2%;
+    border: 1px solid black;
+    border-radius: 10px !important;
+}
+/* ,#handsontableForSeeMarks */
+#handsontableForNew {
+    position: absolute;
+    top: 7%;
+    left: 25%;
+    z-index: -10;
+}
+
+.file-name {
+    position: fixed;
+    top: 10%;
+    left: 3%;
+    display: flex;
+    flex-direction: column;
+    font-weight: bolder;
+    color: var(--border-left);
+    z-index: -10;
+    font-family: var(--font);
+}
+
+.buttons {
+    position: fixed;
+    top: 9%;
+    right: 3%;
+    font-family: var(--font);
+}
+
+
+
+
+.close-btn {
+    color: #ff0000;
+    float: right;
+    margin-right:10px ;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: rgb(173, 6, 6);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+
+
+
+
+/* for existing mark */
+
+
+.monthNameForExistingMark{
+    position: absolute;
+    top: 3%;
+    left: 3%;
+
+    font-size: 1.2rem;
+    font-family: var(--font);
+    font-weight: bolder;
+    color: var(--primary-color);
+
+}
+.monthNameForExistingMark span{
+    color: red;
+}
+
+#forSeeMarksFull{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black with opacity */
+    overflow: auto;
+    /* Enable scroll if needed */
+    padding-top: 60px;
+
+}
+
+#forSeeMarks{
+    width: 80%;
+    height: 90%;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    overflow: hidden;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe;
+    border-radius: 10px;
+}
+
+#handsontableForExist{
+    position: absolute;
+    top: 7%;
+    left: 25%;
+}
+
+.file-name-for-See-Marks{
+    position: fixed;
+    top: 10%;
+    left: 3%;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    font-weight: bolder;
+    color: var(--border-left);
+    z-index: -10;
+    font-family: var(--font);
+}
+
+.file-name-for-See-Marks p {
+    margin-bottom: 0;
+}
+
+
+.countTableForExist{
+    height: 10% !important;
+    width: 10% !important;
+    position: absolute;
+    bottom: 2%;
+    right: 2%;
+    border: 1px solid black;
+    border-radius: 10px !important;
+}
+
+.chartForExist{
+    position: absolute;
+    bottom: 5%;
+    left: 3%;
+    height: 30%;
+    width: 20%;
+    font-family: var(--font);
+    z-index: -100;
+}
+
+#newMark{
+    font-size: 1rem;
+    font-family: var(--font);
+    color: var(--primary-color);
+    font-weight: bolder;
+    display: inline-block;
+    position: fixed;
+    top: 3%;
+    left: 3%;
+}
+#subjectNew{
+    color: red;
+}
+#monthNew{
+    color: green;
+}
+
+#forSeeMarks .buttons{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#delete-warning{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+    background-color: var(--primary-color);
+    color: var(--font-color);
+    padding: 1rem 3rem;
+    font-weight: bold;
+    border-radius: 10px;
+    display: none;
+    z-index: 200;
+
+}
+
+.yes-no{
+    display: flex;
+    justify-content: space-around;
+    color: var(--font-color);
+}
+
+.yes-no button{
+    font-weight: bolder;
+}
+
+
+.addMarksContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100000;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 50%;
+    height: 50%;
+    background-color: antiquewhite;
+    border-radius: 1rem;
+    padding: 1rem;
+    display: none;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+    font-family: Poppins;
+}
+.addMarksContainer .marks-detail{
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+}
+
+
+.ConfirmButton {
+    position: absolute;
+    bottom: 1rem;
+    right: 2rem;
+    display: flex;
+    gap: 1rem;
+    font-family: Poppins;
+}
+
+.selected {
+    background-color: #d3e9ff; /* Light blue background to indicate selection */
+    border: 2px solid #007bff;
+    color: var(--primary-color);
+}
+
+
+.marks-detail{
+    color: var(--font-color);
+    background-color: rgb(3, 177, 3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 10px;
+    gap: 1rem;
+    transition: transform 300ms ease;
+    height: 6rem;
+    min-width: 8rem;
+    max-width: min-content;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;}
+.marks-detail:hover{
+    background-color: rgb(8, 114, 2);
+    transform: scale(.97);
+    cursor: pointer;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+}

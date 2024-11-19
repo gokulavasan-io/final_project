@@ -4,98 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Attendance</title>
+    <title>Attendance</title>
 
+    <link rel="stylesheet" href="../css/attendance.css">
     <link rel="stylesheet" href="../css/generalStyles.css">
-
     <!-- Bootstrap links -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- line-icons css and font awesome -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/handsontable@12.1.0/dist/handsontable.full.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
-        ::after,
-        *,
-        ::before {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-
-        }
-
-        :root {
-            --primary-color: #0e2238;
-            --font-color: #fff;
-            --border-left: #3b7ddd;
-        }
-
-
-        .month-name {
-            position: fixed;
-            top: 9%;
-            left: 6%;
-            display: flex;
-            align-items: center;
-            gap: .3rem;
-            z-index: -10;
-
-        }
-
-        .month-name label {
-            color: var(--primary-color);
-            font-weight: bolder;
-        }
-
-
-        #handsontable {
-            position: fixed;
-            top: 17%;
-            left: 9%;
-            width: 100%;
-            height: 400px;
-            overflow: hidden;
-        }
-
-        .buttons {
-            position: fixed;
-            top: 9%;
-            right: 2%;
-        }
-
-        .file-name {
-            position: fixed;
-            top: 15%;
-            left: 7%;
-            display: flex;
-            flex-direction: column;
-            font-weight: bolder;
-            color: var(--border-left);
-            z-index: -10;
-        }
-
-        .page-name {
-            position: fixed;
-            top: 10%;
-            left: 7%;
-            font-weight: bolder;
-            font-family: poppins;
-            color: var(--primary-color);
-            z-index: -10;
-            display: flex;
-            gap: .3rem;
-            align-items: center;
-        }
-
-        .page-name p {
-            margin-bottom: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@11.0.0/dist/handsontable.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
 
 </head>
 
@@ -177,9 +100,14 @@
         </div>
     </aside>
 
+
+
     <header class="w-100 position-fixed top-0">
         <div class="logo">Toodle</div>
-        <div id="classNow">X</div>
+        <div class="d-flex gap-2 align-items-center">
+            <button class="btn btn-danger " id="changeClass" style="display: none;">Choose Class</button>
+            <div id="classNow">X</div>
+        </div>
         <div class="user">
             <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
         </div>
@@ -207,33 +135,105 @@
     <div id="logoutMessage" class="popup">
         Successfully Logged Out
     </div>
+
     <div id="successMessage" class="popup"></div>
-
-
-
-
-    <div id="handsontable"></div>
-
-    <div class="month-name">
-        <label for="datasetName" class="form-label">Month:</label>
-        <input type="text" id="datasetName" class="form-control" placeholder="Month" />
-        <button id="renameDataset" class="btn btn-info text-center">Rename</button>
+    <div id="loading">
+        <span><i class="fa fa-spinner fa-spin"></i></span>
+        <div>please wait ...</div>
     </div>
 
-    <div class="buttons">
-        <button class="btn btn-success" id="saveToFirebase">Save </button>
+
+    <div class="main-container">
+        <div id="attendanceTable"></div>
+    </div>
+
+    <!-- Popup container for statistics -->
+    <div id="attendancePopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtn">&times;</span>
+            <p>Working days : <span>xx</span></p>
+            <h3>Student Statistics</h3>
+            <div id="attendancePopupTable" class="popup-table-container"></div>
+        </div>
+    </div>
+
+    <!-- Daily Statistics Popup -->
+    <div id="dailyAttendancePopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtnForDaily">&times;</span>
+            <h3>Daily Attendance Statistics</h3>
+            <div id="dailyAttendancePopupTable" style="margin-top: 20px;"></div>
+
+        </div>
+    </div>
+
+
+    <div class="monthNameCont">
+        <div>Month : <span id="monthName"></span></div>
+    </div>
+
+    <div id="infoLogo"><i class="fa fa-info-circle"></i></div>
+    <div id="showDaysCount">
+        <span class="close-btn" id="closePopupBtnForCount">&times;</span>
+        <div>Total Days : <span id="totalDays">xx</span></div>
+        <div>Working Days : <span id="workingDays">xx</span></div>
+        <div>Weekends :  <span id="weekEnds">xx</span></div>
+        <div>Holidays :  <span id="holidays">xx</span></div>
+    </div>
+
+    <!-- Loading Spinner and Progress -->
+    <div id="loadingOverlay" style="display: none;">
+        <div id="Spinner"><i class="fa fa-spinner fa-spin"></i></div>
+        <p id="progressMessage">Calculating scores... 0% complete</p>
+    </div>
+
+    <div class="buttonsContainer">
+        <button class="btn btn-danger" id="remarks">Remarks</button>
+        <button class="btn btn-secondary" id="holidaysShow">Holidays</button>
+        <button class="btn btn-primary" id="save">Save</button>
+        <button class="btn btn-success" id="countBtn">Student Statistics</button>
+        <button class="btn btn-success" id="dailyCount">Daily Statistics</button>
+    </div>
+
+
+     <!-- Daily Statistics Popup -->
+     <div id="holidaysListPopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtnForHoliday">&times;</span>
+            <h3>Holidays List</h3>
+            <div id="holidaysList" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <div id="forHoliday">
+        <input type="text" id="newHoliday" class="form-control" placeholder="Reason" />
+        <div>
+            <button class="btn btn-danger" id="cancelHoliday">Cancel</button>
+            <button class="btn btn-success" id="confirmHoliday">Confirm</button>
+        </div>
+    </div>
+
+
+    <!-- remarks  -->
+        <div id="forRemarks">
+            <input type="text" id="newRemark" class="form-control" placeholder="Remark" />
+            <div>
+                <button class="btn btn-danger" id="cancel">Cancel</button>
+                <button class="btn btn-success" id="confirm">Confirm</button>
+            </div>
+        </div>
+
+     <div id="remarksListPopup" class="tablePopup">
+        <div class="popup-content">
+            <span class="close-btn" id="closePopupBtnForRemarks">&times;</span>
+            <h3>Remarks List</h3>
+            <div id="remarksList" style="margin-top: 20px;"></div>
+        </div>
     </div>
 
 
     <script type="module" src="../scripts/attendance.js"></script>
     <script type="module" src="../scripts/generalScript.js"></script>
-    <!-- bootstrap link -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-
-
-
 </body>
 
 </html>

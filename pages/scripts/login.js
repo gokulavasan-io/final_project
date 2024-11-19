@@ -25,10 +25,13 @@ const auth = getAuth();
 window.onload = function () {
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // Redirect if the user is already logged in
-      window.location.href = "pages/html/home.html";
+      window.location.replace("pages/html/home.html");
     } else {
       console.log("User is not logged in.");
+      window.history.pushState(null, null, window.location.href);
+      window.addEventListener("popstate", function () {
+      window.history.pushState(null, null, window.location.href);
+      });
     }
   });
 };
@@ -44,6 +47,12 @@ document.getElementById("login").addEventListener("submit", function (event) {
   ).id;
   const role = document.querySelector('input[name="role"]:checked').id;
   const userName = document.getElementById("userName").value;
+
+  const usernameRegex = /^[a-zA-Z0-9_.]+$/;
+  if(!usernameRegex.test(userName)){
+    showErrorMessage("Enter a valid username",2000);
+    return ;
+  }
 
   // Set persistence to 'local' to keep the user logged in
   setPersistence(auth, browserLocalPersistence)
@@ -68,7 +77,7 @@ document.getElementById("login").addEventListener("submit", function (event) {
     })
     .catch((error) => {
       console.log(error.message);
-      showErrorMessage();
+      showErrorMessage("Invalid email or password. Please try again.",2000);
     });
 });
 
@@ -82,14 +91,14 @@ function showSuccessMessage() {
 }
 
 // Function to display error message
-function showErrorMessage() {
+function showErrorMessage(str,time) {
   const errorPopup = document.getElementById("error-message");
+  errorPopup.innerText=str;
   errorPopup.style.display = "block";
   setTimeout(() => {
     errorPopup.style.display = "none";
-  }, 500);
+  }, time);
 }
-
 
 
 document.getElementById("forget").addEventListener("click", () => {
@@ -112,7 +121,7 @@ function forgotPassword(email) {
 document.getElementById("getEmail").addEventListener("click", () =>{
   const email = document.getElementById("forgetEmail").value;
   if (email === "") {
-    alert("Enter a valid email");
+    showErrorMessage("Please enter a valid email",2000)
   } else {
     forgotPassword(email);
   }
@@ -121,3 +130,13 @@ document.getElementById("getEmail").addEventListener("click", () =>{
 document.getElementById("close").addEventListener("click",()=>{
   document.getElementById("forgetPassword").style.display = "none";
 })
+
+const userName = document.getElementById("userName");
+userName.addEventListener("input", function() {
+  const usernameRegex = /^[a-zA-Z0-9_.]+$/; 
+  const userNameInput = document.getElementById("userName").value;
+  if (userNameInput&&!usernameRegex.test(userNameInput)) {
+    showErrorMessage("Name should only contain alphabets, '.', and '_'", 2000);
+    return;
+  }
+});

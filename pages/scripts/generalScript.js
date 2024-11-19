@@ -26,6 +26,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth();
+
+
+const favIcon = document.createElement("link");
+favIcon.rel = "icon";
+favIcon.type = "image/x-icon";
+favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
+document.head.appendChild(favIcon);
+
+
+
 document.getElementById("reportCard").style.display="none";
 const subjectsAside=document.querySelectorAll(".subjectsAside a");
 subjectsAside.forEach(x=>{
@@ -47,11 +57,17 @@ document.getElementById("logout").addEventListener("click", function () {
 document.getElementById("yes").addEventListener("click", function () {
   signOut(auth)
     .then(() => {
-      deleteCookie("userLoggedIn");
+      deleteCookie("userLoggedIn"); // Assuming you have a deleteCookie function
       showLogoutMessage();
+
+      // Redirect to index.html and disable back navigation
       setTimeout(() => {
-        window.location.href = "../../index.html";
-      }, 100);
+        window.location.replace("../../index.html");
+        history.pushState(null, null, "../../index.html");
+        window.addEventListener("popstate", function (event) {
+          history.pushState(null, null, "../../index.html");
+        });
+      }, 500);
     })
     .catch((error) => {
       console.log("An error happened.");

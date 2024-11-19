@@ -7,6 +7,8 @@ import {
   update,
   get,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+
+
 import {
   getFirestore,
   collection,
@@ -27,15 +29,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
+
+
 let hot;
 let colors=["red","yellow","green","absent"];
 
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const pageTitle = localStorage.getItem("pageTitle");
+  const subject = localStorage.getItem("pageTitle");
   const section = localStorage.getItem("section");
 
-  document.querySelector(".page-name").textContent = `New ${pageTitle} Mark`;
+  document.querySelector(".page-name").textContent = `New ${subject} Mark`;
 
   const container = document.getElementById("handsontable");
   let data = [];
@@ -179,7 +183,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function saveDataToFirebase(customName) {
     const dbRef = ref(database);
-    const dataPath = `studentMarks/${section}/${pageTitle}`;
+    const dataPath = `studentMarks/${section}/${subject}`;
     const month = customName.split("_")[0];
     const orderedMonths = [
       "January",
@@ -219,7 +223,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           await set(ref(database, `${dataPath}/${customName}`), saveData);
           orderedMonths.forEach(async (x) => {
             if (x.includes(month)) {
-              await addToMonth(section, pageTitle, x, customName);
+              await addToMonth(section, subject, x, customName);
             }
           });
           showSuccessMessage("Data saved successfully.");

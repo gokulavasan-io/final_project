@@ -289,7 +289,7 @@ async function renameDataset() {
   const newDatasetName = capitalizeFirstLetter(renameDatasetInput.value.trim());
   const section = localStorage.getItem("section");
   const pageTitle = localStorage.getItem("pageTitle");
-  const datasetName = localStorage.getItem("dataSet");
+  // const datasetName = localStorage.getItem("dataSet");
   const oldDataPath = `studentMarks/${section}/${pageTitle}/${datasetName}`;
 
   if (newDatasetName && newDatasetName !== datasetName) {

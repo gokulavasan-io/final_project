@@ -8,7 +8,7 @@ const english = document.getElementById("rpenglish");
 const life_skills = document.getElementById("rplifeSkills");
 const tech = document.getElementById("rptech");
 const problem_solving = document.getElementById("rpproblemSolving");
-const project = document.getElementById("rpproject");
+const project = document.getElementById("rpNew");
 const attendance = document.getElementById("rpattendance");
 const behavior = document.getElementById("rpbehavior");
 const overall = document.getElementById("rpoverall");
@@ -16,7 +16,7 @@ const class_eng = document.getElementById("classEng");
 const class_els = document.getElementById("classLS");
 const class_tech = document.getElementById("classTech");
 const class_pb = document.getElementById("classPS");
-const class_project = document.getElementById("classProject");
+const class_project = document.getElementById("classNew");
 const class_overall = document.getElementById("classOverall");
 const previous = document.getElementById("previous");
 const downloadNow = document.getElementById("downloadNow");
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     hasProject=true;
   }
   if(!hasProject){
-    await changeToNotProject();
+   changeToNotProject();
   }
   displayStudentData(studentNames[index]);
   document.getElementById("loading").style.display = "none";
@@ -197,9 +197,9 @@ function scores_color(score) {
 // change student and teachers name
 function name_change(student_name, teach_name) {
   let temp=student_name;
-  if(student_name.length>15){
-      student_name = prompt(`Please enter a smaller name for this student " ${student_name} " `);
-  }
+  // if(student_name.length>15){
+  //     student_name = prompt(`Please enter a smaller name for this student " ${student_name} " `);
+  // }
   if(student_name.length<3){
       student_name=prompt(`Please Enter a valid name for this student " ${temp} "`)
   }
@@ -219,15 +219,20 @@ function changeRemark(remark) {
   if(remark.length>35){
     remark=prompt(`Please enter a shorter remark for this student : ${remark}`);
   }
-  if(remark==""){
-    remark="Nothing !!!";
-  }
+  // if(remark==""){
+  //   remark="";
+  // }
   remarks.innerText = remark;
 }
 
 // // to download report-card container as jpg
 
 downloadNow.addEventListener("click", function () {
+    downloadReportCardNow();
+});
+
+
+function downloadReportCardNow() {
   html2canvas(card, { willReadFrequently: true }).then((canvas) => {
     canvas.toBlob(function (imageData) {
       const link = document.createElement("a");
@@ -241,7 +246,7 @@ downloadNow.addEventListener("click", function () {
       URL.revokeObjectURL(link.href);
     }, "image/jpeg",1.0);
   });
-});
+}
 
 
 function download_all_student( student_sec) {
@@ -353,7 +358,7 @@ next.addEventListener("click",()=>{
 
 
 function changeToNotProject() {
-  document.getElementById("projectLabel").style.display="none";
+  document.getElementById("newLabel").style.display="none";
   project.parentElement.style.display="none";
   class_project.parentElement.style.display="none";
   document.querySelector(".labels").style.gap=".5rem";
@@ -365,3 +370,49 @@ function changeToNotProject() {
   })
 
 }
+
+
+window.addEventListener('keydown', function (e) {
+  if (e.keyCode == 37) {
+    index=index-1;
+    if(index>=0){
+      displayStudentData(studentNames[index]);
+    }
+    else{
+      alert("No more Students !!!")
+    }
+      
+  }
+  if (e.keyCode == 39) {
+    index=index+1;
+    if(index<studentNames.length){
+      displayStudentData(studentNames[index]);
+    }
+    else{
+      alert("No more Students !!!")
+    }
+      
+  }
+  if(e.keyCode==13){
+    downloadReportCardNow();
+  }
+
+});
+
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const newSubject=document.getElementById("newLabel");
+  const newSubjectRef = ref(
+    database,
+    `/studentMarks/${section}/months/${month}/newSubjectName`
+  );
+  get(newSubjectRef)
+  .then((newSubjectName)=>{
+    if(newSubjectName.exists()){
+      newSubject.innerText=newSubjectName.val();
+    }
+  })
+  .catch((e)=>{
+      console.log(e);  
+  })
+})

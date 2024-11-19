@@ -1,0 +1,87 @@
+{
+    "ClassA": {
+      "gender": {
+        "male": 18,
+        "female": 8
+      },
+      "age": {
+        "17": 8,
+        "18": 7,
+        "19": 4,
+        "20": 4,
+        "21": 3
+      },
+      "medium": {
+        "english": 15,
+        "tamil": 11
+      },
+      "school": {
+        "govt": 20,
+        "private": 6
+      },
+      "category": {
+        "A": 2,
+        "B": 7,
+        "C+": 7,
+        "D": 4,
+        "E": 6
+      }
+    },
+    "ClassB": {
+      "gender": {
+        "male": 18,
+        "female": 9
+      },
+      "age": {
+        "17": 7,
+        "18": 7,
+        "19": 5,
+        "20": 5,
+        "21": 3
+      },
+      "medium": {
+        "english": 16,
+        "tamil": 11
+      },
+      "school": {
+        "govt": 21,
+        "private": 6
+      },
+      "category": {
+        "A": 2,
+        "B": 7,
+        "C+": 8,
+        "D": 4,
+        "E": 6
+      }
+    },
+    "ClassC": {
+      "gender": {
+        "male": 17,
+        "female": 9
+      },
+      "age": {
+        "17": 7,
+        "18": 9,
+        "19": 2,
+        "20": 5,
+        "21": 3
+      },
+      "medium": {
+        "english": 13,
+        "tamil": 13
+      },
+      "school": {
+        "govt": 20,
+        "private": 6
+      },
+      "category": {
+        "A": 2,
+        "B": 6,
+        "C+": 8,
+        "D": 3,
+        "E": 7
+      }
+    }
+  }
+  

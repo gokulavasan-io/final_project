@@ -50,6 +50,7 @@
     font-family: dosis;
     margin-left: 1.2rem;
     align-items: center;
+    cursor: pointer;
 }
 .report-card .logo {
     display: flex;
@@ -447,3 +448,5 @@ h4{
 #searchBox:active{
     border: 1px solid #ccc;
 }
+
+

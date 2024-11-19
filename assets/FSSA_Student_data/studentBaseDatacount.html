@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Class Data in Firestore</title>
+    <script type="module">
+        // Import Firestore functions from the Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
+            authDomain: "fir-demo-4a5b4.firebaseapp.com",
+            projectId: "fir-demo-4a5b4",
+            storageBucket: "fir-demo-4a5b4.appspot.com",
+            messagingSenderId: "716679557063",
+            appId: "1:716679557063:web:603a78f59045ceeaf133e2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app); // Firestore initialization
+
+        const classA = {
+          gender: {
+            male: 18,
+            female: 8
+          },
+          age: {
+            "17": 8,
+            "18": 7,
+            "19": 4,
+            "20": 4,
+            "21": 3
+          },
+          medium: {
+            english: 15,
+            tamil: 11
+          },
+          school: {
+            govt: 20,
+            private: 6
+          },
+          category: {
+            A: 2,
+            B: 7,
+            C: 7,
+            D: 4,
+            E: 6
+          }
+        };
+
+        const classB = {
+          gender: {
+            male: 18,
+            female: 9
+          },
+          age: {
+            "17": 7,
+            "18": 7,
+            "19": 5,
+            "20": 5,
+            "21": 3
+          },
+          medium: {
+            english: 16,
+            tamil: 11
+          },
+          school: {
+            govt: 21,
+            private: 6
+          },
+          category: {
+            A: 2,
+            B: 7,
+            C: 8,
+            D: 4,
+            E: 6
+          }
+        };
+
+        const classC = {
+          gender: {
+            male: 17,
+            female: 9
+          },
+          age: {
+            "17": 7,
+            "18": 9,
+            "19": 2,
+            "20": 5,
+            "21": 3
+          },
+          medium: {
+            english: 13,
+            tamil: 13
+          },
+          school: {
+            govt: 20,
+            private: 6
+          },
+          category: {
+            A: 2,
+            B: 6,
+            C: 8,
+            D: 3,
+            E: 7
+          }
+        };
+
+        // Save the data to Firestore
+        async function saveClassData() {
+            // The correct path to save each class as a document inside the studentsBaseDataCount document
+            const path = "FSSA/studentsBaseDataCount/classes";
+
+            // Saving class data as separate documents under the 'studentsBaseDataCount' document
+            await setDoc(doc(firestore, path, "ClassA"), classA);
+            await setDoc(doc(firestore, path, "ClassB"), classB);
+            await setDoc(doc(firestore, path, "ClassC"), classC);
+            console.log("Data saved successfully!");
+        }
+
+        // Attach event listener to the button
+        document.addEventListener("DOMContentLoaded", () => {
+          const uploadButton = document.getElementById("uploadButton");
+          uploadButton.addEventListener("click", saveClassData);
+        });
+    </script>
+</head>
+<body>
+    <h1>Update Class Data in Firestore</h1>
+    <button id="uploadButton">Update Data</button>
+    <p>Click the button to update the class data in Firestore.</p>
+</body>
+</html>
