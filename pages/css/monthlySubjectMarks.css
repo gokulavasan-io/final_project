@@ -454,28 +454,6 @@ td {
 }
 
 
-.addMarksContainer {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100000;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    width: 50%;
-    height: 50%;
-    background-color: antiquewhite;
-    border-radius: 1rem;
-    padding: 1rem;
-    display: none;
-    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
-    font-family: Poppins;
-}
-.addMarksContainer .marks-detail{
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-}
-
 
 .ConfirmButton {
     position: absolute;

@@ -78,8 +78,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const month = localStorage.getItem("month");
   document.getElementById("month").innerText = month;
   const section = localStorage.getItem("section");
-  const resultPath = `/studentMarks/${section}/months/${month}/result`;
-  const attendancePath = `/studentMarks/${section}/months/${month}/Attendance`; // Updated attendance path
+  const resultPath = `/FSSA/${section}/months/${month}/result`;
+  const attendancePath = `/FSSA/${section}/months/${month}/Attendance`; // Updated attendance path
   const saveButton = document.getElementById("saveResult");
 
   // Fetch student names and initialize student data
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   async function fetchAndAverageMarks(subject) {
-    const monthPath = `/studentMarks/${section}/months/${month}/averageOf${subject}`;
+    const monthPath = `/FSSA/${section}/${month}/averageOf${subject}`;
     const fileRef = ref(database, monthPath);
     
     const fileSnapshot = await get(fileRef);
@@ -451,7 +451,7 @@ function toggleProjectColumn(event) {
 
 // Save or update result data in Firebase
 async function saveOrUpdateResult() {
-  const resultPath = `/studentMarks/${section}/months/${month}/result`;
+  const resultPath = `/FSSA/${section}/months/${month}/result`;
   const resultData = tableData.reduce((acc, student) => {
     const studentNames = student.student;
     const isChecked = document.getElementById("addProject").checked;
@@ -545,7 +545,7 @@ document.getElementById("newSubjectName").addEventListener("click",()=>{
     if(newSubject){
       const newSubjectNamePath = ref(
         database,
-        `/studentMarks/${section}/months/${month}/newSubjectName`
+        `/FSSA/${section}/${month}/newSubjectName`
       );
       set(newSubjectNamePath, newSubject)
         .then(() => {
@@ -567,7 +567,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   const newSubject=document.getElementById("newSubject");
   const newSubjectNamePath = ref(
     database,
-    `/studentMarks/${section}/months/${month}/newSubjectName`
+    `/FSSA/${section}/${month}/newSubjectName`
   );
   get(newSubjectNamePath)
   .then((newSubjectName)=>{

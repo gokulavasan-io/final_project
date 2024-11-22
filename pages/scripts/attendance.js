@@ -34,7 +34,7 @@ const container = document.getElementById("attendanceTable");
 const attendanceOptions = ["P", "A", "LA", "AP", "SL", "CL", "HL"];
 let columns = [{ data: "name", type: "text", readOnly: true, title: "Name" }];
 
-const monthName = localStorage.getItem("dataSet"); // Month name from localStorage
+const monthName = localStorage.getItem("month"); // Month name from localStorage
 document.getElementById("monthName").innerText = monthName;
 const section = localStorage.getItem("section");
 const currentYear = new Date().getFullYear();
@@ -89,13 +89,17 @@ function initializeTable(students) {
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(currentYear, currentMonth, day);
     const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
+    let isReadOnly = false;
+    if (students[0] && students[0][`day${day}`] === "Holiday") {
+      isReadOnly = true;
+    }
 
     columns.push({
       data: `day${day}`,
       type: "dropdown",
       title: ` ${day}/${currentMonth + 1}`,
       source: attendanceOptions,
-      readOnly: false,
+      readOnly: isReadOnly,
       className: isWeekend ? "non-working" : "", // Apply 'non-working' class if weekend
     });
   }
@@ -171,7 +175,7 @@ function initializeTable(students) {
 async function fetchAttendanceData(studentName) {
   const studentRef = ref(
     firebase,
-    `/studentMarks/${section}/Attendance/${monthName}/${studentName}`
+    `/FSSA/${section}/${monthName}/Attendance/MonthlyFullAttendanceData/${studentName}`
   );
   try {
     const snapshot = await get(studentRef);
@@ -302,6 +306,7 @@ function showAttendancePopup(statistics) {
 // Close the popup when the close button is clicked
 document.getElementById("closePopupBtn").addEventListener("click", function () {
   saveStudentData();
+  saveStudentDataForResult();
   document.getElementById("attendancePopup").style.display = "none";
 });
 
@@ -531,7 +536,7 @@ async function saveAttendanceData() {
     const studentData = row.slice(1); // The rest of the row data (attendance info)
 
     // Prepare the path for the student and save the array directly
-    const path = `/studentMarks/${section}/Attendance/${monthName}/${studentName}`;
+    const path = `/FSSA/${section}/${monthName}/Attendance/MonthlyFullAttendanceData/${studentName}`;
 
     // Assign the array directly to the student's path
     updates[path] = studentData;
@@ -552,7 +557,7 @@ document.getElementById("save").addEventListener("click", saveAttendanceData);
 
 // Function to save data to the specified path
 async function saveDailyAttendanceData(dailyCounts) {
-  const path = `/studentMarks/${section}/Attendance/${monthName}/dailyData`; // Path where you want to save the data
+  const path = `/FSSA/${section}/${monthName}/Attendance/dailyData`; // Path where you want to save the data
 
   // Reference to the path where the data is stored
   const dailyDataRef = ref(firebase, path);
@@ -609,7 +614,7 @@ async function saveStudentData() {
     };
   });
 
-  const path = `/studentMarks/${section}/months/${monthName}/Attendance`; // Path to save data
+  const path = `/FSSA/${section}/${monthName}/Attendance/studentData`; // Path to save data
 
   // Save or update data in Firebase
   const attendanceDataRef = ref(firebase, path);
@@ -640,26 +645,43 @@ async function saveStudentData() {
     });
 }
 
-const holidayDiv = document.getElementById("holidaysList");
+
+async function saveStudentDataForResult() {
+  const attendanceData = monthlyAttendanceData.getData(); // important
+  const formattedData = {};
+  attendanceData.forEach((row) => {
+    const studentName = row[0]; 
+    const studentPercentage = row[10]; 
+    if (studentName) { 
+      formattedData[studentName] = Number(studentPercentage|| 0) ; 
+    }
+  });
+
+  const path = `/FSSA/${section}/${monthName}/Result/Attendance`; 
+
+  // Save or update data in Firebase
+  const attendanceDataRef = ref(firebase, path);
+  try {
+    const snapshot = await get(attendanceDataRef);
+    if (snapshot.exists()) {
+      // Update if data already exists
+      await update(attendanceDataRef, formattedData);
+      console.log("Attendance data updated successfully!");
+    } else {
+      // Set if data does not exist
+      await set(attendanceDataRef, formattedData);
+      console.log("Attendance data saved successfully!");
+    }
+  } catch (error) {
+    console.error("Error saving or updating data: ", error);
+  }
+}
+
 
 async function markHoliday(columnIndex) {
-  if (!holidayDiv) {
-    console.error("Holidays list div not found!");
-    return;
-  }
-
   // Adjust for 1-based indexing
   const date = new Date(currentYear, currentMonth, columnIndex);
-  const dateStr = `${date.getDate()}/${currentMonth + 1}`;
-
-  // Check if the holiday for this columnIndex already exists
-  const existingItem = holidayDiv.querySelector(
-    `[data-column-index='${columnIndex}']`
-  );
-  if (existingItem) {
-    console.warn("This column is already marked as a holiday.");
-    return;
-  }
+  const dateStr = `${date.getDate()}/${currentMonth + 1}/${currentYear}`;
 
   document.getElementById("forHoliday").style.display = "flex";
 
@@ -690,22 +712,13 @@ async function markHoliday(columnIndex) {
       return;
     }
     inputField.value = "";
-    // Create and append the holiday item
-    const holidayItem = document.createElement("div");
-    holidayItem.classList.add("holiday-item");
-    holidayItem.textContent = `Day: ${date.toLocaleString("en-us", {
-      weekday: "long",
-    })}, Date: ${dateStr} - Reason: ${reason}`;
-    holidayItem.setAttribute("data-column-index", columnIndex);
-    holidayDiv.appendChild(holidayItem);
 
-    // Set the "Holiday" value in the selected column
     try {
       for (let row = 0; row < hot.countRows(); row++) {
-        hot.setDataAtCell(row, columnIndex, "Holiday"); // Adjust for 0-based index
+        hot.setDataAtCell(row, columnIndex, "Holiday");
         hot.setCellMeta(row, columnIndex, "readOnly", true);
       }
-      hot.render(); // Re-render the table
+      hot.render();
     } catch (error) {
       console.error("Error marking column as a holiday: ", error);
     }
@@ -713,22 +726,19 @@ async function markHoliday(columnIndex) {
     // Save holiday details to Firebase
     document.getElementById("loading").style.display = "flex";
     try {
-      const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr
+      const holidayPath = `/FSSA/${section}/${monthName}/Attendance/Holidays/${dateStr
         .split("/")
         .join("-")}`;
-
-      const holidayData = {
-        date: dateStr,
-        reason,
-      };
-
+      const holidayData = reason;
       await set(ref(firebase, holidayPath), holidayData);
       console.log("Holiday saved to Firebase successfully!");
     } catch (error) {
       console.error("Error saving holiday to Firebase: ", error);
     } finally {
-      document.getElementById("loading").style.display = "none";
-      showSuccessMessage("Holiday added successfully !");
+      setTimeout(() => {
+        document.getElementById("loading").style.display = "none";
+        showSuccessMessage("Holiday added successfully!");
+      }, 10);
     }
   });
 
@@ -746,11 +756,11 @@ async function removeHolidayFromTable(columnIndex) {
     // Validate the column index
 
     const date = new Date(currentYear, currentMonth, columnIndex); // Create the date from column index
-    const dateStr = `${date.getDate()}/${currentMonth + 1}`; // Format the date string
+    const dateStr = `${date.getDate()}/${currentMonth + 1}/${currentYear}`; // Format the date string
 
     // Remove the holiday from Firebase
     try {
-      const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays/${dateStr
+      const holidayPath = `/FSSA/${section}/${monthName}/Attendance/Holidays/${dateStr
         .split("/")
         .join("-")}`;
       await remove(ref(firebase, holidayPath)); // Delete holiday data from Firebase
@@ -770,231 +780,189 @@ async function removeHolidayFromTable(columnIndex) {
       hot.render(); // Re-render the table to apply changes
     } catch (error) {
       console.error("Error clearing holiday column in Handsontable: ", error);
+    } finally {
+      setTimeout(() => {
+        document.getElementById("loading").style.display = "none";
+        showSuccessMessage("Holiday removed successfully !");
+      }, 2000);
     }
-
-    // Remove the holiday item from the holidays list
-    const holidayItem = holidayDiv.querySelector(
-      `[data-column-index='${columnIndex}']`
-    );
-    if (holidayItem) {
-      holidayItem.remove(); // Remove the holiday entry from the list
-    }
-    setTimeout(() => {
-      document.getElementById("loading").style.display = "none";
-      showSuccessMessage("Holiday removed successfully !");
-    }, 100);
   }
 }
 
-const holidaysListPopup = document.getElementById("holidaysListPopup");
+window.addEventListener("beforeunload", async (event) => {
+  document.getElementById("loading").style.display = "flex";
+  localStorage.removeItem("selectedRowIndex");
+  await saveAttendanceData();
+});
+
+// Function to show success message
+function showSuccessMessage(message) {
+  const successMessageDiv = document.getElementById("successMessage");
+  if (successMessageDiv) {
+    successMessageDiv.innerText = message;
+    successMessageDiv.style.display = "block";
+    setTimeout(() => {
+      successMessageDiv.style.display = "none";
+    }, 3000);
+  }
+}
+
+function showDaysCount() {
+  document.getElementById("showDaysCount").style.display = "flex";
+  let workingDays = 0;
+  let holidays = 0;
+  let weekends = 0;
+
+  for (let col = 1; col <= daysInMonth; col++) {
+    const date = new Date(currentYear, currentMonth, col);
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+    if (isWeekend) {
+      weekends++;
+    }
+
+    const value = hot.getDataAtCell(1, col);
+    if (value == "Holiday") {
+      holidays++;
+    } else if (!isWeekend) {
+      workingDays++;
+    }
+  }
+
+  document.getElementById("totalDays").innerText = daysInMonth;
+  document.getElementById("workingDays").innerText = workingDays;
+  document.getElementById("weekEnds").innerText = weekends;
+  document.getElementById("holidays").innerText = holidays;
+}
+
+document.getElementById("infoLogo").addEventListener("click", showDaysCount);
+document
+  .getElementById("closePopupBtnForCount")
+  .addEventListener("click", () => {
+    document.getElementById("showDaysCount").style.display = "none";
+  });
+
+const holidayPopUpFull = document.getElementById("holidaysListPopup");
+const closePopupBtnForHoliday = document.getElementById(
+  "closePopupBtnForHoliday"
+);
 
 document.getElementById("holidaysShow").addEventListener("click", () => {
-  holidaysListPopup.style.display = "block";
-});
+  const container = document.getElementById("holidaysTable");
 
-document
-  .getElementById("closePopupBtnForHoliday")
-  .addEventListener("click", () => {
-    holidaysListPopup.style.display = "none";
+  holidayPopUpFull.style.display = "flex";
+  closePopupBtnForHoliday.addEventListener("click", () => {
+    holidayPopUpFull.style.display = "none";
   });
 
-async function initializeHolidayList() {
-  console.log("Initializing holiday list...");
+  // Firebase reference
+  const holidaysRef = ref(
+    firebase,
+    `/FSSA/${section}/${monthName}/Attendance/Holidays`
+  );
 
-  if (!holidayDiv) {
-    console.error("Holiday list div not found!");
-    return;
+  let holidaysTable = null; // Track Handsontable instance
+
+  // Helper function to convert date string to a day of the week
+  function getDayName(dateString) {
+    const options = { weekday: "long" };
+    const date = new Date(dateString.split("-").reverse().join("-"));
+    return date.toLocaleDateString("en-US", options);
   }
 
-  try {
-    const holidayPath = `/studentMarks/${section}/Attendance/${monthName}/Holidays`;
-    const snapshot = await get(ref(firebase, holidayPath));
+  // Fetch data from Firebase
+  async function fetchHolidays() {
+    try {
+      const snapshot = await get(holidaysRef);
 
-    if (snapshot.exists()) {
-      const holidays = snapshot.val();
+      if (snapshot.exists()) {
+        document.getElementById("holidaysTable").style.display="block";
+        document.getElementById("updateHolidayReason").style.display="block";
 
-      // Clear existing items in the list
-      holidayDiv.innerHTML = "";
+        const rawData = snapshot.val();
 
-      Object.entries(holidays).forEach(([key, holidayDetails]) => {
-        const holiday = holidayDetails;
+        // Transform raw data into an array of objects
+        const holidays = Object.keys(rawData).map((dateKey) => ({
+          date: dateKey,
+          day: getDayName(dateKey),
+          reason: rawData[dateKey],
+        }));
 
-        if (holiday && holiday.date) {
-          const holidayItem = document.createElement("div");
-          holidayItem.classList.add("holiday-item");
+        holidays.sort((a, b) => {
+          const dateA = new Date(a.date.split("-").reverse().join("-"));
+          const dateB = new Date(b.date.split("-").reverse().join("-"));
+          return dateA - dateB;
+        });
 
-          const [day, month] = holiday.date.split("/");
+        renderTable(holidays);
+      } else {
+        console.error("No data available.");
+        document.getElementById("holidaysTable").style.display="none";
+      document.getElementById("updateHolidayReason").style.display="none";
+      document.getElementById("emptyHoliday").style.display="flex";
 
-          const dateStr = `${currentYear}-${month}-${day}`;
-
-          const date = new Date(dateStr);
-          const dayName = date.toLocaleString("en-us", {
-            weekday: "long",
-          });
-
-          // Display the formatted holiday info
-          holidayItem.innerHTML = `<div><strong>Date : &nbsp;</strong>${holiday.date}/${currentYear}</div><div><strong>Day :&nbsp;</strong>${dayName}</div><div><strong>Reason :&nbsp;</strong> ${holiday.reason}</div>`;
-
-          holidayDiv.appendChild(holidayItem);
-        }
-      });
-    } else {
-      console.log("No holidays found for this month.");
-    }
-  } catch (error) {
-    console.error("Error fetching holidays from Firebase: ", error);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  initializeHolidayList();
-});
-
-// for remarks:
-const remarksPopup = document.getElementById("remarksListPopup");
-
-// Open the remarks popup and fetch remarks from Firebase
-document.getElementById("remarks").addEventListener("click", async () => {
-  console.log("Opening remarks popup...");
-  remarksPopup.style.display = "block";
-
-  // Fetch remarks from Firebase
-  await fetchRemarksFromFirebase();
-});
-
-// Close the remarks popup
-document
-  .getElementById("closePopupBtnForRemarks")
-  .addEventListener("click", () => {
-    console.log("Closing remarks popup...");
-    remarksPopup.style.display = "none";
-  });
-
-const remarksDiv = document.getElementById("remarksList");
-
-// Function to fetch and display remarks from Firebase
-async function fetchRemarksFromFirebase() {
-  const remarksPath = `/studentMarks/${section}/Attendance/${monthName}/Remarks`;
-
-  try {
-    // Fetch all remarks from Firebase
-    const remarksSnapshot = await get(ref(firebase, remarksPath));
-    const remarksData = remarksSnapshot.val();
-
-    // Clear the current remarks in the popup
-    remarksDiv.innerHTML = "";
-
-    // Display the remarks
-    if (remarksData) {
-      for (const dateKey in remarksData) {
-        const remarksForDate = remarksData[dateKey];
-
-        // Loop through the remarks for each date
-        for (const studentName in remarksForDate) {
-          const remark = remarksForDate[studentName];
-
-          const remarkItem = document.createElement("div");
-          remarkItem.classList.add("remark-item");
-
-          // Create an editable remark field
-          remarkItem.innerHTML = `
-            <div>
-                <strong>Student :&nbsp;</strong><div class="studentName">${remark.studentName}</div>
-            </div>
-            <div>
-                <strong>Date :&nbsp;</strong> ${remark.date}
-            </div>
-            <div>
-                <strong>Day :&nbsp;</strong> ${remark.day}
-            </div>
-            <div>
-            <strong>Remark : &nbsp;</strong><span class="remark-text">${remark.remark}</span>
-            </div>
-            <div class="btnForED">
-              <button class="edit-btn btn btn-primary">edit</button>
-              <button class="delete-btn btn btn-danger" >Delete</button>
-            </div>
-            <div class="btnForSC">
-                <button class="save-btn btn btn-success" style="display:none;">Save</button>
-                <button class="cancel-btn btn btn-warning" style="display:none;">cancel</button>
-            </div>
-            <input class="edit-input form-control" type="text" value="${remark.remark}" style="display:none;" />
-          `;
-          remarksDiv.appendChild(remarkItem);
-
-          const deleteButton = remarkItem.querySelector(".delete-btn");
-          deleteButton.addEventListener("click", () => {
-            handleDeleteRemark(remarkItem, remark);
-          });
-
-          const editBtn = remarkItem.querySelector(".edit-btn");
-          const saveBtn = remarkItem.querySelector(".save-btn");
-          const editInput = remarkItem.querySelector(".edit-input");
-          const remarkText = remarkItem.querySelector(".remark-text");
-          const cancelBtn = remarkItem.querySelector(".cancel-btn");
-
-          // Edit button functionality
-          editBtn.addEventListener("click", () => {
-            remarkText.style.display = "none";
-            editBtn.style.display = "none";
-            deleteButton.style.display = "none";
-            editInput.style.display = "inline-block";
-            saveBtn.style.display = "inline-block";
-            cancelBtn.style.display = "inline-block";
-          });
-
-          // Save button functionality
-          saveBtn.addEventListener("click", async () => {
-            const updatedRemark = editInput.value;
-            if (updatedRemark) {
-              // Save updated remark to Firebase
-              const remarkPath = `/studentMarks/${section}/Attendance/${monthName}/Remarks/${dateKey}/${studentName}`;
-              const updatedData = {
-                studentName: remark.studentName,
-                date: remark.date,
-                day: remark.day,
-                remark: updatedRemark,
-              };
-
-              try {
-                await set(ref(firebase, remarkPath), updatedData); // Update the remark in Firebase
-                console.log("Remark updated in Firebase successfully!");
-
-                // Update the UI
-                remarkText.textContent = updatedRemark;
-                editInput.style.display = "none";
-                deleteButton.style.display = "inline-block";
-                remarkText.style.display = "inline";
-                editBtn.style.display = "inline-block";
-                cancelBtn.style.display = "inline-block";
-                saveBtn.style.display = "none";
-                cancelBtn.style.display = "none";
-              } catch (error) {
-                console.error(
-                  "Error saving updated remark to Firebase: ",
-                  error
-                );
-              }
-            }
-          });
-
-          cancelBtn.addEventListener("click", async () => {
-            editInput.style.display = "none";
-            remarkText.style.display = "inline";
-            editBtn.style.display = "inline-block";
-            deleteButton.style.display = "inline-block";
-            saveBtn.style.display = "none";
-            cancelBtn.style.display = "none";
-          });
-        }
       }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-  } catch (error) {
-    console.error("Error fetching remarks from Firebase: ", error);
   }
-}
 
-// Handle adding a new remark when confirm is clicked
+  // Render Handsontable
+  function renderTable(data) {
+    if (holidaysTable) {
+      holidaysTable.destroy(); // Destroy previous Handsontable instance if it exists
+    }
+
+    // Clear the container to remove any leftover DOM elements
+    container.innerHTML = "";
+    const tooltip = document.getElementById("tooltip");
+
+    // Create a new Handsontable instance
+    holidaysTable = new Handsontable(container, {
+      data: data,
+      colHeaders: ["Date", "Day", "Reason"],
+      columns: [
+        { data: "date", type: "text", readOnly: true },
+        { data: "day", type: "text", readOnly: true },
+        { data: "reason", type: "text" },
+      ],
+      colWidths: 180, // Default column width with extra space
+      width: 700,
+      rowHeaders: true,
+      height: "auto",
+      licenseKey: "non-commercial-and-evaluation",
+    });
+  }
+
+  // Update Firebase with edited data
+  async function updateHolidays() {
+    const updatedData = holidaysTable.getData();
+
+    // Construct updated Firebase data
+    const newFirebaseData = {};
+    updatedData.forEach((row) => {
+      if (row[0]) {
+        newFirebaseData[row[0]] = row[2];
+      }
+    });
+
+    try {
+      await update(holidaysRef, newFirebaseData);
+      alert("Holidays updated successfully!");
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
+  }
+
+  document
+    .getElementById("updateHolidayReason")
+    .addEventListener("click", updateHolidays);
+
+  fetchHolidays();
+});
+
+// goto-remark
+
 function addRemarkHandler(row, col, students, columns) {
   const studentName = students[row]?.name;
   const columnTitle = columns[col]?.title; // This should be a date string like "1/11", "2/11", "3/11"
@@ -1055,7 +1023,6 @@ function addRemarkHandler(row, col, students, columns) {
     const remark = remarkInput.value;
     if (remark) {
       const remarkData = {
-        studentName: studentName,
         date: formattedDate,
         day: day,
         remark: remark,
@@ -1063,7 +1030,7 @@ function addRemarkHandler(row, col, students, columns) {
 
       const dateStr = formattedDate.split("/").join("-"); // Format the date to match Firebase path
 
-      const remarkPath = `/studentMarks/${section}/Attendance/${monthName}/Remarks/${dateStr}/${studentName}`;
+      const remarkPath = `/FSSA/${section}/${monthName}/Attendance/Remarks/${dateStr}/${studentName}`;
 
       try {
         // Save the remark to Firebase using student name as key
@@ -1074,8 +1041,6 @@ function addRemarkHandler(row, col, students, columns) {
         console.error("Error saving remark to Firebase: ", error);
       }
 
-      hot.render();
-
       // Clear input and hide remark input area
       document.getElementById("newRemark").value = "";
       forRemarks.style.display = "none";
@@ -1083,75 +1048,204 @@ function addRemarkHandler(row, col, students, columns) {
   };
 }
 
-// Function to handle deleting a remark
-function handleDeleteRemark(remarkItem, remarkData) {
-  // Remove the remark item from the DOM
-  remarkItem.remove();
+/// gotoRemarksPopup
 
-  // Format the date for Firebase path
-  const dateStr = remarkData.date.split("/").join("-"); // Format the date to match Firebase path
+const remarksPopUpBtn = document.getElementById("remarksShow");
+remarksPopUpBtn.addEventListener("click", () => {
+  document.getElementById("remarksListPopup").style.display = "flex";
+  initializeHandsontable();
+});
 
-  // Construct the Firebase path where the remark is stored
-  const remarkPath = `/studentMarks/${section}/Attendance/${monthName}/Remarks/${dateStr}/${remarkData.studentName}`;
+document
+  .getElementById("closePopupBtnForRemarks")
+  .addEventListener("click", () => {
+    document.getElementById("remarksListPopup").style.display = "none";
+    localStorage.removeItem("selectedRowIndex");
+  });
 
+let hotForRemarks; // Declare the variable to store the Handsontable instance
+
+// Fetch data from Firebase
+async function fetchRemarks() {
   try {
-    // Remove the remark data from Firebase
-    remove(ref(firebase, remarkPath));
-    console.log("Remark deleted from Firebase successfully!");
-    showSuccessMessage("Remark deleted successfully !");
+    const dbRef = ref(
+      firebase,
+      `/FSSA/${section}/${monthName}/Attendance/Remarks`
+    );
+    const snapshot = await get(dbRef);
+
+    if (snapshot.exists()) {
+      document.querySelector(".remarksTableContainer").style.display="block";
+      document.getElementById("deleteRemark").style.display="block";
+      document.getElementById("updateRemark").style.display="block";
+      document.getElementById("emptyRemark").style.display="none";
+
+      return parseFirebaseData(snapshot.val());
+    } else {
+      console.error("No data available.");
+      document.querySelector(".remarksTableContainer").style.display="none";
+      document.getElementById("emptyRemark").style.display="flex";
+      document.getElementById("deleteRemark").style.display="none";
+      document.getElementById("updateRemark").style.display="none";
+
+      return [];
+    }
   } catch (error) {
-    console.error("Error deleting remark from Firebase: ", error);
+    console.error("Error fetching data from Firebase:", error);
+    return [];
   }
 }
 
-window.addEventListener("beforeunload", async (event) => {
-  document.getElementById("loading").style.display = "flex";
-  await saveAttendanceData();
-});
+// Parse Firebase data into tabular format and sort by Date
+function parseFirebaseData(data) {
+  const parsedData = [];
+  Object.entries(data).forEach(([date, students]) => {
+    Object.entries(students).forEach(([name, details]) => {
+      parsedData.push({
+        Name: name,
+        Date: details.date,
+        Day: details.day,
+        Remark: details.remark,
+        FirebasePath: `/FSSA/${section}/${monthName}/Attendance/Remarks/${date}/${name}`,
+      });
+    });
+  });
 
-// Function to show success message
-function showSuccessMessage(message) {
-  const successMessageDiv = document.getElementById("successMessage");
-  if (successMessageDiv) {
-    successMessageDiv.innerText = message;
-    successMessageDiv.style.display = "block";
-    setTimeout(() => {
-      successMessageDiv.style.display = "none";
-    }, 3000);
-  }
+  parsedData.sort((a, b) => {
+    const dateA = normalizeDate(a.Date);
+    const dateB = normalizeDate(b.Date);
+
+    if (!dateA || !dateB) return 0;
+
+    return new Date(dateA) - new Date(dateB);
+  });
+
+  return parsedData;
 }
 
-function showDaysCount() {
-  document.getElementById("showDaysCount").style.display="flex";
-  let workingDays = 0;
-  let holidays = 0;
-  let weekends = 0;
+// Normalize date to YYYY-MM-DD format
+function normalizeDate(dateString) {
+  if (!dateString) return "";
 
-  for (let col = 1; col <= daysInMonth; col++) {
-    const date = new Date(currentYear, currentMonth, col);
-    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+  const parts = dateString.split("/");
+  if (parts.length !== 3) return "";
 
-    if (isWeekend) {
-      weekends++;
+  let day = parts[0].padStart(2, "0");
+  let month = parts[1].padStart(2, "0");
+  const year = parts[2];
+
+  return `${year}-${month}-${day}`;
+}
+
+// Initialize Handsontable
+async function initializeHandsontable() {
+  const container = document.getElementById("remarksTable");
+  const updateBtn = document.getElementById("updateRemark");
+  const deleteBtn = document.getElementById("deleteRemark");
+  const tableData = await fetchRemarks();
+
+  // Prevent duplicate table creation
+  if (hotForRemarks) {
+    hotForRemarks.loadData(tableData);
+    return;
+  }
+
+  // Create a new Handsontable instance
+  hotForRemarks = new Handsontable(container, {
+    data: tableData,
+    colHeaders: ["Name", "Date", "Day", "Remark"],
+    columns: [
+      { data: "Name", readOnly: true },
+      { data: "Date", readOnly: true },
+      { data: "Day", readOnly: true },
+      { data: "Remark" },
+    ],
+    colWidths: 170,
+    width: 800,
+    filters: true,
+    dropdownMenu: ["filter_action_bar", "filter_by_value"],
+    rowHeaders: true,
+    fixedRowsTop: 1,
+    licenseKey: "non-commercial-and-evaluation",
+    afterSelection: (rowIndex) => {
+      if (rowIndex >= 0) {
+        localStorage.setItem("selectedRowIndex", rowIndex);
+      }
+    },
+  });
+
+  // Handle update button click
+  updateBtn.removeEventListener("click", handleUpdate);
+  updateBtn.addEventListener("click", () => handleUpdate(tableData));
+
+  // Handle delete button click
+  deleteBtn.removeEventListener("click", handleDelete);
+  deleteBtn.addEventListener("click", handleDelete);
+}
+
+async function handleUpdate(tableData) {
+ 
+    const data = hotForRemarks.getData(); // Get the current table data
+    const firebaseUpdates = {};
+
+    data.forEach((row, index) => {
+      const path = tableData[index]?.FirebasePath;
+      const newRemark = row[3]; // The 'Remark' column
+      if (path) {
+        firebaseUpdates[path + "/remark"] = newRemark; // Prepare update object
+      }
+    });
+
+    try {
+      await update(ref(firebase), firebaseUpdates); // Update Firebase
+      showSuccessMessage("Remarks updated successfully!");
+      const updatedData = await fetchRemarks();
+      hotForRemarks.loadData(updatedData); // Reload Handsontable with updated data
+    } catch (error) {
+      console.error("Error updating Firebase:", error);
+      alert("Failed to update remarks.");
     }
-
-    const value = hot.getDataAtCell(1, col);
-    if (value == "Holiday") {
-      holidays++;
-    } else if(!isWeekend){
-      workingDays++;
-    }
-  }
-
-  document.getElementById("totalDays").innerText=daysInMonth;
-  document.getElementById("workingDays").innerText=workingDays;
-  document.getElementById("weekEnds").innerText=weekends;
-  document.getElementById("holidays").innerText=holidays;
-
 }
 
-document.getElementById("infoLogo").addEventListener("click",showDaysCount);
-document.getElementById("closePopupBtnForCount").addEventListener("click",()=>{
-  document.getElementById("showDaysCount").style.display="none";
-});
 
+
+// Delete handler
+async function handleDelete() {
+  const rowIndex = parseInt(localStorage.getItem("selectedRowIndex"), 10);
+  if (isNaN(rowIndex)) {
+    console.error("Invalid row index.");
+    return;
+  }
+
+  const selectedRow = hotForRemarks.getSourceDataAtRow(rowIndex);
+  const firebasePath = selectedRow.FirebasePath;
+
+  if (!firebasePath) {
+    console.error("Invalid Firebase path.");
+    return;
+  }
+
+  document.getElementById("forDeleteRemark").style.display = "flex";
+  const studentName = firebasePath.split("/").reverse()[0];
+  document.getElementById(
+    "deleteMsgText"
+  ).innerText = `Are you sure you want to delete ${studentName}'s remark?`;
+
+  document.getElementById("confirmDeleteMark").onclick = async () => {
+    try {
+      await remove(ref(firebase, firebasePath));
+      hotForRemarks.alter("remove_row", rowIndex);
+      document.getElementById("forDeleteRemark").style.display = "none";
+      localStorage.removeItem("selectedRowIndex");
+      showSuccessMessage("Remark deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting remark:", error);
+      alert("Failed to delete remark.");
+    }
+  };
+
+  document.getElementById("cancelDeleteMark").onclick = () => {
+    document.getElementById("forDeleteRemark").style.display = "none";
+    localStorage.removeItem("selectedRowIndex");
+  };
+}

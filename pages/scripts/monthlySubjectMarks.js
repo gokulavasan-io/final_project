@@ -37,75 +37,73 @@ let colors = ["red", "yellow", "green", "absent"];
 let month = localStorage.getItem("month");
 let subject = localStorage.getItem("subject");
 const section = localStorage.getItem("section");
-let marksAdded = [];
-
-
-
-
 
 // Fetch dataset names and marks, then display in Handsontable
 async function fetchDataAndDisplay() {
-
   document.getElementById("subjectOfTheTable").innerText = `${subject}-`;
   document.getElementById("monOfTheSubject").innerText = month;
-  const datasetPath = `/studentMarks/${section}/months/${month}/${subject}`;
+  const datasetPath = `/FSSA/${section}/${month}/${subject}`;
   const tableContainer = document.getElementById("table");
   const studentData = {};
-  let columnHeaders = ["Name", "Average"]; // Add "Average" to the column headers
-  let avgData = { green: 0, yellow: 0, red: 0 }; // To store count for pie chart ranges
+  let columnHeaders = ["Name", "Average"];
+  let avgData = { green: 0, yellow: 0, red: 0 };
 
-  // Step 1: Fetch dataset names
   const datasetSnapshot = await get(child(ref(db), datasetPath));
+
   if (datasetSnapshot.exists()) {
-    const datasets = Object.keys(datasetSnapshot.val());
-    document.getElementById("forEmptyMonth").style.display="none";
-    // Step 2: Fetch marks for each dataset
-    for (const dataset of datasets) {
-      const marksPath = `/studentMarks/${section}/${subject}/${dataset}`;
-      const marksSnapshot = await get(child(ref(db), marksPath));
-      if (marksSnapshot.exists()) {
-        const data = marksSnapshot.val().students;
-        
-        // Add dataset name to column headers
-        columnHeaders.push(dataset);
-        marksAdded.push(dataset);
-        // Populate studentData with names and marks for each dataset
-        data.forEach((student) => {
-          const name = student[0];
-          let marks = student[2];
+    const datasets = datasetSnapshot.val();
+    document.getElementById("loading").style.display = "none";
 
-          // Initialize student entry if not present
-          if (!studentData[name]) {
-            studentData[name] = { Name: name, marks: [] }; // Store an array of marks
-          }
+    if (!datasets || typeof datasets !== "object") {
+      console.error("Datasets are empty or not in the expected format");
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("forEmptyMonth").style.display = "flex";
+      return;
+    }
 
-          // If marks are empty or undefined, set to 0
-          const validMarks =
-            marks === undefined || marks === "" || marks === null ? 0 : marks;
-          studentData[name][dataset] = validMarks;
+    document.getElementById("forEmptyMonth").style.display = "none";
 
-          // Push valid marks to the student's marks array for average calculation
-          studentData[name].marks.push(validMarks);
-        });
+    const sortedDatasets = Object.entries(datasets)
+      .map(([datasetName, datasetDetails]) => ({
+        name: datasetName,
+        ...datasetDetails,
+      }))
+      .sort((a, b) => {
+        const timestampA = new Date(a.timestamp || 0).getTime();
+        const timestampB = new Date(b.timestamp || 0).getTime();
+        return timestampA - timestampB; // Sort in ascending order
+      });
+
+    for (const dataset of sortedDatasets) {
+      const datasetName = dataset.name;
+      const students = dataset.students || {};
+      columnHeaders.push(datasetName);
+
+      for (const [studentName, studentDetails] of Object.entries(students)) {
+        if (!studentData[studentName]) {
+          studentData[studentName] = { Name: studentName, marks: [] };
+        }
+
+        const averageMark = studentDetails?.averageMark || 0;
+        studentData[studentName][datasetName] = averageMark;
+        studentData[studentName].marks.push(averageMark);
       }
     }
 
-    // Step 3: Calculate the average for each student and update pie chart data
+    // Calculate averages and prepare for table rendering
     Object.values(studentData).forEach((student) => {
       const totalMarks = student.marks.reduce((sum, mark) => {
-        return sum + (isNaN(mark) ? 0 : parseFloat(mark));
+        const validMark = typeof mark === "number" && !isNaN(mark) ? mark : 0; // Replace NaN or non-numeric marks with 0
+        return sum + validMark;
       }, 0);
-      const averageMarks = totalMarks / student.marks.length;
-      student["Average"] = averageMarks.toFixed(2); // Store the average, rounded to 2 decimal places
+      
+      const averageMarks = totalMarks / (student.marks.length || 1); // Avoid division by 0 if the array is empty
+      student["Average"] = averageMarks.toFixed(2);
+      
 
-      // Classify the average marks into the pie chart categories
-      if (averageMarks >= 81) {
-        avgData.green += 1;
-      } else if (averageMarks >= 51) {
-        avgData.yellow += 1;
-      } else {
-        avgData.red += 1;
-      }
+      if (averageMarks >= 81) avgData.green += 1;
+      else if (averageMarks >= 51) avgData.yellow += 1;
+      else avgData.red += 1;
     });
 
     // Step 4: Convert studentData to array format for Handsontable
@@ -134,7 +132,10 @@ async function fetchDataAndDisplay() {
             if (col > 0) {
               // Skip the "Name" column (col 0)
               const average = parseFloat(
-                hotForAllMarks.getDataAtCell(row, columnHeaders.indexOf("Average"))
+                hotForAllMarks.getDataAtCell(
+                  row,
+                  columnHeaders.indexOf("Average")
+                )
               );
               let colorClass = "";
 
@@ -156,8 +157,8 @@ async function fetchDataAndDisplay() {
       },
     };
 
-    if(hotForAllMarks){
-        hotForAllMarks.destroy();
+    if (hotForAllMarks) {
+      hotForAllMarks.destroy();
     }
 
     hotForAllMarks = new Handsontable(tableContainer, hotSettings);
@@ -200,7 +201,7 @@ async function fetchDataAndDisplay() {
 
     updateCountTable(Object.values(avgData));
 
-    let colorsApplied = false; // Flag to track if colors are applied
+    let colorsApplied = false; 
 
     document
       .getElementById("showColors")
@@ -226,11 +227,21 @@ async function fetchDataAndDisplay() {
 
                 // Toggle cell color based on the `colorsApplied` state
                 if (colorsApplied) {
-                  hotForAllMarks.setCellMeta(rowIndex, colIndex, "className", ""); // Clear color
+                  hotForAllMarks.setCellMeta(
+                    rowIndex,
+                    colIndex,
+                    "className",
+                    ""
+                  ); // Clear color
                   document.getElementById("showColors").innerText =
                     "Show Colors";
                 } else {
-                  hotForAllMarks.setCellMeta(rowIndex, colIndex, "className", colorClass); // Apply color
+                  hotForAllMarks.setCellMeta(
+                    rowIndex,
+                    colIndex,
+                    "className",
+                    colorClass
+                  ); // Apply color
                   document.getElementById("showColors").innerText =
                     "Remove Colors";
                 }
@@ -244,16 +255,16 @@ async function fetchDataAndDisplay() {
         // Toggle the colorsApplied state
         colorsApplied = !colorsApplied;
       });
-  }
-  else{
-    document.getElementById("loading").style.display = "none";
-    document.getElementById("forEmptyMonth").style.display="flex";
-
     
+    } else {
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("forEmptyMonth").style.display = "flex";
   }
 }
 
-fetchDataAndDisplay();
+document.addEventListener("DOMContentLoaded",()=>{
+  fetchDataAndDisplay();
+})
 
 async function updateCountTable(scoreRanges) {
   let totalStudents = scoreRanges.reduce((a, b) => a + b);
@@ -269,35 +280,33 @@ async function updateCountTable(scoreRanges) {
   });
 }
 
-
 function getFirstTwoColumnsData() {
   const tableData = hotForAllMarks.getData();
   const firstTwoColumnsData = {};
 
-  tableData.forEach(row => {
+  tableData.forEach((row) => {
     const name = row[0];
     let average = row[1];
 
     // If average is a string but can be converted to a number, convert it
-    if (typeof average === 'string' && !isNaN(parseFloat(average))) {
+    if (typeof average === "string" && !isNaN(parseFloat(average))) {
       average = parseFloat(average); // Convert string to number
     }
 
     // Ensure average is a number, default to 0 if invalid
-    average = (typeof average === "number" && !isNaN(average)) ? average : 0;
+    average = typeof average === "number" && !isNaN(average) ? average : 0;
 
     if (name) {
-      firstTwoColumnsData[name] = { Average: average };
+      firstTwoColumnsData[name] = average; // Save the average directly as a number
     }
   });
 
   return firstTwoColumnsData;
 }
 
-
 async function saveFirstTwoColumnsData() {
-  const datasetPath = `/studentMarks/${section}/months/${month}/averageOf${subject}`;
-  const dataToSave = getFirstTwoColumnsData();
+  const datasetPath = `/FSSA/${section}/${month}/Result/${subject}`;
+  const rawData = getFirstTwoColumnsData(); // Get the formatted data directly
 
   try {
     // Check if the dataset already exists
@@ -306,12 +315,12 @@ async function saveFirstTwoColumnsData() {
 
     if (snapshot.exists()) {
       // Dataset exists, update it
-      await update(datasetRef, dataToSave);
+      await update(datasetRef, rawData); // Save the data directly
       console.log("Dataset updated successfully.");
       showSuccessMessage("Data Saved successfully");
     } else {
       // Dataset does not exist, create it
-      await set(datasetRef, dataToSave);
+      await set(datasetRef, rawData); // Save the data directly
       showSuccessMessage("Data Saved successfully");
       console.log("Dataset created successfully.");
     }
@@ -319,40 +328,61 @@ async function saveFirstTwoColumnsData() {
     console.error("Error saving data:", error);
   }
 }
-document.getElementById("saveAverageData").addEventListener("click",saveFirstTwoColumnsData);
-window.addEventListener("beforeunload", async ()=> {
-  await saveFirstTwoColumnsData();
+
+document
+  .getElementById("saveAverageData")
+  .addEventListener("click", saveFirstTwoColumnsData);
+window.addEventListener("beforeunload", () => {
+  saveFirstTwoColumnsData();
 });
 
-
 // for generation table///////////////////////////////////
-let hot;
 
-
-["addNewTestByClick", "newTest"].forEach(id => {
+["addNewTestByClick", "newTest"].forEach((id) => {
   document.getElementById(id).addEventListener("click", showNewMarkContainer);
 });
 
-function showNewMarkContainer(){
-  document.getElementById("subjectNew").innerText =subject;
+
+
+let hot; // Global variable for Handsontable instance
+
+function showNewMarkContainer() {
+  document.getElementById("subjectNew").innerText = subject;
   document.getElementById("monthNew").innerText = month;
   document.getElementById("forAddingNewMarkFull").style.display = "block";
-  if (hot) {
-    hot.render();
+
+  const container = document.getElementById("handsontableForNew");
+
+  if (!container) {
+    console.error("Handsontable container not found!");
+    return;
+  }
+
+  // Check if hot is initialized or destroyed
+  if (!hot || hot.isDestroyed) {
+    showNewMarkTable()
+  } else {
+    hot.render(); // Re-render the table if already initialized
   }
 }
 
 document.getElementById("closeBtnForNewMark").addEventListener("click", () => {
   document.getElementById("forAddingNewMarkFull").style.display = "none";
-  fetchDataAndDisplay();
+
+  if (hot) {
+    hot.destroy(); // Destroy the instance when closing the container
+    hot = null; // Clear the reference to avoid accessing destroyed instance
+  }
+  document.getElementById("totalMarks").value=null;
+  document.getElementById("datasetName").value=null;
+  fetchDataAndDisplay(); // Call any necessary function to refresh data
 });
 
 
-document.addEventListener("DOMContentLoaded", async function () {
+async  function showNewMarkTable() {
   const container = document.getElementById("handsontableForNew");
   let data = [];
   let Students = [];
-  let isDataSaved = true; // Track if data is saved
 
   // Fetch student names from Firestore based on section
   async function fetchStudentNames(classSection) {
@@ -415,7 +445,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     afterChange: (changes, source) => {
       createChart();
       if (source === "edit") {
-        isDataSaved = false; // Set to false when the user makes changes
         changes.forEach(([row, prop]) => {
           if (prop === 1) {
             // Only trigger when "Marks" column is edited
@@ -488,50 +517,49 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   async function saveDataToFirebase(customName) {
-    const dbRef = ref(db);
-    const dataPath = `studentMarks/${section}/${subject}`;
+    const dataPath = `FSSA/${section}/${month}/${subject}/${customName}`;
 
-    // Check for existing datasets
     try {
       const snapshot = await get(ref(db, dataPath));
-      const tableData = hot.getData();
+      const tableData = hot.getData(); // Assumes tableData is an array of student data (e.g., [[name, marks, avg, remark], ...])
+
+      // Transform the tableData into the desired structure
+      const transformedStudents = {};
+      tableData.forEach(([name, marks, avg, remark]) => {
+        if (name) {
+          // Ensure name is not empty or undefined
+          transformedStudents[name] = {
+            mark: !isNaN(marks) ? Number(marks) : 0,
+            averageMark: !isNaN(avg) ? Number(avg) : 0,
+            remark: remark || "",
+          };
+        }
+      });
+
       const saveData = {
-        totalMarks: totalMarksInput.value,
-        students: tableData,
+        totalMarks: parseFloat(totalMarksInput.value),
+        students: transformedStudents,
+        timestamp: new Date().toISOString(),
       };
 
+
       if (snapshot.exists()) {
-        const existingDatasets = Object.keys(snapshot.val());
-
-        // Check if the dataset name already exists
-        if (existingDatasets.includes(customName)) {
-          alert(
-            "A dataset with this name already exists. Please choose a different name."
-          );
-          return; // Exit if the dataset name already exists
-        } else {
-          // Save new dataset
-          await set(ref(db, `${dataPath}/${customName}`), saveData);
-          await addToMonth(section, subject, month, customName);
-
-          showSuccessMessage("Data saved successfully.");
-        }
+        // Data already exists, update it
+        await update(ref(db, dataPath), saveData);
+        showSuccessMessage("Data updated successfully.");
       } else {
         // Save new dataset
-        await set(ref(db, `${dataPath}/${customName}`), saveData);
+        await set(ref(db, dataPath), saveData);
         showSuccessMessage("Data saved successfully.");
-        document.getElementById("forEmptyMonth").style.display="none";
-
       }
 
-      isDataSaved = true;
       document.getElementById("saveToFirebase").innerText = "Update";
+      document.getElementById("forEmptyMonth").style.display = "none";
     } catch (error) {
-      console.error("Error saving data:", error);
-      alert("Error saving file.");
+      console.error("Error saving or updating data:", error);
+      alert("Error saving or updating data.");
     }
   }
-
 
   // Manual save button
   document
@@ -545,27 +573,19 @@ document.addEventListener("DOMContentLoaded", async function () {
         alert("Please enter a valid dataset name.");
         return; // Exit if the dataset name is empty
       }
+      if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
+        alert("Please enter a valid Mark to find Total");
+        return; // Exit if the dataset name is empty
+      }
 
       saveDataToFirebase(customName); // Save data manually
     });
-});
+}
+
+
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-async function addToMonth(section, subject, month, dataSetName) {
-  const dataSet = {};
-  dataSet[dataSetName] = true;
-  try {
-    await update(
-      ref(db, `/studentMarks/${section}/months/${month}/${subject}`),
-      dataSet
-    );
-    console.log("Data successfully appended to Firebase.");
-  } catch (error) {
-    console.error("Error appending data to Firebase:", error);
-  }
 }
 
 let analysisChart; // Variable to hold the chart instance
@@ -627,15 +647,15 @@ async function updateCountTableForNew(scoreRanges) {
 
 const existContainer = document.getElementById("forSeeMarksFull");
 let hotForExists;
-let analysisChartForExists; 
-document.getElementById("monthExist").innerText=month;
+let analysisChartForExists;
+document.getElementById("monthExist").innerText = month;
 let datasetName;
 
 function fetchAndDisplayData(datasetNameFromTable) {
   datasetName = datasetNameFromTable;
 
   existContainer.style.display = "block";
-  const dataPath = `studentMarks/${section}/${subject}/${datasetName}`;
+  const dataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
   const dbRef = ref(db);
   const renameDatasetInput = document.getElementById(
     "renameDatasetInputForSeeMarks"
@@ -652,14 +672,26 @@ function fetchAndDisplayData(datasetNameFromTable) {
         const container = document.getElementById("handsontableForExist");
         document.getElementById("loading").style.display = "none";
 
+        // Extract students data
+        const studentsData = firebaseData.students || {};
+        const totalMarks = firebaseData.totalMarks || 100;
+        const tableData = Object.entries(studentsData).map(
+          ([studentName, studentDetails]) => [
+            studentName, // Student Name
+            studentDetails.mark || 0, // Marks
+            studentDetails.averageMark || 0, // Average Mark
+            studentDetails.remark || "", // Remarks
+          ]
+        );
+
         hotForExists = new Handsontable(container, {
-          data: firebaseData.students,
+          data: tableData,
           colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
           columns: [
-            { data: 0, type: "text", readOnly: true },
-            { data: 1, type: "text" }, // Allow both numbers and the string "A"
-            { data: 2, type: "numeric", readOnly: true },
-            { data: 3, type: "text" },
+            { data: 0, type: "text", readOnly: true }, // Student Name
+            { data: 1, type: "text" }, // Marks column (editable)
+            { data: 2, type: "numeric", readOnly: true }, // Average Mark
+            { data: 3, type: "text" }, // Remarks
           ],
           rowHeaders: true,
           colWidths: [200, 100, 100, 100],
@@ -672,56 +704,47 @@ function fetchAndDisplayData(datasetNameFromTable) {
           },
           afterChange: (changes, source) => {
             if (source === "edit") {
-              createChart();
-              const totalMarks = parseFloat(totalMarksInput.value);
-
               changes.forEach(([row, prop, oldValue, newValue]) => {
                 if (prop === 1) {
-                  // Check if the "Marks" column is edited
-                  if (!isNaN(totalMarks) && totalMarks > 0) {
-                    if (newValue === "A" || newValue === "a") {
-                      // Accept "A" as valid input for "absent"
-                      hotForExists.setDataAtCell(row, 2, "Absent");
-                      hotForExists.setCellMeta(row, 2, "className", "absent");
-                    } else if (!isNaN(newValue)) {
-                      // Handle numeric input
-                      if (newValue > totalMarks) {
-                        hotForExists.setCellMeta(row, 1, "className", "error"); // Apply error class for invalid marks
-                      } else {
-                        hotForExists.setCellMeta(row, 1, "className", null); // Clear error class
-                        const average = (newValue / totalMarks) * 100;
-                        hotForExists.setDataAtCell(row, 2, average.toFixed(2)); // Update percentage column
-                        updateCellColor(row, average); // Update cell color based on percentage
-                      }
+                  const marks = parseFloat(newValue);
+                  if (!isNaN(marks)) {
+                    if (marks > totalMarks) {
+                      hotForExists.setCellMeta(row, 1, "className", "error");
+                      alert("Marks cannot exceed total marks.");
                     } else {
-                      // Reject other non-numeric strings
-                      alert(
-                        'Only numeric values or "A" are allowed in the Marks column.'
-                      );
-                      hotForExists.setDataAtCell(row, 1, oldValue); // Revert to the old value
+                      hotForExists.setCellMeta(row, 1, "className", null);
+                      const percentage = (marks / totalMarks) * 100;
+                      hotForExists.setDataAtCell(row, 2, percentage.toFixed(2));
+                      updateCellColor(row, percentage.toFixed(2)); // Apply color
                     }
+                  } else if (newValue === "A" || newValue === "a") {
+                    hotForExists.setDataAtCell(row, 2, "Absent");
+                    hotForExists.setCellMeta(row, 2, "className", "absent");
                   } else {
-                    alert("Please enter a valid total marks value.");
+                    alert("Invalid input. Enter a number or 'A' for absent.");
+                    hotForExists.setDataAtCell(row, 1, oldValue);
                   }
                 }
               });
-              hotForExists.render(); // Ensure the table re-renders
+              hotForExists.render(); // Re-render table to apply changes
               createChartForExist();
             }
+            
           },
         });
 
-        const totalMarks = firebaseData.totalMarks || 100;
-        firebaseData.students.forEach((student, row) => {
-          const marks = student[1];
+        totalMarksInput.value = totalMarks;
+
+        tableData.forEach((row, rowIndex) => {
+          const marks = row[1];
           if (!isNaN(marks) && totalMarks > 0) {
-            const average = (marks / totalMarks) * 100;
-            hotForExists.setDataAtCell(row, 2, average.toFixed(2));
-            updateCellColor(row, average);
+            const percentage = (marks / totalMarks) * 100;
+            hotForExists.setDataAtCell(rowIndex, 2, percentage.toFixed(2));
+            updateCellColor(rowIndex, percentage.toFixed(2)); // Apply color
           }
         });
+        
         hotForExists.render();
-        totalMarksInput.value = totalMarks;
       } else {
         alert("No data found for the selected dataset.");
       }
@@ -745,7 +768,7 @@ function updateCellColor(row, average) {
 }
 
 function updateDataInFirebase(dataSet) {
-  const dataPath = `studentMarks/${section}/${subject}/${dataSet}`;
+  const dataPath = `FSSA/${section}/${month}/${subject}/${dataSet}`;
 
   if (!hotForExists) {
     console.log("Handsontable instance is not initialized.");
@@ -763,15 +786,28 @@ function updateDataInFirebase(dataSet) {
     return;
   }
 
-  const saveData = {
-    totalMarks: totalMarksInput,
-    students: updatedData,
-  };
+  // Transform the Handsontable data to the required Firebase structure
+  const studentsData = updatedData.reduce((result, row) => {
+    const [studentName, mark, averageMark, remark] = row;
+    if (studentName) {
+      result[`students/${studentName}`] = {
+        mark: mark || 0, // Default to 0 if mark is missing
+        averageMark: averageMark || 0, // Default to 0 if averageMark is missing
+        remark: remark || "", // Default to empty string if remark is missing
+      };
+    }
+    return result;
+  }, {});
 
-  console.log("Data to be saved:", saveData); // Log data to check the structure
+  // Include totalMarks if it needs to be updated
+  if (totalMarksInput) {
+    studentsData["totalMarks"] = parseFloat(totalMarksInput) || 100;
+  }
+
+  console.log("Data to be updated:", studentsData); // Log data to check the structure
 
   const datasetRef = ref(db, dataPath);
-  set(datasetRef, saveData)
+  update(datasetRef, studentsData) // Use update instead of set
     .then(() => {
       console.log("Data successfully updated in Firebase.");
       showSuccessMessage("Data Updated successfully!");
@@ -903,10 +939,10 @@ async function renameDataset() {
   );
   const newDatasetName = capitalizeFirstLetter(renameDatasetInput.value.trim());
   const section = localStorage.getItem("section");
-  const oldDataPath = `studentMarks/${section}/${subject}/${datasetName}`;
+  const oldDataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
 
   if (newDatasetName && newDatasetName !== datasetName) {
-    const newDataPath = `studentMarks/${section}/${subject}/${newDatasetName}`;
+    const newDataPath = `FSSA/${section}/${month}/${subject}/${newDatasetName}`;
     const dbRef = ref(db);
 
     try {
@@ -925,7 +961,6 @@ async function renameDataset() {
         // Update the local dataset name and input placeholder
         localStorage.setItem("dataSet", newDatasetName);
         renameDatasetInput.placeholder = newDatasetName;
-        await addToMonth(section, subject, month, newDatasetName);
 
         // Display success message
         showSuccessMessage("Dataset renamed successfully!");
@@ -961,7 +996,7 @@ function showSuccessMessage(message) {
 async function removeFromMonth(section, subject, month, dataSetName) {
   const datasetRef = ref(
     db,
-    `/studentMarks/${section}/months/${month}/${subject}/${dataSetName}`
+    `/FSSA/${section}/${month}/${subject}/${dataSetName}`
   );
   try {
     await remove(datasetRef);
@@ -988,8 +1023,8 @@ async function updateCountTableExists(scoreRanges) {
 document.getElementById("closeBtnForExist").addEventListener("click", () => {
   if (isEdited) {
     renameDataset();
+    updateDataInFirebase(datasetName);
   }
-  updateDataInFirebase(datasetName);
   existContainer.style.display = "none";
   fetchDataAndDisplay();
 });
@@ -1014,117 +1049,3 @@ document
   .addEventListener("click", function () {
     document.getElementById("delete-warning").style.display = "none";
   });
-
-const addMarksContainer = document.querySelector(".addMarksContainer");
-const addButton = document.getElementById("add-btn");
-
-const fetchAndDisplayDatasetNames = async () => {
-  try {
-    // Show the addMarksContainer
-    addMarksContainer.style.display = "flex";
-    addMarksContainer.innerHTML = `<div class="ConfirmButton">
-          <button class="btn btn-warning" id="cancelAdd">cancel</button>
-          <button class="btn btn-success" id="confirmAdd">confirm</button>
-      </div>`; // Clear previous data but keep ConfirmButton
-
-    // Reference to the Firebase path
-    const dbRef = ref(db, `/studentMarks/${section}/${subject}`);
-    const snapshot = await get(dbRef);
-
-    // Fetch current datasets in marks-container
-
-    const currentDatasets = marksAdded;
-    let hasNewDatasets = false; // Flag to check if there are new datasets
-
-    // Check if data exists
-    if (snapshot.exists()) {
-      const marksData = snapshot.val();
-
-      // Loop through the keys and create divs for each dataset name
-      Object.keys(marksData).forEach((datasetName) => {
-        // Only show datasets that are not already in the marks-container
-        if (!currentDatasets.includes(datasetName)) {
-          hasNewDatasets = true; // Found at least one new dataset
-
-          // Create a new div for each dataset name
-          const datasetDiv = document.createElement("div");
-          datasetDiv.className = "marks-detail";
-          datasetDiv.textContent = datasetName;
-
-          // Toggle selection on click for adding datasets
-          datasetDiv.addEventListener("click", () => {
-            datasetDiv.classList.toggle("selected");
-          });
-
-          // Append each div to the addMarksContainer (before ConfirmButton)
-          addMarksContainer.insertBefore(
-            datasetDiv,
-            addMarksContainer.querySelector(".ConfirmButton")
-          );
-        }
-      });
-    }
-
-    // If no new datasets were found, show a message
-    if (!hasNewDatasets) {
-      const noNewDataMessage = document.createElement("div");
-      noNewDataMessage.className = "marks-detail";
-      noNewDataMessage.textContent = "All Mark files are already added.";
-      addMarksContainer.insertBefore(
-        noNewDataMessage,
-        addMarksContainer.querySelector(".ConfirmButton")
-      );
-    }
-
-    // Re-add event listeners for confirm and cancel buttons each time data is loaded
-    document.getElementById("confirmAdd").addEventListener("click", confirmAdd);
-    document.getElementById("cancelAdd").addEventListener("click", cancelAdd);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    const errorMessage = document.createElement("p");
-    errorMessage.textContent = "Error fetching data";
-    addMarksContainer.insertBefore(
-      errorMessage,
-      addMarksContainer.querySelector(".ConfirmButton")
-    );
-  }
-};
-
-addButton.addEventListener("click", fetchAndDisplayDatasetNames);
-
-// Function to confirm selection and append dataset names to Firebase
-const confirmAdd = async () => {
-  const selectedDivs = addMarksContainer.querySelectorAll(".selected");
-  const selectedData = {};
-
-  for (const selectedDiv of selectedDivs) {
-    const datasetName = selectedDiv.textContent;
-
-    // Store the selected dataset name in the object
-    selectedData[datasetName] = true; // Just to store it as a key with a dummy value
-  }
-
-  // Append the selected dataset names to Firebase at the specified path
-  try {
-    // Use update to append the dataset names
-    await update(
-      ref(db, `/studentMarks/${section}/months/${month}/${subject}`),
-      selectedData
-    );
-    console.log("Data successfully appended to Firebase.");
-    
-    // Hide addMarksContainer after confirming
-    addMarksContainer.style.display = "none";
-    addMarksContainer.innerHTML = ""; 
-    fetchDataAndDisplay();
-    // Fetch and display the updated marks in marks-container
-  } catch (error) {
-    console.error("Error appending data to Firebase:", error);
-  }
-};
-
-// Function for canceling selection
-const cancelAdd = () => {
-  addMarksContainer.style.display = "none";
-  addMarksContainer.innerHTML = ""; 
-};

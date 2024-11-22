@@ -88,7 +88,7 @@ async function changeToClass() {
 async function fetchStudentMarks(month) {
   const dbRef = ref(
     database,
-    `/studentMarks/${section}/months/${month}/result`
+    `/FSSA/${section}/${month}/result`
   );
   const snapshot = await get(dbRef);
 
@@ -164,7 +164,7 @@ const orderedMonths = [
 ];
 
 async function fetchMonthsForButton(section) {
-  const monthRef = ref(database, `/studentMarks/${section}/months`);
+  const monthRef = ref(database, `/FSSA/${section}`);
   const monthSnapshot = await get(monthRef);
 
   if (monthSnapshot.exists()) {
@@ -356,7 +356,7 @@ async function fetchMonthlyData() {
   let months = [...monthsForGraph];
   
   for (let month of months) {
-    const dbRef = ref(database, `/studentMarks/${section}/months/${month}/result/classAverage`);
+    const dbRef = ref(database, `/FSSA/${section}/${month}/result/classAverage`);
     const snapshot = await get(dbRef);
 
     if (snapshot.exists()) {

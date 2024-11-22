@@ -40,13 +40,13 @@ document.getElementById("reportCard").style.display="none";
 const subjectsAside=document.querySelectorAll(".subjectsAside a");
 subjectsAside.forEach(x=>{
   x.addEventListener("click",()=>{
-    localStorage.setItem("pageTitle",x.textContent.split(" ").join(""));
+    localStorage.setItem("subject",x.textContent.split(" ").join(""));
     window.location.href="../../pages/html/subjects.html"
   })
 });
 document.getElementById("attendance").addEventListener("click",()=>{
-   localStorage.setItem("pageTitle","Attendance");
-  window.location.href="../../pages/html/subjects.html"
+   localStorage.setItem("subject","Attendance");
+   window.location.href="../../pages/html/subjects.html"
 })
 
 

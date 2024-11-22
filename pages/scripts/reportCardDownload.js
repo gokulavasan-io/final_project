@@ -98,7 +98,7 @@ async function fetchStudentNames(section) {
 async function fetchStudentMarks(month) {
   const dbRef = ref(
     database,
-    `/studentMarks/${section}/months/${month}/result`
+    `/FSSA/${section}/${month}/result`
   );
   const snapshot = await get(dbRef);
 
@@ -404,7 +404,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   const newSubject=document.getElementById("newLabel");
   const newSubjectRef = ref(
     database,
-    `/studentMarks/${section}/months/${month}/newSubjectName`
+    `/FSSA/${section}/${month}/newSubjectName`
   );
   get(newSubjectRef)
   .then((newSubjectName)=>{

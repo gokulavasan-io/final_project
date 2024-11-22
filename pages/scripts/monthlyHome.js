@@ -31,7 +31,7 @@ const orderedMonths = [
 
 // Function to get all existing months from Firebase and render them
 function getAllData() {
-  const dbRef = ref(database, `studentMarks/${section}/months`);
+  const dbRef = ref(database, `/FSSA/${section}`);
   // Fetch existing months from Firebase
   get(dbRef)
     .then((snapshot) => {
@@ -93,7 +93,7 @@ function appendMonthToUI(monthName, container, showCheckbox) {
       div.style.backgroundColor = checkbox.checked ? "#e73232" : "";
     } else {
       localStorage.setItem("month", checkbox.value);
-      window.location.href = "../../pages/html/monthlySubjectHome.html";
+      window.location.href = "../../pages/html/monthlyResult.html";
     }
   });
   container.appendChild(div);
@@ -123,7 +123,7 @@ document.getElementById("delete-btn").addEventListener("click", function () {
           const monthName = checkbox.value;
           const monthRef = ref(
             database,
-            `studentMarks/${section}/months/${monthName}`
+            `/FSSA/${section}/${monthName}`
           );
           remove(monthRef)
             .then(() => {
@@ -162,7 +162,7 @@ document.getElementById("confirm").addEventListener("click", function () {
   if (monthInput) {
     const monthRef = ref(
       database,
-      `studentMarks/${section}/months/${monthInput}`
+      `/FSSA/${section}/${monthInput}`
     );
     set(monthRef, true)
       .then(() => {
