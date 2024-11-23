@@ -48,8 +48,7 @@
 }
 
 .non-working {
-    background-color: #ffcccc !important;
-    /* Red color for non-working days */
+    background-color: #f1f2f8 !important;
 }
 
 

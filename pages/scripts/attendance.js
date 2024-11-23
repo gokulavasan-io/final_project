@@ -90,7 +90,7 @@ function initializeTable(students) {
     const date = new Date(currentYear, currentMonth, day);
     const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
     let isReadOnly = false;
-    if (students[0] && students[0][`day${day}`] === "Holiday") {
+    if (students[0] && students[0][`day${day}`] === "Holiday"||isWeekend) {
       isReadOnly = true;
     }
 
