@@ -14,11 +14,6 @@
     --border-left:#3b7ddd;
 }
 
-
-button{
-    border-radius: 500px !important;
-    font-family:poppins !important;
-}
 /* sidebar starts */
 
 li {
@@ -189,40 +184,25 @@ header .logo{
     font-size: 1.4rem;
 }
 
-
-.user{
-    display: flex;
-    justify-content: center;
+.user-info{
+    display:  none !important;
+    position: absolute;
+    top: 10%;
+    right:2%;
+    color: var(--font-color);
+    background-color: var(--primary-color);
+    padding: 1.5rem 1rem;
+    height: 10rem;
+    width: 9rem;
+    flex-direction: column;
     align-items: center;
-    /* Optional: add some spacing between the image and the container edges */
-    width: 50px;
-    height: 50px;
-    background-color: white;
-    border-radius: 50px;
-    margin-right: 1rem;
-    overflow: hidden;
-
+    border-radius: 10px;
+    justify-content: space-between;
+    z-index: 200;
 }
 
-.user img{
-    width: 100%; /* Adjust as needed to make the image smaller or larger */
-    height: auto;
-    max-width: 100px; /* Limit the size if needed */
-    max-height: 100px; /* Limit the height if needed */
-    object-fit: cover; /* Ensures the image covers the area within the circle */
-    border: 2px solid white;
-}
-
-
-#name{
-    font-size: 1.3rem;
-    font-weight: bolder;
-    align-self: center;
-}
-#teacher{
-    font-size: .9rem;
-    font-weight: bold;
-    align-self: center;
+.user-info a{
+    text-decoration: none;
 }
 
 
@@ -256,7 +236,6 @@ header .logo{
 
 .yes-no button{
     font-weight: bolder;
-    border-radius: 5px !important;
 }
 
 
@@ -317,4 +296,3 @@ header .logo{
     gap: 1rem;
     display: none;
 }
-

@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+*,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary-color: #0e2238;
+    --font-color: #fff;
+    --border-left: #3b7ddd;
+    --font: poppins;
+}
+
+.fonts {
+    font-family: var(--font);
+}
+
+
+.seebuttons {
+    position: fixed;
+    bottom: 5%;
+    right: 2%;
+    display: none;
+    gap: 1rem;
+    z-index: 100;
+    font-family: poppins;
+    flex-direction: column;
+
+}
+
+.btnsContainer {
+    position: fixed;
+    top: 10%;
+    right: 3%;
+    font-family: poppins;
+}
+
+
+#page-name {
+    position: fixed;
+    top: 10%;
+    left: 10%;
+    z-index: -10;
+    font-size: 2rem;
+    font-weight: bolder;
+    font-family: poppins;
+    color: var(--primary-color);
+}
+
+
+#handsontableContainer{
+    position: fixed;
+    left: 8%;
+    top: 18%;
+    font-family: poppins;
+    z-index: -100;
+    height: 80%;
+    width: 90%;
+}
+
+
+#month {
+    color: red;
+}
+
+#loading {
+    position: absolute;
+    left: 52%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: var(--border-left);
+}
+
+.handsontable td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+#checkboxes{
+    position: fixed;
+    top: 10.5%;
+    right: 28%;
+    display: flex;
+    gap: 1rem;
+}
+#checkboxes>div{
+    display: flex;
+    align-items: center;
+    font-family: var(--font);
+    font-weight: bold;
+    color: var(--primary-color);
+    gap: 10px;
+}
+
+.checkbox-wrapper-55 input[type="checkbox"] {
+    visibility: hidden;
+    display: none;
+}
+
+.checkbox-wrapper-55 *,
+.checkbox-wrapper-55 ::after,
+.checkbox-wrapper-55 ::before {
+    box-sizing: border-box;
+}
+
+.checkbox-wrapper-55 .rocker {
+    display: inline-block;
+    position: relative;
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    color: #888;
+    width: 7em;
+    height: 4em;
+    overflow: hidden;
+    border-bottom: 0.5em solid #eee;
+}
+
+.checkbox-wrapper-55 .rocker-small {
+    font-size: 0.5em;
+}
+
+.checkbox-wrapper-55 .rocker::before {
+    content: "";
+    position: absolute;
+    top: 0.5em;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #999;
+    border: 0.5em solid #eee;
+    border-bottom: 0;
+}
+
+.checkbox-wrapper-55 .switch-left,
+.checkbox-wrapper-55 .switch-right {
+    cursor: pointer;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5em;
+    width: 3em;
+    transition: 0.2s;
+    user-select: none;
+}
+
+.checkbox-wrapper-55 .switch-left {
+    height: 2.4em;
+    width: 2.75em;
+    left: 0.85em;
+    bottom: 0.4em;
+    background-color: #ddd;
+    transform: rotate(15deg) skewX(15deg);
+}
+
+.checkbox-wrapper-55 .switch-right {
+    right: 0.5em;
+    bottom: 0;
+    background-color: #bd5757;
+    color: #fff;
+}
+
+.checkbox-wrapper-55 .switch-left::before,
+.checkbox-wrapper-55 .switch-right::before {
+    content: "";
+    position: absolute;
+    width: 0.4em;
+    height: 2.45em;
+    bottom: -0.45em;
+    background-color: #ccc;
+    transform: skewY(-65deg);
+}
+
+.checkbox-wrapper-55 .switch-left::before {
+    left: -0.4em;
+}
+
+.checkbox-wrapper-55 .switch-right::before {
+    right: -0.375em;
+    background-color: transparent;
+    transform: skewY(65deg);
+}
+
+.checkbox-wrapper-55 input:checked+.switch-left {
+    background-color: #02800a;
+    color: #fff;
+    bottom: 0px;
+    left: 0.5em;
+    height: 2.5em;
+    width: 3em;
+    transform: rotate(0deg) skewX(0deg);
+}
+
+.checkbox-wrapper-55 input:checked+.switch-left::before {
+    background-color: transparent;
+    width: 3.0833em;
+}
+
+.checkbox-wrapper-55 input:checked+.switch-left+.switch-right {
+    background-color: #ddd;
+    color: #888;
+    bottom: 0.4em;
+    right: 0.8em;
+    height: 2.4em;
+    width: 2.75em;
+    transform: rotate(-15deg) skewX(-15deg);
+}
+
+.checkbox-wrapper-55 input:checked+.switch-left+.switch-right::before {
+    background-color: #ccc;
+}
+
+/* Keyboard Users */
+.checkbox-wrapper-55 input:focus+.switch-left {
+    color: #333;
+}
+
+.checkbox-wrapper-55 input:checked:focus+.switch-left {
+    color: #fff;
+}
+
+.checkbox-wrapper-55 input:focus+.switch-left+.switch-right {
+    color: #fff;
+}
+
+.checkbox-wrapper-55 input:checked:focus+.switch-left+.switch-right {
+    color: #333;
+}

@@ -1,18 +1,6 @@
-// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  get,
-  set,
-} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
-import {
-  getFirestore,
-  getDocs,
-  collection,
-} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
-// Firebase configuration and initialization
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
   authDomain: "fir-demo-4a5b4.firebaseapp.com",
@@ -21,566 +9,295 @@ const firebaseConfig = {
   messagingSenderId: "716679557063",
   appId: "1:716679557063:web:603a78f59045ceeaf133e2",
 };
+
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-const firestore = getFirestore(app);
 
-// Global variables
-let hot; 
-const month = localStorage.getItem("month");
-const section = localStorage.getItem("section");
-let tableData = [];
+let hot;
+const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving", "PET", "Project", "Attendance", "Behavior"];
+const section=localStorage.getItem("section");
+const month=localStorage.getItem("month");
+document.getElementById("month").innerText=month;
 
-async function fetchStudentNames(section) {
-  try {
-    const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`); // Document reference to the classes document
-    const docSnap = await getDocs(docRef);
 
-    if (!docSnap.empty) {
-      const studentNames = docSnap.docs.map((doc) => doc.id);
-      if (Array.isArray(studentNames) && studentNames.length > 0) {
-        return studentNames;
-      } else {
-        console.error("No student names found for the selected class.");
-        alert("No student names found for the selected class.");
-        return [];
-      }
-    } else {
-      console.log("No such document!");
-      alert("No such document for the selected class.");
-      return [];
-    }
-  } catch (error) {
-    console.error("Error fetching document:", error);
-    alert("Error fetching student names.");
-    return [];
-  }
-}
+async function fetchData() {
+  const data = {};
 
-async function fetchResultData(path) {
-  const resultRef = ref(database, path);
-  const resultSnapshot = await get(resultRef);
-  if (resultSnapshot.exists()) {
-    const resultData = resultSnapshot.val();
-    return Object.keys(resultData).map((key) => ({
-      student: key, 
-      Attendance: resultData[key].Attendance || 0,
-      Project: resultData[key].Project || 0,
-      Remark:resultData[key].Remark||"",
-    }));
-  }
-  return [];
-}
+  const attendancePath = `/FSSA/${section}/${month}/Result/Attendance`;
+  const attendanceSnapshot = await get(ref(database, attendancePath));
 
-// Event listener for DOM content load
-document.addEventListener("DOMContentLoaded", async () => {
-  const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving","Behavior"];
-  const month = localStorage.getItem("month");
-  document.getElementById("month").innerText = month;
-  const section = localStorage.getItem("section");
-  const resultPath = `/FSSA/${section}/months/${month}/result`;
-  const attendancePath = `/FSSA/${section}/months/${month}/Attendance`; // Updated attendance path
-  const saveButton = document.getElementById("saveResult");
-
-  // Fetch student names and initialize student data
-  const studentNames = await fetchStudentNames(section);
-  const attendanceData = await fetchAttendanceData(attendancePath);
-  const studentData = {};
-  studentNames.forEach((studentName) => {
-    studentData[studentName] = {
-      student: studentName,
-      English: 0,
-      LifeSkills: 0,
-      Tech: 0,
-      ProblemSolving: 0,
-      AcademicOverall: 0,
-      Attendance: attendanceData[studentName] || "0",
-      Behavior: 0,
-      Overall: 0,
-      Remark:"",
-    };
-  });
-
-  async function fetchAndAverageMarks(subject) {
-    const monthPath = `/FSSA/${section}/${month}/averageOf${subject}`;
-    const fileRef = ref(database, monthPath);
-    
-    const fileSnapshot = await get(fileRef);
-    const result = {};
+  const studentNames = attendanceSnapshot.exists() ? Object.keys(attendanceSnapshot.val()) : [];
+  console.log(studentNames);
   
-    if (fileSnapshot.exists()) {
-      const averages = fileSnapshot.val();
-      console.log(`Fetched averages for ${subject}:`, averages);
+  if (studentNames.length === 0) {
+    console.warn("No student names found in attendance. Defaulting to empty list.");
+  }
 
-      Object.keys(averages).forEach((studentName) => {
-        let average = averages[studentName].Average;
-        
-        average = parseFloat(average);
-        
-        if (typeof average === 'number' && !isNaN(average)) {
-          if (studentData[studentName]) {
-            studentData[studentName][subject] = average.toFixed(2); 
-          }
+  await Promise.all(
+    subjects.map(async (subject) => {
+      const path = `/FSSA/${section}/${month}/Result/${subject}`;
+      try {
+        const snapshot = await get(ref(database, path));
+        if (snapshot.exists()) {
+          data[subject] = snapshot.val();
         } else {
-          console.error(`Invalid average value for ${studentName}:`, average);
+          console.warn(`No data found for ${subject}, filling with zeros.`);
+          data[subject] = studentNames.reduce((acc, name) => {
+            acc[name] = 0;
+            return acc;
+          }, {});
         }
-      });
-    } else {
-      console.log(`No data found for subject: ${subject}`);
-    }
-  }
-
-await Promise.all(subjects.map(fetchAndAverageMarks));
-
-
-  // Fetch result data if exists, and populate Attendance and Behavior
-  const resultData = await fetchResultData(resultPath);
-  if (resultData) {
-    resultData.forEach((result) => {
-      const studentName = result.student;
-      if (studentData[studentName]) {
-        studentData[studentName] = {
-          ...studentData[studentName],
-          New: result.Project || 0,
-          Remark:result.Remark||"",
-        };
+      } catch (error) {
+        console.error(`Error fetching data for ${subject}:`, error);
+        data[subject] = studentNames.reduce((acc, name) => {
+          acc[name] = 0;
+          return acc;
+        }, {});
       }
+    })
+  );
+
+  return data;
+}
+
+
+
+// Calculate academic and overall averages
+function calculateMetrics(studentData, includePET, includeProject) {
+  return studentData.map((student) => {
+    const { Name, ...marks } = student;
+
+    // Filter academic and selected subjects
+    const academicSubjects = ["English", "LifeSkills", "Tech", "ProblemSolving"];
+    if (includePET) academicSubjects.push("PET");
+    if (includeProject) academicSubjects.push("Project");
+
+    const selectedSubjects = [...academicSubjects, "Attendance", "Behavior"].filter((subject) => {
+      if (!includePET && subject === "PET") return false;
+      if (!includeProject && subject === "Project") return false;
+      return true;
     });
-    document.querySelector(".seebuttons").style.display = "flex";
-  }
 
-  // Check if "New" data exists and set the checkbox accordingly
-  const hasProjectData = resultData.some((student) => student.New != 0);
+    // Calculate averages
+    const academicTotal = academicSubjects.reduce((sum, subject) => sum + (marks[subject] || 0), 0);
+    const academicOverall = academicTotal / academicSubjects.length;
 
-  // Prepare table data with computed AcademicOverall and Overall
-  tableData = Object.values(studentData).map((student) => {
-    student.English = parseFloat(student.English);
-    student.LifeSkills = parseFloat(student.LifeSkills);
-    student.Tech = parseFloat(student.Tech);
-    student.ProblemSolving = parseFloat(student.ProblemSolving);
-    student.Behavior = parseFloat(student.Behavior);
-    
-    student.AcademicOverall = parseFloat(
-      (
-        (student.English +
-          student.LifeSkills +
-          student.Tech +
-          student.ProblemSolving) /
-        subjects.length
-      ).toFixed(1)
-    );
-    
-    
-    // Calculate Overall including Attendance and Behavior
-    const overallMarks = [
-      student.English,
-      student.LifeSkills,
-      student.Tech,
-      student.ProblemSolving,
-      student.Attendance,
-      student.Behavior,
-    ].filter((mark) => typeof mark === "number" && !isNaN(mark));
-    
+    const overallTotal = selectedSubjects.reduce((sum, subject) => sum + (marks[subject] || 0), 0);
+    const overallAverage = overallTotal / selectedSubjects.length;
 
-    student.Overall = Math.round(
-      overallMarks.reduce((sum, mark) => sum + mark, 0) / overallMarks.length
-    );
-
-    return student;
+    return { Name, ...marks, "Academic Overall": academicOverall, "Overall Average": overallAverage };
   });
+}
+
+function formatDataWithAverage(rawData, includePET, includeProject) {
+  const studentNames = Object.keys(rawData.Attendance || {}); // Use Attendance as the base for student names
+
+  // Map each student's data
+  const studentData = studentNames.map((name) => {
+    const row = { Name: name };
+    subjects.forEach((subject) => {
+      // Fill 0 for the specific subject if missing for the student
+      row[subject] = rawData[subject]?.[name] || 0;
+    });
+    return row;
+  });
+
+  // Calculate metrics for each student
+  const calculatedData = calculateMetrics(studentData, includePET, includeProject);
 
   // Calculate class averages
-  const classAverage = {
-    student: "classAverage", // Label for the average row
-    English: 0,
-    LifeSkills: 0,
-    Tech: 0,
-    ProblemSolving: 0,
-    Project: 0,
-    Attendance: 0,
-    Behavior: 0,
-    AcademicOverall: 0,
-    Overall: 0,
+  const classAverage = { Name: "Class Average" };
+  subjects.forEach((subject) => {
+    const total = calculatedData.reduce((sum, student) => sum + (student[subject] || 0), 0);
+    classAverage[subject] = total / studentNames.length;
+  });
+
+  classAverage["Academic Overall"] =
+    calculatedData.reduce((sum, student) => sum + student["Academic Overall"], 0) / studentNames.length;
+  classAverage["Overall Average"] =
+    calculatedData.reduce((sum, student) => sum + student["Overall Average"], 0) / studentNames.length;
+
+  // Append class average as the last row
+  calculatedData.push(classAverage);
+
+  return calculatedData;
+}
+
+
+function renderTable(data) {
+  const container = document.getElementById("handsontableTable");
+
+  if (!hot) {
+    hot = new Handsontable(container, {
+      data,
+      colHeaders: ["Name", ...subjects, "Academic Overall", "Overall Average"],
+      columns: [
+        { data: "Name", type: "text", readOnly: true, className: "htCenter" },
+        ...subjects.map((subject) => ({
+          data: subject,
+          type: "numeric",
+          readOnly: true,
+          numericFormat: { pattern: "0.00" },
+          className: "htCenter",
+          renderer: Handsontable.renderers.NumericRenderer,
+        })),
+        {
+          data: "Academic Overall",
+          type: "numeric",
+          readOnly: true,
+          numericFormat: { pattern: "0.00" },
+          className: "htCenter",
+          renderer: Handsontable.renderers.NumericRenderer,
+        },
+        {
+          data: "Overall Average",
+          type: "numeric",
+          readOnly: true,
+          numericFormat: { pattern: "0.00" },
+          className: "htCenter",
+          renderer: Handsontable.renderers.NumericRenderer,
+        },
+      ],
+      stretchH: "all",
+      rowHeaders: true,
+      columnSorting: true,
+      width: "100%",
+      height:"100%",
+      licenseKey: "non-commercial-and-evaluation",
+
+      // Hook to disable sorting for the Class Average row
+      beforeColumnSort: (column, order) => {
+        const data = hot.getData();
+        const lastRow = data[data.length - 1];
+        if (lastRow && lastRow.Name === "Class Average") {
+          return false; // Prevent sorting
+        }
+      },
+    });
+  } else {
+    hot.loadData(data);
+  }
+}
+
+// Refresh table when checkboxes change
+function setupCheckboxListeners(rawData) {
+  const updateTable = () => {
+    const includePET = document.getElementById("includePET").checked;
+    const includeProject = document.getElementById("includeProject").checked;
+    const formattedData = formatDataWithAverage(rawData, includePET, includeProject);
+    renderTable(formattedData);
   };
 
-  // Sum up the marks for each subject
-  const totalStudents = Object.keys(studentData).length;
-
-  if (totalStudents > 0) {
-    const subjects = [
-      "English",
-      "LifeSkills",
-      "Tech",
-      "ProblemSolving",
-      "Attendance",
-      "Behavior",
-      "New",
-    ];
-
-    subjects.forEach((subject) => {
-      classAverage[subject] = parseFloat(
-        (
-          Object.values(studentData).reduce((sum, student) => 
-            sum + (parseFloat(student[subject]) || 0), 0
-          ) / totalStudents
-        ).toFixed(1)
-      );
-    });
-    
-
-    let forAO = 4;
-    let forO = 6;
-    if (hasProjectData) {
-      forAO = 5;
-      forO = 7;
-    }
-
-    classAverage.AcademicOverall = parseFloat(
-      (
-        (classAverage.English +
-          classAverage.LifeSkills +
-          classAverage.Tech +
-          classAverage.ProblemSolving +
-          classAverage.Project) /
-        forAO
-      ).toFixed(1)
-    );
-
-    const overallMarks = [
-      classAverage.English,
-      classAverage.LifeSkills,
-      classAverage.Tech,
-      classAverage.ProblemSolving,
-      classAverage.Attendance,
-      classAverage.Behavior,
-      classAverage.Project,
-    ].filter((mark) => typeof mark === "number" && !isNaN(mark));
-
-    classAverage.Overall = Number(
-      parseFloat(
-        overallMarks.reduce((sum, mark) => sum + mark, 0) / forO
-      ).toFixed(1)
-    );
-  }
-
-  // Append the classAverage object to the tableData array
-  tableData.push(classAverage);
-
-  // Initialize Handsontable instance
-  const container = document.getElementById("handsontable-container");
-  hot = new Handsontable(container, {
-    data: tableData,
-    colHeaders: [
-      "Student Name",
-      "English",
-      "LifeSkills",
-      "Tech",
-      "Problem Solving",
-      "Attendance",
-      "Behavior",
-      "Academic Overall",
-      "Overall",
-      "Remark",
-    ],
-    columns: [
-      { data: "student", readOnly: true },
-      { data: "English", type: "numeric", readOnly: true },
-      { data: "LifeSkills", type: "numeric", readOnly: true },
-      { data: "Tech", type: "numeric", readOnly: true },
-      { data: "ProblemSolving", type: "numeric", readOnly: true },
-      { data: "Attendance", type: "numeric",readOnly:true },
-      { data: "Behavior", type: "numeric" ,readOnly:true},
-      { data: "AcademicOverall", type: "numeric", readOnly: true },
-      { data: "Overall", type: "numeric", readOnly: true },
-      {data:"Remark",type:"text", width: 80,},
-    ],
-    cells: function (row, col) {
-      const cellProperties = {};
-      if (tableData[row] && tableData[row].student === "classAverage") {
-        cellProperties.readOnly = true;
-      }
-      if (row >= 0) cellProperties.className = "fonts";
-      return cellProperties;
-    },
-    rowHeaders: true,
-    width: "100%",
-    height: "auto",
-    licenseKey: "non-commercial-and-evaluation",
-    afterChange: handleAfterChange,
-  });
-
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("addProject").checked = hasProjectData;
-
-  // Trigger the toggleProjectColumn function if "New" data exists
-  if (hasProjectData) {
-    toggleProjectColumn({ target: { checked: true } });
-  }
-
-  // Handle Project column addition/removal
-  document
-    .getElementById("addProject")
-    .addEventListener("change", toggleProjectColumn);
-
-  // Warn user before page unload if there are unsaved changes
-  window.addEventListener("beforeunload", (event) => {
-    saveOrUpdateResult();
-  });
-
-  // Save or Update result data on button click
-  saveButton.addEventListener("click", saveOrUpdateResult);
-});
-
-function handleAfterChange(changes) {
-  if (changes) {
-    changes.forEach(([row, prop, oldValue, newValue]) => {
-      // Retrieve updated data directly from Handsontable
-      const student = hot.getSourceDataAtRow(row);     
-
-      let overallDivider=6;
-      let academicOverallDivider=4;
-      if (hot.getColHeader().includes("New")) {
-        overallDivider=7;
-        academicOverallDivider=5
-      }
-
-
-      // Calculate AcademicOverall based on specific subjects
-      if (
-        [ "New"].includes(
-          prop
-        )
-      ) {
-        const subjectsToInclude = [
-          "English",
-          "LifeSkills",
-          "Tech",
-          "ProblemSolving",
-        ];
-
-        // Include Project if present in the Handsontable headers
-        if (hot.getColHeader().includes("New")) {
-          subjectsToInclude.push("New");
-        }
-
-        // Calculate AcademicOverall
-        const academicTotal = subjectsToInclude.reduce((sum, subject) => {
-          return sum + (student[subject] || 0);
-        }, 0);
-
-        student.AcademicOverall = parseFloat(
-          (academicTotal / academicOverallDivider).toFixed(1)
-        );
-        hot.setDataAtRowProp(row, "AcademicOverall", student.AcademicOverall);
-      }
-
-      // Calculate Overall including additional fields (Attendance and Behavior)
-      if (
-        [
-          "New"
-        ].includes(prop)
-      ) {
-        const fieldsToInclude = [
-          student.English,
-          student.LifeSkills,
-          student.Tech,
-          student.ProblemSolving,
-          Number(student.Attendance),
-          student.Behavior,
-        ];
-
-        // Add Project if it's included in the Handsontable headers
-        if (hot.getColHeader().includes("New")) {
-          fieldsToInclude.push(student.New);
-        }
-
-        // Calculate Overall
-        const validMarks = fieldsToInclude.filter(
-          (mark) => typeof mark === "number" && !isNaN(mark)
-        );
-        
-        student.Overall = Math.round(
-          validMarks.reduce((sum, mark) => sum + mark, 0) / overallDivider
-        );
-       
-        
-        hot.setDataAtRowProp(row, "Overall", student.Overall);
-      }
-    });
-  }
+  document.getElementById("includePET").addEventListener("change", updateTable);
+  document.getElementById("includeProject").addEventListener("change", updateTable);
 }
 
-// Toggle the Project column visibility in Handsontable
-function toggleProjectColumn(event) {
-  const isChecked = event.target.checked;
-  if (isChecked) {
-    const currentCols = hot.getSettings().columns;
-    const currentHeaders = hot.getColHeader();
-    const newCols = [
-      ...currentCols.slice(0, 5),
-      projectColumn,
-      ...currentCols.slice(5),
-    ];
-    const newHeaders = [
-      ...currentHeaders.slice(0, 5),
-      "New",
-      ...currentHeaders.slice(5),
-    ];
-    hot.updateSettings({ columns: newCols, colHeaders: newHeaders });
-  } else {
-    const projectColIndex = hot.getColHeader().indexOf("New");
-    if (projectColIndex > -1) {
-      hot.updateSettings({
-        columns: hot
-          .getSettings()
-          .columns.filter((_, index) => index !== projectColIndex),
-        colHeaders: hot
-          .getColHeader()
-          .filter((_, index) => index !== projectColIndex),
-      });
-    }
-  }
-  // Recalculate AcademicOverall and Overall for all students
-  tableData.forEach((student, row) => {
-    handleAfterChange([[row, "New", null, student.New]]); // Trigger recalculation for each row
-  });
-
-  // Refresh the table with updated values
-  hot.render();
+// Initialize the table
+async function initTable() {
+  const rawData = await fetchData();
+  const includePET = document.getElementById("includePET").checked;
+  const includeProject = document.getElementById("includeProject").checked;
+  const formattedData = formatDataWithAverage(rawData, includePET, includeProject);
+  renderTable(formattedData);
+  setupCheckboxListeners(rawData);
 }
 
-// Save or update result data in Firebase
-async function saveOrUpdateResult() {
-  const resultPath = `/FSSA/${section}/months/${month}/result`;
-  const resultData = tableData.reduce((acc, student) => {
-    const studentNames = student.student;
-    const isChecked = document.getElementById("addProject").checked;
-    if (isChecked) {     // if project column exists
-      acc[studentNames] = {
-        Attendance: student.Attendance || 0,
-        Behavior: student.Behavior || 0,
-        English: student.English || 0,
-        LifeSkills: student.LifeSkills || 0,
-        Tech: student.Tech || 0,
-        ProblemSolving: student.ProblemSolving || 0,
-        Project: student.New || 0,
-        AcademicOverall: student.AcademicOverall || 0,
-        Overall: student.Overall || 0,
-        Remark:student.Remark||"",
-      };
-    } else {
-      acc[studentNames] = {
-        Attendance: student.Attendance || 0,
-        Behavior: student.Behavior || 0,
-        English: student.English || 0,
-        LifeSkills: student.LifeSkills || 0,
-        Tech: student.Tech || 0,
-        ProblemSolving: student.ProblemSolving || 0,
-        AcademicOverall: student.AcademicOverall || 0,
-        Overall: student.Overall || 0,
-        Remark:student.Remark||"",
-      };
-    }
-    return acc;
-  }, {});
+initTable();
+document.getElementById('saveResult').addEventListener('click', async () => {
+  if (!hot) return;
+
+  const includePET = document.getElementById('includePET').checked;
+  const includeProject = document.getElementById('includeProject').checked;
+
+  const tableData = hot.getData(); // Get all table rows
+  const colHeaders = hot.getColHeader(); // Get column headers
+
+  const savedData = {};
+
+  tableData.forEach((row) => {
+    const studentName = row[0]; // The first column contains the student name
+    const studentData = {};
+
+    colHeaders.forEach((header, index) => {
+      if (header === "PET" && !includePET) return; 
+      if (header === "Project" && !includeProject) return; 
+      if (header !== "Name") {
+        studentData[header] = Math.round(row[index] || 0);
+      }
+    });
+
+    savedData[studentName] = studentData;
+  });
+
+  // Firebase: Check if data exists at the specified path
+  const finalResultPath = `/FSSA/${section}/${month}/Result/finalResult`;
+  const finalResultRef = ref(database, finalResultPath);
 
   try {
-    await set(ref(database, resultPath), resultData);
-    showSuccessMessage("Result saved successfully!");
-  } catch (error) {
-    console.error("Error saving result data:", error);
-    alert("Error saving result data. Please check the console for details.");
-  }
-}
+    const snapshot = await get(finalResultRef);
 
-// Define the column configuration for the Project column
-const projectColumn = {
-  data: "New",
-  type: "numeric",
-  readOnly: false,
-};
+    if (snapshot.exists()) {
+      // Data exists: Update existing data
+      await update(finalResultRef, savedData);
+      console.log("Data successfully updated in Firebase:", savedData);
+      showSuccessMessage("Data updated successfully!");
+    } else {
+      // Data does not exist: Set new data
+      await set(finalResultRef, savedData);
+      console.log("Data successfully set in Firebase:", savedData);
+      showSuccessMessage("Data saved successfully!");
+    }
+  } catch (error) {
+    console.error("Error saving data to Firebase:", error);
+    alert("Failed to save or update data. Check console for details.");
+  }
+});
+
+
+document.addEventListener("DOMContentLoaded",async()=>{
+
+  const finalResultPath = `/FSSA/${section}/${month}/Result/finalResult`;
+  const finalResultRef = ref(database, finalResultPath);
+
+  try {
+    const snapshot = await get(finalResultRef);
+
+    if (snapshot.exists()) {
+      console.log(snapshot.val());
+      const data=snapshot.val()
+      const fields=Object.keys(data)
+      const userFirst=data[fields[0]];
+      if(userFirst["Project"]){
+        document.getElementById("includeProject").checked=true;
+      }
+      if(userFirst["PET"]){
+        document.getElementById("includePET").checked=true;
+      }
+      
+    } 
+  } catch (error) {
+    console.error("Error saving data to Firebase:", error);
+    alert("Failed to save or update data. Check console for details.");
+  }
+
+
+})
+
 
 // Function to show success message
-function showSuccessMessage(str) {
-  const message = document.getElementById("successMessage");
-  message.innerText = str;
-  message.classList.add("show");
-  setTimeout(() => {
-    message.classList.remove("show");
-  }, 3000); // Display message for 3 seconds
-}
-
-document.getElementById("backButton").addEventListener("click", () => {
-  window.location.href = "../../pages/html/monthlySubjectHome.html";
-});
-
-document.getElementById("seeMarks").addEventListener("click",()=>{
-  window.location.href="../../pages/html/reportCardDownload.html"
-})
-
-
-async function fetchAttendanceData(path) {
-  try {
-    const attendanceRef = ref(database, path);
-    const attendanceSnapshot = await get(attendanceRef);
-    if (attendanceSnapshot.exists()) {
-      const attendanceData = attendanceSnapshot.val();
-      const attendancePercentages = {};
-      Object.keys(attendanceData).forEach((studentName) => {
-        attendancePercentages[studentName] = attendanceData[studentName].percentage || "0";
-      });
-      return attendancePercentages;
-    }
-    return {};
-  } catch (error) {
-    console.error("Error fetching attendance data:", error);
-    alert("Error fetching attendance data.");
-    return {};
+function showSuccessMessage(message) {
+  const successMessageDiv = document.getElementById("successMessage");
+  if (successMessageDiv) {
+    successMessageDiv.innerText = message;
+    successMessageDiv.style.display = "block";
+    setTimeout(() => {
+      successMessageDiv.style.display = "none";
+    }, 3000);
   }
 }
 
 
-document.getElementById("newSubjectName").addEventListener("click",()=>{
-    const newSubject=document.getElementById("newSubject").value.trim();
-    if(newSubject){
-      const newSubjectNamePath = ref(
-        database,
-        `/FSSA/${section}/${month}/newSubjectName`
-      );
-      set(newSubjectNamePath, newSubject)
-        .then(() => {
-          showSuccessMessage("New subject added successfully!");
-          
-        })
-        .catch((error)=>{
-            console.log("error saving subject name");
-            
-        })
-    }
-    else{
-        alert("Enter a subject name please")
-    }
+document.getElementById("seeMarks").addEventListener("click",()=>{
+    window.location.href="../../pages/html/reportCardDownload.html"
+
 })
-
-
-document.addEventListener("DOMContentLoaded",()=>{
-  const newSubject=document.getElementById("newSubject");
-  const newSubjectNamePath = ref(
-    database,
-    `/FSSA/${section}/${month}/newSubjectName`
-  );
-  get(newSubjectNamePath)
-  .then((newSubjectName)=>{
-    if(newSubjectName.exists()){
-      newSubject.placeholder=newSubjectName.val();
-    }
-    else{
-      newSubject.placeholder="New subject";
-    }
-  })
-  .catch((e)=>{
-      console.log(e);  
-  })
-})
-
-

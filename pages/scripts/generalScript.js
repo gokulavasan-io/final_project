@@ -4,20 +4,14 @@ hamBurger.addEventListener("click", function () {
   document.querySelector("#sidebar").classList.toggle("expand");
 });
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
 import {
-  getAuth,onAuthStateChanged,
+  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-} from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  get,
-} from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
@@ -32,7 +26,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth();
-const database = getDatabase(app);
 
 
 const favIcon = document.createElement("link");
@@ -90,7 +83,17 @@ document.getElementById("no").addEventListener("click", function () {
   document.getElementById("logout-warning").style.display = "none";
 });
 
+const user = document.getElementById("user");
+const userInfo = document.querySelector(".user-info");
 
+user.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (userInfo.style.display === "none" || userInfo.style.display === "") {
+    userInfo.style.display = "flex";
+  } else {
+    userInfo.style.display = "none";
+  }
+});
 
 function showLogoutMessage() {
   const message = document.getElementById("logoutMessage");
@@ -102,7 +105,18 @@ function showLogoutMessage() {
 
 
 const section = localStorage.getItem("section");
+const userName = localStorage.getItem("name");
+const role = localStorage.getItem("role");
 
+document.getElementById("name").textContent = `${
+  userName.charAt(0).toUpperCase() + userName.slice(1)
+}`;
+
+if (role == "others") {
+  document.getElementById("teacher").textContent = "FSSA";
+} else {
+  document.getElementById("teacher").textContent = `${role} Coach`;
+}
 
 document.getElementById("backButton").addEventListener("click",()=>{
   window.history.back();
@@ -111,45 +125,5 @@ document.getElementById("analysisNav").addEventListener("click",()=>{
   window.location.href="analysisHome.html"
 })
 
+document.getElementById("user").innerText=userName.slice(0,1).toUpperCase();
 document.getElementById("classNow").textContent = `${section.split("s")[2]}`;
-
-
-async function getProfilePic() {
-  const user = auth.currentUser;
-
-  if (user) {
-    const email = user.email;
-    const sanitizedEmail = email.replace(/[@.]/g, "_");
-    const userDataPath = `FSSA/TeachersData/${sanitizedEmail}`;
-
-    // Check if profile data is already in localStorage
-    const storedProfileLink = localStorage.getItem(userDataPath);
-
-    if (storedProfileLink) {
-      const profileLink = JSON.parse(storedProfileLink);
-      document.getElementById("userProfilePic").src = profileLink.profileLink;
-      return;
-    }
-
-    const profileLinkRef = ref(database, userDataPath);
-    try {
-      const snapshot = await get(profileLinkRef);
-      if (snapshot.exists()) {
-        const profileLink = snapshot.val();
-        // Store the profileLink in localStorage for future use
-        localStorage.setItem(userDataPath, JSON.stringify(profileLink));
-        document.getElementById("userProfilePic").src = profileLink.profileLink;
-      } else {
-        console.log("No data available at this path.");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  } else {
-    console.log("No user is currently signed in.");
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  getProfilePic();
-});

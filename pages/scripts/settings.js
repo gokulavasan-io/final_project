@@ -161,8 +161,8 @@ async function getProfilePic() {
             console.log(profileLink);
             document.getElementById("userProfilePhoto").src =
               profileLink.profileLink;
-            document.getElementById("userProfilePic").src =
-              profileLink.profileLink;
+            // document.getElementById("userProfilePic").src =
+            //   profileLink.profileLink;
           } else {
             console.log("No data available at this path.");
           }
