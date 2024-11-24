@@ -35,8 +35,6 @@ favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
 document.head.appendChild(favIcon);
 
 
-
-document.getElementById("reportCard").style.display="none";
 const subjectsAside=document.querySelectorAll(".subjectsAside a");
 subjectsAside.forEach(x=>{
   x.addEventListener("click",()=>{
