@@ -58,6 +58,15 @@
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link" id="problem-solving">Problem Solving</a>
                     </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="project">Project</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="pet">PET</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="behavior">Behavior</a>
+                    </li>
 
                 </ul>
             </li>
@@ -81,21 +90,23 @@
                 </a>
             </li>
 
-            <li class="sidebar-item" id="reportCard">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-whatsapp"></i>
-                    <span>Share report card</span>
-                </a>
-            </li>
 
         </ul>
 
-        <div class="d-flex sidebar-footer">
-            <button class="toggle-btn" type="button">
-                <i class="lni lni-grid-alt"></i>
-            </button>
-            <div class="sidebar-logo">
-                <a href="#">Toodle</a>
+        <div class="d-flex flex-column sidebar-footer">
+            <li class="sidebar-item" id="setting">
+                <a href="../html/settings.html" class="sidebar-link d-flex align-items-center">
+                    <i class="fa fa-gear"></i>
+                    <span>setting</span>
+                </a>
+            </li>
+            <div class="d-flex">
+                <button class="toggle-btn" type="button">
+                    <i class="lni lni-grid-alt"></i>
+                </button>
+                <div class="sidebar-logo">
+                    <a href="#">Toodle</a>
+                </div>
             </div>
         </div>
     </aside>
@@ -105,7 +116,7 @@
         <div class="logo">Toodle</div>
         <div id="classNow">X</div>
         <div class="user">
-            <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
+            <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
         </div>
     </header>
     <div class="user-info">
@@ -123,15 +134,15 @@
     <div id="logout-warning">
         <div>Are you sure want to Logout ?</div>
         <div class="yes-no mt-4">
-            <button class="btn btn-success" id="yes">Yes</button>
-            <button class="btn btn-danger" id="no">No</button>
+            <button class="btn btn-outline-success" id="yes">Yes</button>
+            <button class="btn btn-outline-danger" id="no">No</button>
         </div>
     </div>
     <div id="delete-warning">
         <div>Are you sure want to delete this mark from this month ?</div>
         <div class="yes-no mt-4">
-            <button class="btn btn-success" id="yesForRemoveMark">Yes</button>
-            <button class="btn btn-danger" id="noForRemoveMark">No</button>
+            <button class="btn btn-outline-success" id="yesForRemoveMark">Yes</button>
+            <button class="btn btn-outline-danger" id="noForRemoveMark">No</button>
         </div>
     </div>
 
@@ -152,13 +163,12 @@
                 <h4 id="subjectOfTheTable"></h4>
                 <h5 id="monOfTheSubject"></h5>
             </div>
-            <button id="showColors" class="btn btn-danger">show colors</button>
+            <button id="showColors" class="btn btn-outline-dark">show colors</button>
         </div>
     </div>
     <div class="buttons">
-        <button class="btn btn-success" id="saveAverageData">Save</button>
-        <button class="btn btn-success" id="newTest">New Test</button>
-        <button id="add-btn" class="btn btn-success ">Add marks</button>
+        <button class="btn btn-outline-success" id="saveAverageData">Save</button>
+        <button class="btn btn-outline-primary" id="newTest">New Test</button>
     </div>
     <div id="newTestName">
         <input type="text" name="" id="">
@@ -217,11 +227,11 @@
             <input type="text" id="datasetName" class="form-control" placeholder="Test name" />
             <label for="totalMarks" class="form-label mt-4">Total mark :</label>
             <input type="number" id="totalMarks" class="form-control" placeholder="Enter total marks" />
-            <button class="btn btn-danger mt-2" id="calculate">calculate</button>
+            <button class="btn btn-outline-danger mt-2" id="calculate">calculate</button>
         </div>
     
         <div class="buttons">
-            <button class="btn btn-success" id="saveToFirebase">Save </button>
+            <button class="btn btn-outline-success" id="saveToFirebase">Save </button>
         </div>
     
         <div class="forChartNew">
@@ -277,17 +287,17 @@
         <div class="d-flex flex-column gap-1">
             <p>File name : </p>
             <input type="text" id="renameDatasetInputForSeeMarks" />
-            <button id="renameDataset" class="btn btn-info text-center">Rename</button>
+            <button id="renameDataset" class="btn btn-outline-info text-center">Rename</button>
         </div>
         <div class="d-flex flex-column gap-1">
             <p>Total marks: </p>
             <input type="text" id="totalMarksForSeeMarks" />
-            <button id="updateTotalMarks" class="btn btn-info ">Update Total Marks</button>
+            <button id="updateTotalMarks" class="btn btn-outline-info ">Update Total Marks</button>
         </div>
     </div>
     <div class="buttons">
-        <button class="btn btn-success" id="updateDataForExists">Update</button>
-        <button class="btn btn-danger" id="removeFromMonth">Remove from month</button>
+        <button class="btn btn-outline-success" id="updateDataForExists">Update</button>
+        <button class="btn btn-outline-danger" id="removeFromMonth">Delete file</button>
 
     </div>
     <div class="chartForExist">
@@ -330,13 +340,6 @@
 
 
     <!-- for adding existing marks -->
-
-    <div class="addMarksContainer">
-        <div class="ConfirmButton">
-        <button class="btn btn-warning" id="cancelAdd">cancel</button>
-        <button class="btn btn-success" id="confirmAdd">confirm</button>
-        </div>
-    </div>
 
     <div id="forEmptyMonth">
         <img src="../../assets/images/monthlySubjects_img/img_emty-folder.png" class="img-fluid" alt="">

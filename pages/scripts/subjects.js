@@ -1,3 +1,4 @@
+// Import the necessary functions from Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import {
   getDatabase,
@@ -8,6 +9,7 @@ import {
   remove,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
+// Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
   authDomain: "fir-demo-4a5b4.firebaseapp.com",
@@ -17,198 +19,10 @@ const firebaseConfig = {
   appId: "1:716679557063:web:603a78f59045ceeaf133e2",
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-
-const pageTitle = localStorage.getItem("pageTitle");
 const section = localStorage.getItem("section");
-let deleteMode = false;
-let month;
-const deleteBtn = document.getElementById("delete-btn");
-const newMarkBtn = document.getElementById("new-mark");
-
-function getAllData() {
-  const subject_name = document.getElementById("page-name").innerText;
-  const dataPath = `studentMarks/${section}/${subject_name}`;
-  const container = document.querySelector(".marks-container");
-
-  // Clear existing data to avoid duplicates
-  container.innerHTML = "";
-
-  // Add the "New Marks" div at the beginning
-  const newDiv = document.createElement("div");
-  newDiv.classList.add("new-marks-detail");
-
-  const newPElement = document.createElement("p");
-  if (pageTitle === "Attendance") {
-    newPElement.innerText = "New";
-  } else {
-    newPElement.innerText = "New Marks";
-  }
-
-  const addSymbol = document.createElement("i");
-  addSymbol.classList.add("fa", "fa-plus");
-  // Append the "New Marks" div to the container
-  newDiv.appendChild(addSymbol);
-  newDiv.appendChild(newPElement);
-  container.appendChild(newDiv);
-
-  newDiv.addEventListener("click", function () {
-    if (pageTitle === "Attendance") {
-      const datasetName = prompt("Enter Dataset Name:");
-      if (datasetName) {
-        // Append dataset name to the page
-        const datasetDiv = document.createElement("div");
-        datasetDiv.classList.add("marks-detail");
-        datasetDiv.innerHTML = `<p>${datasetName}</p>`;
-        container.appendChild(datasetDiv);
-
-        // Save dataset name to Firebase
-        const dataPath = `studentMarks/${section}/Attendance/${datasetName}`;
-        set(ref(database, dataPath), { created: true });
-        getAllData();
-      }
-    } else {
-      window.location.href = "./mark-generate.html";
-    }
-  });
-
-  // Fetch dataset names from Firebase and add them after the "New Marks" div
-  get(child(ref(database), dataPath))
-    .then((snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        // Sort dataset names based on the months order
-        const sortedMonths = Object.keys(data);
-
-        sortedMonths.forEach((name) => {
-          const div = document.createElement("div");
-          div.classList.add("marks-detail");
-
-          const pElement = document.createElement("p");
-          pElement.innerText = name;
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.classList.add("dataset-checkbox");
-          checkbox.value = name;
-          checkbox.style.display = "none";
-
-          div.appendChild(checkbox);
-          div.appendChild(pElement);
-
-          div.addEventListener("click", function (e) {
-            if (!deleteMode && e.target !== checkbox) {
-              if (pageTitle === "Attendance") {
-                localStorage.setItem("dataSet", div.innerText);
-                window.location.href = "./attendance.html";
-              } else {
-                localStorage.setItem("dataSet", div.innerText);
-                window.location.href = "marks.html";
-              }
-            } else if (deleteMode) {
-              checkbox.checked = !checkbox.checked;
-              div.style.backgroundColor = checkbox.checked ? "#e73232" : "";
-            }
-          });
-
-          container.appendChild(div);
-          document.getElementById("loading").style.display = "none";
-        });
-
-        deleteBtn.addEventListener("click", function () {
-          if (!deleteMode) {
-            enterDeleteMode();
-          } else {
-            confirmDeletion();
-          }
-        });
-      } else {
-        const noDataDiv = document.createElement("div");
-        noDataDiv.classList.add("marks-detail");
-        noDataDiv.innerHTML = "<p>No data</p>";
-        container.appendChild(noDataDiv);
-      }
-    })
-    .catch((error) => {
-      console.error("Error fetching data from Firebase:", error);
-    });
-}
-
-function enterDeleteMode() {
-  deleteMode = true;
-  deleteBtn.innerText = "Delete Selected";
-  newMarkBtn.style.display = "none"; // Hide "New Marks" in delete mode
-}
-
-function confirmDeletion() {
-  const selectedCheckboxes = document.querySelectorAll(
-    ".dataset-checkbox:checked"
-  );
-
-  if (selectedCheckboxes.length > 0) {
-    const confirmation = confirm(
-      "Are you sure you want to delete the selected Marks?"
-    );
-
-    if (confirmation) {
-      deleteSelectedDatasets(selectedCheckboxes);
-    } else {
-      resetDeleteMode();
-    }
-  } else {
-    alert("No Marks selected for deletion.");
-    resetDeleteMode();
-  }
-}
-
-async function deleteSelectedDatasets(selectedCheckboxes) {
-  const subject_name = document.getElementById("page-name").innerText;
-
-  for (const checkbox of selectedCheckboxes) {
-    const datasetName = checkbox.value;
-    const datasetRef = ref(
-      database,
-      `studentMarks/${section}/${subject_name}/${datasetName}`
-    );
-
-    try {
-      await remove(datasetRef);
-      console.log(`Deleted dataset: ${datasetName}`);
-      checkbox.parentElement.remove();
-    } catch (error) {
-      console.error(`Failed to delete dataset: ${datasetName}`, error);
-    }
-  }
-  resetDeleteMode();
-}
-
-function resetDeleteMode() {
-  deleteMode = false;
-  deleteBtn.innerText = "Delete";
-  newMarkBtn.style.display = "block"; // Show "New Marks" when not in delete mode
-  document.querySelectorAll(".dataset-checkbox").forEach((checkbox) => {
-    checkbox.checked = false;
-    checkbox.parentElement.style.backgroundColor = ""; // Reset background color
-  });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("page-title").innerText = pageTitle;
-  document.getElementById("page-name").innerText = pageTitle;
-
-  if (pageTitle === "Attendance") {
-    document.getElementById("new").href = "./attendance.html";
-    localStorage.setItem("pageTitle", pageTitle);
-    checkOrCreateMonth();
-  } else {
-    document.getElementById("new").href = "mark-generate.html";
-    localStorage.setItem("pageTitle", pageTitle);
-  }
-
-  getAllData();
-});
-
 const orderedMonths = [
   "January",
   "February",
@@ -223,35 +37,66 @@ const orderedMonths = [
   "November",
   "December",
 ];
+let subject = localStorage.getItem("subject");
+document.getElementById("subject").textContent = subject;
 
-function getCurrentMonth() {
-  return orderedMonths[new Date().getMonth()];
+// Function to get all existing months from Firebase and render them
+function getAllData() {
+  const dbRef = ref(database, `/FSSA/${section}`);
+  // Fetch existing months from Firebase
+  get(dbRef)
+    .then((snapshot) => {
+      const container = document.querySelector(".marks-container");
+
+      // Clear existing months from UI before fetching new ones
+      const existingMonths = container.querySelectorAll(".marks-detail");
+      existingMonths.forEach((monthDiv) => monthDiv.remove());
+
+      if (snapshot.exists()) {
+        const months = snapshot.val();
+        const monthNames = Object.keys(months); // Get the month names
+
+        // Sort the month names based on the orderedMonths array
+        monthNames.sort(
+          (a, b) => orderedMonths.indexOf(a) - orderedMonths.indexOf(b)
+        );
+
+        monthNames.forEach((month) => {
+          appendMonthToUI(month, container);
+        });
+        document.getElementById("loading").style.display = "none";
+      } else {
+        console.log("No months available in the database");
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching data from Firebase:", error);
+    });
 }
 
-async function checkOrCreateMonth() {
-  const Attendance = document.getElementById("page-name").innerText;
-  const month = getCurrentMonth();
-  const attendancePath = `studentMarks/${section}/Attendance/${month}`;
-  const attendanceRef = ref(database, attendancePath);
-  const attendanceSnap = await get(attendanceRef);
+// Append a new month to the marks container
+function appendMonthToUI(monthName, container) {
+  const div = document.createElement("div");
+  div.classList.add("marks-detail");
 
-  if(!attendanceSnap.exists()){
-    await set(attendanceRef, { created: true });
-    console.log(`${month} has been created in Firebase.`);
-    location.reload();
-  }
-else{
-  console.log(`${month} already in attendance`);
-  
+  const pElement = document.createElement("p");
+  pElement.innerText = monthName;
+
+  div.appendChild(pElement);
+
+  div.addEventListener("click", function (event) {
+    event.stopPropagation();
+    localStorage.setItem("month", div.textContent.trim());
+    if (subject == "Attendance") {
+      window.location.href = "../../pages/html/attendance.html";
+    } else {
+      window.location.href = "../../pages/html/monthlySubjectMarks.html";
+    }
+  });
+  container.appendChild(div);
 }
 
-  const monthPath = `studentMarks/${section}/months/${month}/${Attendance}`;
-  const monthRef = ref(database, monthPath);
-  const snapshot = await get(monthRef);
-  if (!snapshot.exists()) {
-    await set(monthRef, { created: true });
-    console.log(`${month} has been created in Firebase.`);
-  } else {
-    console.log(`${month} already exists in Firebase.`);
-  }
-}
+document.addEventListener("DOMContentLoaded",()=>{
+getAllData()
+
+})

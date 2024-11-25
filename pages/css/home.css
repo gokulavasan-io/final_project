@@ -46,6 +46,10 @@
     align-items: center;
 }
 
+#showClassesForLead{
+    font-family: var(--font);
+}
+
 #academicTopBottom{
     display: flex;
     gap: 1rem;
@@ -84,9 +88,12 @@
 .baseData>div{
     height: 100%;
     width: 100%;
-    border: 2px solid var(--primary-color);
-    border-radius: 10px;
+    border-radius: 20px; /* Soft rounded corners for a modern look */
+    background: rgba(255, 255, 255, 0.8); /* White with transparency */
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    backdrop-filter: blur(10px); /* Glass-like blur effect */
     font-family: var(--font);
+    padding: 20px; /* Inner spacing */
 }
 .baseData h6{
     color: rgb(176, 1, 149);
@@ -138,6 +145,9 @@
     align-items: center;
     justify-content: center;
     border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important; 
+    backdrop-filter:none !important;
 }
 
 /* Graph */

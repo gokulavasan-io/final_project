@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Subject</title>
 
-    
     <link rel="stylesheet" href="../css/subjects.css">
     <link rel="stylesheet" href="../css/generalStyles.css">
      <!-- Bootstrap links -->
@@ -51,6 +50,15 @@
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link" id="problem-solving">Problem Solving</a>
                     </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="project">Project</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="pet">PET</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link" id="behavior">Behavior</a>
+                    </li>
                     
                 </ul>
             </li>
@@ -74,22 +82,24 @@
                 </a>
             </li> 
             
-            <li class="sidebar-item" id="reportCard">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-whatsapp"></i>
-                    <span>Share report card</span>
-                </a>
-            </li>
-            
+
         </ul>
 
-        <div class="d-flex sidebar-footer">
-            <button class="toggle-btn d-flex gap-2" type="button">
-                <i class="lni lni-grid-alt"></i>
+        <div class="d-flex flex-column sidebar-footer">
+            <li class="sidebar-item" id="setting">
+                <a href="../html/settings.html" class="sidebar-link d-flex align-items-center">
+                    <i class="fa fa-gear"></i>
+                    <span>setting</span>
+                </a>
+            </li>
+            <div class="d-flex">
+                <button class="toggle-btn" type="button">
+                    <i class="lni lni-grid-alt"></i>
+                </button>
                 <div class="sidebar-logo">
                     <a href="#">Toodle</a>
                 </div>
-            </button>
+            </div>
         </div>
     </aside>
     
@@ -98,7 +108,7 @@
         <div class="logo">Toodle</div>
         <div id="classNow">X</div>
         <div class="user">
-            <div class="userLogo"><a href="" id="user"><i class="lni lni-user"></i></a></div>
+            <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
         </div>
     </header>
     <div class="user-info">
@@ -112,29 +122,29 @@
         </a>
     </div>
 
+
     <div id="logout-warning">
         <div>Are you sure want to Logout ?</div>
         <div class="yes-no mt-4">
-            <button class="btn btn-success" id="yes">Yes</button>
-            <button class="btn btn-danger" id="no">No</button>
+            <button class="btn btn-outline-success" id="yes">Yes</button>
+            <button class="btn btn-outline-danger" id="no">No</button>
         </div>
     </div>
 
     <div id="logoutMessage" class="popup">
         Successfully Logged Out
     </div>
+    <div id="successMessage" class="popup">
+        File Saved Successfully
+    </div>
     <div id="loading"><i class="fa fa-spinner fa-spin"></i></div>
 
 
-    <div id ="page-name">subject</div>
-    <button id="delete-btn" class="btn btn-danger ">Delete</button>
+    <div id ="subject">subject</div>
 
-    <div class="marks-container">
-        <a href="#" id="new" class="new-marks-detail">
-            <i class="fa fa-plus"></i>
-            <p id="new-mark">New Mark</p>
-        </a>
-    </div>
+    <div class="marks-container"></div>
+
+
     <script type="module" src="../scripts/subjects.js"></script>
     <script type="module" src="../scripts/generalScript.js"></script>
 

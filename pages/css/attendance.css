@@ -48,8 +48,7 @@
 }
 
 .non-working {
-    background-color: #ffcccc !important;
-    /* Red color for non-working days */
+    background-color: #f1f2f8 !important;
 }
 
 
@@ -167,7 +166,7 @@
 }
 
 
-#forRemarks,#forHoliday {
+#forRemarks,#forHoliday,#forDeleteRemark {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -185,56 +184,13 @@
     border: 1px solid #444444; /* Subtle darker border */
     font-family: var(--font);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Slightly heavier shadow */
+    z-index: 10000;
 }
 
 
-
-#forRemarks>div,#forHoliday>div{
+#forRemarks>div,#forHoliday>div,#forDeleteRemark>div{
     display: flex;
     gap: 2rem;
-}
-
-.remark-item,.holiday-item {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin: 10px 0;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-family: var(--font);
-    width: 30%;
-    position: relative;
-    text-wrap: wrap;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    word-break: break-word;
-    font-size: 90%;
-}
-
-#remarksList,#holidaysList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    text-wrap: wrap;
-    height: 90%;
-    overflow: auto;
-    align-items: stretch;
-}
-
-.holiday-item{
-    align-items: center;
-    justify-content: center;
-}
-
-.studentName{
-    font-weight: bold;
-    color: rgb(149, 0, 25);
-}
-
-.btnForSC{
-    margin-bottom: 10px;
 }
 
 
@@ -297,4 +253,74 @@
 
 #showDaysCount .close-btn:hover{
     color: rgb(243, 105, 105);
+}
+
+
+/* for holiday table */
+
+.holidayContainer,.remarksContainer{
+    position: relative;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+#closePopupBtnForHoliday,#closePopupBtnForRemarks{
+    position: absolute;
+    top: 6px;
+    right: 15px;
+}
+
+#updateHolidayReason,#updateRemark{
+    position: absolute;
+    top: 2rem;
+    right: 5rem;
+}
+
+#deleteRemark{
+    position: absolute;
+    top: 2rem;
+    right: 10.5rem;
+}
+
+
+#holidaysTable {
+    width: 700px; 
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+#remarksTable{
+    width: 800px; 
+    margin: 0 auto;
+}
+
+.remarksTableContainer{
+    height: 80%;
+    overflow: hidden;
+
+}
+
+#emptyRemark,#emptyHoliday{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    gap: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: none;
+}
+#emptyRemark img,#emptyHoliday img{
+    width: 35%;
+}
+
+
+.handsontable td:first-of-type{
+    color: black !important;
+    font-family: var(--font);
+    font-size: .8rem;
 }

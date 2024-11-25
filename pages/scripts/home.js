@@ -26,24 +26,20 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const firestore = getFirestore(app);
 
-
-const role = localStorage.getItem("role");
+const role = localStorage.getItem("userRole");
 let section = localStorage.getItem("section");
+document.getElementById("classNow").innerText=section.slice(-1);
+
+
 let monthsForSelection = [];
 let monthsForGraph=[];
 const classes = ["ClassA", "ClassB", "ClassC"];
 
-document.addEventListener("DOMContentLoaded", function () {
-  if (role == "others") {
-    document.getElementById("changeClass").style.display = "flex";
-  }
-  baseDataFetch();
-  if (role != "others") {
-    changeToClass();
-  } else {
-    changeToManagementSide();
-  }
-});
+baseDataFetch();
+if(role!="Tech coach"||role!="ELS coach"){
+  document.getElementById("changeClass").style.display="flex";
+}
+
 
 document.getElementById("changeClass").addEventListener("click", function () {
   document.getElementById("showClassesForLead").style.display = "flex";
@@ -57,29 +53,26 @@ document.getElementById("allMonth").addEventListener("click",()=>{
 
 
 document.querySelectorAll("#showClassesForLead button").forEach((button) => {
-  button.addEventListener("click", (event) => {
-    if (event.target.id == "forA") {
-      localStorage.setItem("section", "ClassA");
-    } else if (event.target.id == "forB") {
-      localStorage.setItem("section", "ClassB");
-    } else {
-      localStorage.setItem("section", "ClassC");
-    }
-    window.location.href = "../../pages/html/home.html";
+  button.addEventListener("click", () => {
+      localStorage.setItem("section","Class"+button.innerText);
+      location.reload()
   });
 });
+
+
+
 
 async function changeToManagementSide() {
   document.querySelector(".buttonForMonthChange").style.display = "none";
   document.querySelector(".forClass").style.display="none";
-  await monthsReadyForbutton();
+  await monthsReadyForButton();
   await fetchMonthlyData();
   document.getElementById("loading").style.display = "none";
 }
 
 async function changeToClass() {
   document.querySelector(".forManagement").style.display="none";
-  await monthsReadyForbutton();
+  await monthsReadyForButton();
   document.getElementById("forMonth").querySelector("button").textContent = "All Month";
   await calculateAndDisplayTopBottomAverages();
   await fetchMonthlyData();
@@ -88,7 +81,7 @@ async function changeToClass() {
 async function fetchStudentMarks(month) {
   const dbRef = ref(
     database,
-    `/studentMarks/${section}/months/${month}/result`
+    `/FSSA/${section}/${month}/result`
   );
   const snapshot = await get(dbRef);
 
@@ -164,7 +157,7 @@ const orderedMonths = [
 ];
 
 async function fetchMonthsForButton(section) {
-  const monthRef = ref(database, `/studentMarks/${section}/months`);
+  const monthRef = ref(database, `/FSSA/${section}`);
   const monthSnapshot = await get(monthRef);
 
   if (monthSnapshot.exists()) {
@@ -175,7 +168,7 @@ async function fetchMonthsForButton(section) {
   }
 }
 
-async function monthsReadyForbutton() {
+async function monthsReadyForButton() {
   await Promise.all(classes.map(fetchMonthsForButton));
 
   // Sort months in the expected order
@@ -206,7 +199,7 @@ async function monthsReadyForbutton() {
   }
 }
 
-// Helper function to check if a month has complete data for all subjects and no all-zero subjects
+
 function isMonthComplete(data) {
   const subjects = role === "others" 
     ? ["English", "LifeSkills", "Tech", "ProblemSolving"] 
@@ -234,7 +227,6 @@ function isMonthComplete(data) {
 
 
 
-// Calculate and display top 5 and bottom 5 students based on average scores across all months
 async function calculateAndDisplayTopBottomAverages() {
   const studentScores = {};
   const subjects = role === "Tech" ? ["Tech", "ProblemSolving"] : ["English", "LifeSkills"];
@@ -356,7 +348,7 @@ async function fetchMonthlyData() {
   let months = [...monthsForGraph];
   
   for (let month of months) {
-    const dbRef = ref(database, `/studentMarks/${section}/months/${month}/result/classAverage`);
+    const dbRef = ref(database, `/FSSA/${section}/${month}/result/classAverage`);
     const snapshot = await get(dbRef);
 
     if (snapshot.exists()) {
@@ -398,7 +390,6 @@ async function fetchMonthlyData() {
   }
 }
 
-// Helper function to calculate the average of an array of numbers, ignoring nulls
 function calculateAverage(dataArray) {
   const validData = dataArray.filter(val => val !== null); // Exclude nulls from the average calculation
   const sum = validData.reduce((acc, val) => acc + val, 0);

@@ -14,6 +14,17 @@
     --border-left:#3b7ddd;
 }
 
+
+.btn{
+    border-radius: 50px !important;
+}
+
+body {
+    background: linear-gradient(120deg, #f0f4ff, #d9e8ff);
+    height: 1rem;
+    z-index: 1000;
+}
+
 /* sidebar starts */
 
 li {
@@ -120,7 +131,7 @@ a.sidebar-link:hover {
 
 #sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
     display: block;
-    max-height: 15em;
+    max-height: 25em;
     width: 100%;
     opacity: 1;
 }
@@ -185,6 +196,7 @@ header .logo{
 }
 
 .user-info{
+    display:  none !important;
     position: absolute;
     top: 10%;
     right:2%;
@@ -204,25 +216,6 @@ header .logo{
     text-decoration: none;
 }
 
-.user-info {
-    display: none;
-}
-
-#name{
-    font-size: 1.3rem;
-    font-weight: bolder;
-    align-self: center;
-}
-#teacher{
-    font-size: .9rem;
-    font-weight: bold;
-    align-self: center;
-}
-
-#logout{
-    font-weight: bolder;
-    color: wheat;
-}
 
 .name-container{
     display: flex;
@@ -292,11 +285,25 @@ header .logo{
     font-weight: bolder;
     font-family: 'Poppins', sans-serif;
     background-color: white;
+    border: 1px solid white;
     padding: .5rem .9rem;
     border-radius: 50%;
     cursor: pointer;
 }
 
+
+.popup-message {
+    background-color: #f44336;
+    color: white;
+    padding: 15px;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    border-radius: 5px;
+    display: none;
+    font-family: 'Poppins', sans-serif;
+}
 
 #showClassesForLead{
     position: fixed;
@@ -314,4 +321,3 @@ header .logo{
     gap: 1rem;
     display: none;
 }
-

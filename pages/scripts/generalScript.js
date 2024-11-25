@@ -35,18 +35,16 @@ favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
 document.head.appendChild(favIcon);
 
 
-
-document.getElementById("reportCard").style.display="none";
 const subjectsAside=document.querySelectorAll(".subjectsAside a");
 subjectsAside.forEach(x=>{
   x.addEventListener("click",()=>{
-    localStorage.setItem("pageTitle",x.textContent.split(" ").join(""));
+    localStorage.setItem("subject",x.textContent.split(" ").join(""));
     window.location.href="../../pages/html/subjects.html"
   })
 });
 document.getElementById("attendance").addEventListener("click",()=>{
-   localStorage.setItem("pageTitle","Attendance");
-  window.location.href="../../pages/html/subjects.html"
+   localStorage.setItem("subject","Attendance");
+   window.location.href="../../pages/html/subjects.html"
 })
 
 
@@ -83,17 +81,6 @@ document.getElementById("no").addEventListener("click", function () {
   document.getElementById("logout-warning").style.display = "none";
 });
 
-const user = document.getElementById("user");
-const userInfo = document.querySelector(".user-info");
-
-user.addEventListener("click", (e) => {
-  e.preventDefault();
-  if (userInfo.style.display === "none" || userInfo.style.display === "") {
-    userInfo.style.display = "flex";
-  } else {
-    userInfo.style.display = "none";
-  }
-});
 
 function showLogoutMessage() {
   const message = document.getElementById("logoutMessage");
@@ -103,21 +90,6 @@ function showLogoutMessage() {
   }, 500);
 }
 
-
-const section = localStorage.getItem("section");
-const userName = localStorage.getItem("name");
-const role = localStorage.getItem("role");
-
-document.getElementById("name").textContent = `${
-  userName.charAt(0).toUpperCase() + userName.slice(1)
-}`;
-
-if (role == "others") {
-  document.getElementById("teacher").textContent = "FSSA";
-} else {
-  document.getElementById("teacher").textContent = `${role} Coach`;
-}
-
 document.getElementById("backButton").addEventListener("click",()=>{
   window.history.back();
 });
@@ -125,6 +97,18 @@ document.getElementById("analysisNav").addEventListener("click",()=>{
   window.location.href="analysisHome.html"
 })
 
-document.getElementById("user").innerText=userName.slice(0,1).toUpperCase();
-document.getElementById("classNow").textContent = `${section.split("s")[2]}`;
 
+const userName = localStorage.getItem("userName");
+const section = localStorage.getItem("section");
+const role = localStorage.getItem("userRole");
+
+
+
+document.getElementById("user").innerText=userName.slice(0,1).toUpperCase();
+
+if(section!="FSSA"){
+document.getElementById("classNow").textContent = section.slice(-1);
+}
+else{
+document.getElementById("classNow").textContent = "All";
+}

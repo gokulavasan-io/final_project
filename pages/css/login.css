@@ -11,22 +11,24 @@
 :root {
     --primary-color: #0e2238;
     --font-color: #fff;
-    --border-left: #3b7ddd;
+    --border-left: #3b7ddd;--font:poppins;
 }
 
 
 body {
-    background: #ececec;
+    background: linear-gradient(120deg, #f0f4ff, #d9e8ff);
     font-family: 'Poppins', sans-serif;
 
 }
 
 .box-area {
     width: 930px;
+    height: 500px;
 }
 
 .right-box {
     padding: 40px 30px 40px 40px;
+    font-family: var(--font);
 }
 
 ::placeholder {
@@ -93,76 +95,3 @@ body {
 
 }
 
-
-label {
-    font-weight: bolder;
-    color: rgb(0, 132, 9);
-    font-family: 'Poppins', sans-serif;
-
-}
-
-
-#forget {
-    color: #911108;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 300ms ease;
-    font-family: 'Poppins', sans-serif;
-    margin-left: 67%;
-}
-
-#forget:hover {
-    color: #f44336;
-    font-weight: bolder;
-
-}
-
-#forgetPassword {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-image: linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%);
-    padding: 1rem;
-    border-radius: 1rem;
-    width: 25%;
-    height: fit-content;
-    display: none;
-    justify-content: space-between;
-    font-family: 'Poppins', sans-serif;
-    animation: come .3s ease-in-out;
-}
-
-
-@keyframes come{
-    0%{
-        transform: translate(-50%, -50%) scale(0);
-    }
-    100%{
-        transform: translate(-50%, -50%) scale(1);
-
-    }
-}
-
-#close a {
-    font-size: 1.5rem;
-    color: rgb(255, 0, 0);
-    text-decoration: none;
-}
-
-#close {
-    align-self: flex-end;
-    background-color: white;
-    border-radius: 50%;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.details{
-    font-family: 'Poppins', sans-serif;
-}

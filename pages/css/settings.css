@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+*,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary-color: #0e2238;
+    --font-color: #fff;
+    --border-left: #3b7ddd;
+    --font: poppins;
+
+}
+
+.mainContainer {
+    width: 93%;
+    height: 87%;
+    position: fixed;
+    top: 10%;
+    left: 6%;
+    z-index: -10000;
+    font-family: var(--font);
+}
+
+
+.mainContainer>div {
+    height: 90% !important;
+    display: flex;
+    gap: 1rem;
+}
+
+.mainContainer p {
+    margin-bottom: 0 !important;
+}
+
+body {
+    background: linear-gradient(120deg, #f0f4ff, #d9e8ff);
+}
+
+.profile-section {
+    background-color: #ffffff;
+    border-right: 2px solid #e0e0e0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    height: fit-content;
+    padding-bottom: 4rem;
+}
+
+.profile-card {
+    background: linear-gradient(135deg, #3b7ddd, #4a90e2);
+    color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+}
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Optional: add some spacing between the image and the container edges */
+    width: 100%;
+    height: auto;
+}
+.image-card{
+   width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    border-radius: 50px;
+    overflow: hidden;
+}
+#userProfilePhoto{
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* Ensures the image covers the area within the circle */
+    background-color: rgb(236, 244, 248);
+
+}
+
+.profileBottom {
+    font-size: 1.1rem;
+}
+
+.profileBottom i {
+    color: var(--border-left);
+}
+
+.profileBottom p {
+    color: var(--primary-color);
+}
+
+.profileBottom div {
+    margin-left: 2rem;
+    transition: all 0.3s ease;
+    width: 100%;
+
+}
+
+.profileBottom div:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#showMembers{
+    display: none;
+}
+
+
+.right-section {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: none;
+}
+
+
+
+#members-container{
+    width: 100%;
+    height: 90%;
+    overflow-y: auto;
+}
+
+.memberName{
+    font-weight: bolder;
+    font-size: 1.1rem;
+    color: var(--border-left);
+}
+
+.member-item {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.member-item:hover {
+    background-color: #edf3f8b2;
+    border-radius: 10px;
+}
+
+.member-item img {
+    border-radius: 50%;
+    margin-right: 15px;
+    width: 50px;
+}
+
+.btn-danger {
+    transition: all 300ms ease !important;
+}
+
+.btn-danger:hover {
+    transform: scale(.95) !important;
+}
+
+
+#change-password-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    display: none;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    border-color: #007bff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 5px;
+}
+
+.input-group-text {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+}
+
+.input-group-text:hover {
+    color: #007bff;
+}
+
+#change-password-container img {
+    height: 25px;
+}
+
+#changePassword{
+    width: fit-content;
+}
+
+/* loading */
+
+#loading {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+    background-color: rgba(249, 249, 249, 0.452);
+    z-index: 1;
+    overflow: hidden;
+    display: none;
+
+
+}
+
+.lineForLoading {
+    position: absolute;
+    height: 5px !important;
+    background-color: red;
+    width: 30% !important;
+    border-radius: 50px;
+    animation: lineLoad .8s infinite;
+}
+
+@keyframes lineLoad {
+    0% {
+        left: -100%;
+    }
+
+    30% {
+        left: 0;
+    }
+
+    100% {
+        left: 100%;
+    }
+
+}
+
+
+
+/* add member */
+
+
+#addMember,#deleteMember{
+    position: absolute;
+    top: 4%;
+    right: 3%;
+}
+
+
+#addMemberContainer,#editMemberDataContainer{
+    width: 100%;
+    height: 90%;
+    display: flex;
+    justify-content: center;
+    margin-top:70px;
+    display: none;
+}
+
+#addMemberContainer form,#editMemberDataContainer form{
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+#addMemberContainer .dropdown,#editMemberDataContainer .dropdown{
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+label {
+    font-weight: bolder;
+    color: rgb(74, 130, 142);
+}
+
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+}

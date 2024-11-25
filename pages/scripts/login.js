@@ -1,12 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
 import {
-  getAuth,
-  signInWithEmailAndPassword,
-  setPersistence,
-  browserLocalPersistence,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut ,onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
@@ -20,12 +17,30 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
+const db = getFirestore();
+const provider = new GoogleAuthProvider();
 
-// Check if the user is already logged in on page load
 window.onload = function () {
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      window.location.replace("pages/html/home.html");
+  onAuthStateChanged(auth,async (user) => {
+    if (user) {const docRef = doc(db, "FSSA/users/teachers", user.email);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        let userData=docSnap.data();
+        localStorage.setItem("userName",userData.name);
+         localStorage.setItem("userRole",userData.role);
+         localStorage.setItem("userEmail",userData.email);
+        if(userData.section!="ClassA"||userData.section!="ClassB"||userData.section!="ClassC"){
+          localStorage.setItem("section","ClassA")
+        }
+        else{
+          localStorage.setItem("section",userData.section)
+        }
+
+          window.location.href = "../../pages/html/home.html";
+      } else {
+          showErrorMessage("You are not approved to access this site.",5000);
+          await signOut(auth);
+      }
     } else {
       console.log("User is not logged in.");
       window.history.pushState(null, null, window.location.href);
@@ -37,57 +52,50 @@ window.onload = function () {
 };
 
 // Handle login form submission
-document.getElementById("login").addEventListener("submit", function (event) {
-  event.preventDefault();
+document.getElementById("login").addEventListener("click",async function (event) {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    
+    const docRef = doc(db, "FSSA/users/teachers", user.email);
+    const docSnap = await getDoc(docRef);
 
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const selectedClass = document.querySelector(
-    'input[name="sectionName"]:checked'
-  ).id;
-  const role = document.querySelector('input[name="role"]:checked').id;
-  const userName = document.getElementById("userName").value;
+    if (docSnap.exists()) {
+        let userData=docSnap.data();
+        localStorage.setItem("userName",userData.name);
+         localStorage.setItem("userRole",userData.role);
+         localStorage.setItem("userEmail",userData.email);
+        if(userData.section!="ClassA"||userData.section!="ClassB"||userData.section!="ClassC"){
+          localStorage.setItem("section","ClassA")
+        }
+        else{
+          localStorage.setItem("section",userData.section)
+        }
 
-  const usernameRegex = /^[a-zA-Z0-9_.]+$/;
-  if(!usernameRegex.test(userName)){
-    showErrorMessage("Enter a valid username",2000);
-    return ;
-  }
-
-  // Set persistence to 'local' to keep the user logged in
-  setPersistence(auth, browserLocalPersistence)
-    .then(() => {
-      return signInWithEmailAndPassword(auth, email, password);
-    })
-    .then((userCredential) => {
-      const user = userCredential.user;
-      console.log(user);
-
-      // Save user info in localStorage if needed for other parts of the app
-      localStorage.setItem("section", selectedClass);
-      localStorage.setItem("name", userName);
-      localStorage.setItem("role", role);
-      localStorage.setItem("email", email);
-
-      // Show success message and redirect after a delay
-      showSuccessMessage();
-      setTimeout(() => {
-        window.location.href = "pages/html/home.html";
-      }, 500);
-    })
-    .catch((error) => {
-      console.log(error.message);
-      showErrorMessage("Invalid email or password. Please try again.",2000);
-    });
-});
-
-// Function to display success message
-function showSuccessMessage() {
-  const message = document.getElementById("successMessage");
-  message.classList.add("show");
-  setTimeout(() => {
-    message.classList.remove("show");
-  }, 500);
+        showSuccessMessage();
+        setTimeout(() => {
+          window.location.href = "../../pages/html/home.html";
+        }, 2000);
+      } else {
+        showErrorMessage("You are not approved to access this site.",5000);
+        await signOut(auth);
+      }
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      alert("Error signing in. Please try again.");
+    }
+    
+    
+    
+  });
+  
+  // Function to display success message
+  function showSuccessMessage() {
+    const message = document.getElementById("successMessage");
+    message.classList.add("show");
+    setTimeout(() => {
+      message.classList.remove("show");
+  }, 3000);
 }
 
 // Function to display error message
@@ -100,43 +108,3 @@ function showErrorMessage(str,time) {
   }, time);
 }
 
-
-document.getElementById("forget").addEventListener("click", () => {
-  document.getElementById("forgetPassword").style.display = "flex";
-});
-
-function forgotPassword(email) {
-  sendPasswordResetEmail(auth, email)
-    .then(() => {
-      console.log("Password reset email sent successfully!");
-      showSuccessMessage("Password reset email sent. Please check your inbox");
-    })
-    .catch((error) => {
-      console.error("Error sending password reset email:", error.message);
-      alert("Error: " + error.message);
-    });
-  document.getElementById("forgetPassword").style.display = "flex";
-}
-
-document.getElementById("getEmail").addEventListener("click", () =>{
-  const email = document.getElementById("forgetEmail").value;
-  if (email === "") {
-    showErrorMessage("Please enter a valid email",2000)
-  } else {
-    forgotPassword(email);
-  }
-});
-
-document.getElementById("close").addEventListener("click",()=>{
-  document.getElementById("forgetPassword").style.display = "none";
-})
-
-const userName = document.getElementById("userName");
-userName.addEventListener("input", function() {
-  const usernameRegex = /^[a-zA-Z0-9_.]+$/; 
-  const userNameInput = document.getElementById("userName").value;
-  if (userNameInput&&!usernameRegex.test(userNameInput)) {
-    showErrorMessage("Name should only contain alphabets, '.', and '_'", 2000);
-    return;
-  }
-});
