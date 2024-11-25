@@ -57,7 +57,9 @@ function getAllData() {
   document.getElementById("loading").style.display = "none";
 
       } else {
-        console.log("No months available in the database");
+        alert("No months available in the database");
+        document.getElementById("loading").style.display = "none";
+
       }
     })
     .catch((error) => {
@@ -115,10 +117,12 @@ document.getElementById("delete-btn").addEventListener("click", function () {
   } else {
     // If in delete mode, confirm deletion
     if (selectedCheckboxes.length > 0) {
-      const confirmation = confirm(
-        "Are you sure you want to delete the selected months?"
-      );
-      if (confirmation) {
+      if (selectedCheckboxes.length>1) {
+        document.querySelector(".warningText").innerText="Are you sure want to delete these months ?"
+      }
+      document.getElementById("deleteWarning").style.display="flex";
+      document.getElementById("deleteYes").addEventListener("click",()=>{
+      document.getElementById("deleteWarning").style.display="none";
         selectedCheckboxes.forEach((checkbox) => {
           const monthName = checkbox.value;
           const monthRef = ref(
@@ -134,7 +138,10 @@ document.getElementById("delete-btn").addEventListener("click", function () {
               console.error("Failed to delete month:", monthName, error);
             });
         });
-      }
+      })
+      document.getElementById("deleteNo").addEventListener("click",()=>{
+      document.getElementById("deleteWarning").style.display="none";
+      })
     } else {
       alert("No months selected for deletion.");
     }

@@ -16,15 +16,6 @@
     --font:poppins;
 }
 
-#loading{
-    position: absolute;
-    left: 52%;
-    top: 48%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color:var(--border-left);
-}
-
 .main-container{
     width: 91%;
     height: 85%;

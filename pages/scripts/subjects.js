@@ -66,7 +66,9 @@ function getAllData() {
         });
         document.getElementById("loading").style.display = "none";
       } else {
-        console.log("No months available in the database");
+        alert("No months available in the database");
+        document.getElementById("loading").style.display = "none";
+
       }
     })
     .catch((error) => {

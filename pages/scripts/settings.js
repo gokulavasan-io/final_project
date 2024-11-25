@@ -8,7 +8,8 @@ import {
 import {
   getFirestore,
   setDoc,
-  getDoc,deleteDoc,
+  getDoc,
+  deleteDoc,
   collection,
   getDocs,
   doc,
@@ -34,16 +35,51 @@ const storage = getStorage(app);
 const auth = getAuth(app);
 const db = getFirestore();
 
+document.getElementById("logout").addEventListener("click", function () {
+  document.getElementById("logout-warning").style.display = "block";
+});
 
+document.getElementById("yes").addEventListener("click", function () {
+  signOut(auth)
+    .then(() => {
+      deleteCookie("userLoggedIn"); // Assuming you have a deleteCookie function
+      showLogoutMessage();
 
+      // Redirect to index.html and disable back navigation
+      setTimeout(() => {
+        window.location.replace("../../index.html");
+        history.pushState(null, null, "../../index.html");
+        window.addEventListener("popstate", function (event) {
+          history.pushState(null, null, "../../index.html");
+        });
+      }, 500);
+    })
+    .catch((error) => {
+      console.log("An error happened.");
+    });
+
+  document.getElementById("logout-warning").style.display = "none";
+});
+function deleteCookie(name) {
+  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+
+document.getElementById("no").addEventListener("click", function () {
+  document.getElementById("logout-warning").style.display = "none";
+});
+
+function showLogoutMessage() {
+  const message = document.getElementById("logoutMessage");
+  message.classList.add("show");
+  setTimeout(() => {
+    message.classList.remove("show");
+  }, 500);
+}
 
 const membersList = document.getElementById("membersList");
 const newMemberForm = document.getElementById("newMemberForm");
 const editMemberForm = document.getElementById("editMemberForm");
 const membersContainer = document.getElementById("members-container");
-
-
-
 
 document.getElementById("showMembers").addEventListener("click", () => {
   document.getElementById("containerTitle").innerText = "Members";
@@ -57,18 +93,21 @@ document.getElementById("addMember").addEventListener("click", () => {
   document.getElementById("addMemberContainer").style.display = "flex";
 });
 
-document.getElementById("cancelNewMember").addEventListener("click", () => {
+document.getElementById("cancelNewMember").addEventListener("click", (e) => {
+  e.preventDefault();
   document.getElementById("containerTitle").innerText = "Members";
   membersContainer.style.display = "block";
   document.getElementById("addMemberContainer").style.display = "none";
   newMemberForm.reset();
   document.getElementById("newMemberRole").innerText = "select role";
   document.getElementById("newMemberClass").innerText = "select class";
+  document.getElementById("forSelectClass").style.display = "flex";
 });
 
 document
   .getElementById("cancelEditMemberData")
-  .addEventListener("click", () => {
+  .addEventListener("click", (e) => {
+    e.preventDefault();
     document.getElementById("containerTitle").innerText = "Members";
     membersContainer.style.display = "block";
     document.getElementById("addMemberContainer").style.display = "none";
@@ -91,17 +130,16 @@ async function uploadFile(file) {
     return;
   }
   try {
+    showLoading();
     const filePath = `FSSA/teachersPhotos/${emailForUploadProfile}`;
     const fileRef = storageRef(storage, filePath);
 
     await uploadBytes(fileRef, file);
     const downloadURL = await getDownloadURL(fileRef);
     console.log("File URL:", downloadURL);
-
     document.getElementById("userProfilePhoto").src = downloadURL;
-
-    const userDocRef = doc(db, "FSSA/users/teachers", emailForUploadProfile); 
-    await setDoc(userDocRef, { profileLink: downloadURL }, { merge: true }); 
+    const userDocRef = doc(db, "FSSA/users/teachers", emailForUploadProfile);
+    await setDoc(userDocRef, { profileLink: downloadURL }, { merge: true });
     console.log(`Profile link updated for ${emailForUploadProfile}`);
     fetchMembers();
   } catch (error) {
@@ -112,32 +150,39 @@ async function uploadFile(file) {
 async function getProfilePic() {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
+      console.log(user);
+
       const email = user.email;
-      emailForUploadProfile=user.email;
+      emailForUploadProfile = user.email;
       const docRef = doc(db, "FSSA/users/teachers", email);
       try {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           console.log("Document data:", docSnap.data());
-          let keys=['name',"role","section","email"];
-          
-          ["userName","userRole","userSection","userEmail"].forEach((element,i)=>{
-            document.getElementById(element).innerText=docSnap.data()[keys[i]];
-        })
-        if(docSnap.data()["role"]=="Management"){
-          document.querySelector(".right-section").style.display="block";
-        }
-        if(docSnap.data()["role"]=="Management"){
-          document.getElementById("showMembers").style.display="none";
-        }
+          let keys = ["name", "role", "section", "email"];
 
+          ["userName", "userRole", "userSection", "userEmail"].forEach(
+            (element, i) => {
+              document.getElementById(element).innerText =
+                docSnap.data()[keys[i]];
+            }
+          );
+          if (docSnap.data()["role"] == "Management") {
+            document.querySelector(".right-section").style.display = "block";
+          }
+          if (docSnap.data()["role"] == "Management") {
+            document.getElementById("showMembers").style.display = "none";
+          }
 
-          const profileLink = docSnap.data().profileLink; 
+          const profileLink = docSnap.data().profileLink;
           if (profileLink) {
             document.getElementById("userProfilePhoto").src = profileLink;
           } else {
             document.getElementById("userProfilePhoto").src = profileLink;
           }
+          setTimeout(() => {
+            hideLoading();
+          }, 3000);
         } else {
           console.log("No such document!");
         }
@@ -152,102 +197,111 @@ async function getProfilePic() {
 
 getProfilePic();
 
-
 function isUsernameValid(username) {
   const usernameRegex = /^[a-zA-Z]{3,15}$/;
   return usernameRegex.test(username);
 }
 
 function isEmailValid(email) {
-  const emailRegex = /^[^\s@]+@[a-zA-Z]+\.[a-zA-Z]+$/;
+  const emailRegex =
+    /^(?!\.)("[\w&'*+._%-]+(?:\\[\w&'*+._%-]+)*"|\w[\w&'*+._%-]*\w)@([A-Za-z0-9.-]+\.[A-Za-z]{2,})$/;
   return emailRegex.test(email);
 }
 
-document.getElementById("confirmNewMember").addEventListener("click", async (e) => {
-  e.preventDefault();
+document
+  .getElementById("confirmNewMember")
+  .addEventListener("click", async (e) => {
+    e.preventDefault();
 
-  const username = document.getElementById("newMemberUserName").value.trim();
-  const email = document.getElementById("newMemberEmail").value.trim();
-  const role = document.getElementById("newMemberRole").innerText.trim();
-  const section = document.getElementById("newMemberClass").innerText.trim();
+    const username = document.getElementById("newMemberUserName").value.trim();
+    const email = document.getElementById("newMemberEmail").value.trim();
+    const role = document.getElementById("newMemberRole").innerText.trim();
+    let section = document.getElementById("newMemberClass").innerText.trim();
 
-  // Clear previous error messages
-  document.getElementById("newMemberNameError").innerText = "";
-  document.getElementById("newMemberEmailError").innerText = "";
+    // Clear previous error messages
+    document.getElementById("newMemberNameError").innerText = "";
+    document.getElementById("newMemberEmailError").innerText = "";
 
-  let isValid = true;
+    let isValid = true;
 
-  // Username validation
-  if (!isUsernameValid(username)) {
-    isValid = false;
-    document.getElementById("newMemberNameError").innerText =
-      "Username must be 3-15 characters and only contains alphabets.";
-  }
-
-  // Email validation
-  if (!isEmailValid(email)) {
-    isValid = false;
-    document.getElementById("newMemberEmailError").innerText =
-      "Please enter a valid email address.";
-  }
-
-  // Role validation
-  if (role === "Select Role") {
-    isValid = false;
-    showErrorMessage("Please select a role", 3000);
-  }
-
-  // Class validation (only required if role is not 'admin')
-  if (section === "Select Class" && role !== "Head coach"&& role!=="Management") {
-    isValid = false;
-    showErrorMessage("Please select a class", 3000);
-  }
-
-  if (!isValid) {
-    return; // Stop further execution if validation fails
-  }
-
-  if (role.includes("Head")||role.includes("Manage")){
-      section="FSSA"
-  }
-  // Proceed if all validations pass
-  document.getElementById("loading").style.display = "block";
-  try {
-    const docRef = doc(db, "FSSA/users/teachers", email);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      showErrorMessage("User already exists", 3000);
-    } else {
-      await setDoc(docRef, {
-        name: username,
-        role: role,
-        section: section,
-        email: email,
-        profileLink:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjzpcE0fw9En2Z0l34Z0hzY35QhY4P6g2eqK1eGgk_up0tmsbI1YuSEAzk3SXVkLfj6gg&usqp=CAU",
-      });
-
-      fetchMembers();
-      setTimeout(() => {
-        document.getElementById("loading").style.display = "none";
-        showSuccessMessage("Member added successfully");
-        newMemberForm.reset();
-        document.getElementById("containerTitle").innerText = "Members";
-        membersContainer.style.display = "block";
-        document.getElementById("addMemberContainer").style.display = "none";
-        document.getElementById("newMemberRole").innerText = "Select Role";
-        document.getElementById("newMemberClass").innerText = "Select Class";
-      }, 3000);
+    // Username validation
+    if (!isUsernameValid(username)) {
+      isValid = false;
+      document.getElementById("newMemberNameError").innerText =
+        "Username must be 3-15 characters and only contains alphabets.";
     }
-  } catch (error) {
-    showErrorMessage(
-      "An error occurred while adding the user. Please try again.",
-      3000
-    );
-  } finally {
-    document.getElementById("loading").style.display = "none";
-  }
-});
+
+    // Email validation
+    if (!isEmailValid(email)) {
+      isValid = false;
+      document.getElementById("newMemberEmailError").innerText =
+        "Please enter a valid email address.";
+    }
+
+    // Role validation
+    if (role === "Select Role") {
+      isValid = false;
+      showErrorMessage("Please select a role", 3000);
+    }
+
+    // Class validation (only required if role is not 'admin')
+    if (
+      section === "Select Class" &&
+      role !== "Head coach" &&
+      role !== "Management"
+    ) {
+      isValid = false;
+      showErrorMessage("Please select a class", 3000);
+    }
+
+    if (!isValid) {
+      return; // Stop further execution if validation fails
+    }
+
+    if (role.includes("Head") || role.includes("Manage")) {
+      section = "FSSA";
+    }
+    // Proceed if all validations pass
+    document.getElementById("loadingLine").style.display = "block";
+    try {
+      const docRef = doc(db, "FSSA/users/teachers", email);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        showErrorMessage("User already exists", 3000);
+      } else {
+        await setDoc(docRef, {
+          name: username,
+          role: role,
+          section: section,
+          email: email,
+          profileLink:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjzpcE0fw9En2Z0l34Z0hzY35QhY4P6g2eqK1eGgk_up0tmsbI1YuSEAzk3SXVkLfj6gg&usqp=CAU",
+        });
+
+        fetchMembers();
+        document.getElementById("addMemberContainer").style.display = "none";
+        document.getElementById("containerTitle").innerText = "Members";
+        setTimeout(() => {
+          membersContainer.style.display = "block";
+          newMemberForm.reset();
+          document.getElementById("newMemberRole").innerText = "Select Role";
+          document.getElementById("newMemberClass").innerText = "Select Class";
+          showSuccessMessage("Member added successfully");
+        }, 1000);
+        setTimeout(() => {
+          document.getElementById("loadingLine").style.display = "none";
+        }, 3000);
+      }
+    } catch (error) {
+      showErrorMessage(
+        "An error occurred while adding the user. Please try again.",
+        3000
+      );
+    } finally {
+      document.getElementById("loadingLine").style.display = "none";
+    }
+  });
 
 document
   .getElementById("forSelectRole")
@@ -255,7 +309,10 @@ document
   .forEach((role) => {
     role.addEventListener("click", () => {
       document.getElementById("newMemberRole").innerText = role.innerText;
-      if (role.innerText.includes("Head")||role.innerText.includes("Manage")) {
+      if (
+        role.innerText.includes("Head") ||
+        role.innerText.includes("Manage")
+      ) {
         document.getElementById("forSelectClass").style.display = "none";
       } else {
         document.getElementById("forSelectClass").style.display = "flex";
@@ -291,7 +348,7 @@ function showErrorMessage(str, time) {
 }
 
 async function fetchMembers() {
-  membersList.innerHTML="";
+  membersList.innerHTML = "";
   try {
     const docRef = collection(db, "FSSA/users/teachers");
     const querySnapshot = await getDocs(docRef);
@@ -305,8 +362,8 @@ async function fetchMembers() {
       users.forEach((user) => {
         const userData = document.createElement("div");
         userData.classList.add("member-item");
-        if(user.role=="Head coach" ||user.role== "Management"){
-          user.section="FSSA"
+        if (user.role == "Head coach" || user.role == "Management") {
+          user.section = "FSSA";
         }
         userData.innerHTML = ` 
               <img src="${user.profileLink}" alt="Member Avatar" class="rounded-circle img-fluid">
@@ -330,13 +387,22 @@ async function fetchMembers() {
   }
 }
 
-fetchMembers();
 function editMemberData(email, userName, role, section) {
   console.log(email, userName, role, section);
 
-  document.getElementById("deleteMember").addEventListener("click",()=>{
-    deleteDocument(email);
-  })
+  document.getElementById("deleteMember").addEventListener("click", () => {
+    const deleteWarningPopup=document.getElementById("delete-warning");
+    deleteWarningPopup.style.display="flex";
+
+    document.getElementById("deleteYes").addEventListener("click",()=>{
+      deleteWarningPopup.style.display="none";
+      deleteDocument(email);
+    })
+    document.getElementById("deleteNo").addEventListener("click",()=>{
+      deleteWarningPopup.style.display="none";
+    })
+
+  });
 
   document.getElementById("containerTitle").innerText = "Edit Member Info";
   membersContainer.style.display = "none";
@@ -348,8 +414,8 @@ function editMemberData(email, userName, role, section) {
   const memberRoleInput = document.getElementById("editMemberRole");
   const memberSectionInput = document.getElementById("editMemberClass");
 
-  if(role=="Head coach"|| role=="Management"){
-    document.getElementById("forEditClass").style.display="none";
+  if (role == "Head coach" || role == "Management") {
+    document.getElementById("forEditClass").style.display = "none";
   }
 
   memberNameInput.value = userName;
@@ -358,7 +424,7 @@ function editMemberData(email, userName, role, section) {
   memberSectionInput.innerText = section;
 
   const confirmButton = document.getElementById("confirmEditMemberData");
-  confirmButton.replaceWith(confirmButton.cloneNode(true)); 
+  confirmButton.replaceWith(confirmButton.cloneNode(true));
   document
     .getElementById("confirmEditMemberData")
     .addEventListener("click", async (e) => {
@@ -368,7 +434,7 @@ function editMemberData(email, userName, role, section) {
       let isValid = true;
       const updatedName = memberNameInput.value;
       const updatedRole = memberRoleInput.innerText;
-      const updatedSection = memberSectionInput.innerText;
+      let updatedSection = memberSectionInput.innerText;
 
       if (!isUsernameValid(updatedName)) {
         isValid = false;
@@ -380,23 +446,27 @@ function editMemberData(email, userName, role, section) {
         isValid = false;
         showErrorMessage("Please select a role", 3000);
       }
-    
-      // Class validation (only required if role is not 'admin')
-      if (section === "Choose class" && updatedRole !== "Head coach"&& updatedRole!=="Management") {
+
+      if (
+        updatedSection === "Choose class" &&
+        updatedRole !== "Head coach" &&
+        updatedRole !== "Management"
+      ) {
         isValid = false;
         showErrorMessage("Please select a class", 3000);
       }
-    
+
       if (!isValid) {
-        return; // Stop further execution if validation fails
+        return;
       }
-    
-      if (updatedRole.includes("Head")||updatedRole.includes("Manage")){
-          section="FSSA"
+
+      if (updatedRole === "Head coach" || updatedRole === "Management") {
+        updatedSection = "FSSA";
+        memberSectionInput.innerText = "FSSA";
       }
 
       if (isValid) {
-        document.getElementById("loading").style.display = "block";
+        document.getElementById("loadingLine").style.display = "block";
         try {
           const docRef = doc(db, "FSSA/users/teachers", email);
 
@@ -407,25 +477,23 @@ function editMemberData(email, userName, role, section) {
               role: updatedRole,
               section: updatedSection,
             },
-            { merge: true } 
+            { merge: true }
           );
 
-         
           fetchMembers();
 
-
-          if(email==localStorage.getItem("userEmail")){
+          if (email == localStorage.getItem("userEmail")) {
             getProfilePic();
           }
 
           showSuccessMessage("Member data updated successfully");
           setTimeout(() => {
-            document.getElementById("loading").style.display = "none";
+            document.getElementById("loadingLine").style.display = "none";
             editMemberForm.reset();
             document.getElementById("containerTitle").innerText = "Members";
             membersContainer.style.display = "block";
             document.getElementById("editMemberDataContainer").style.display =
-            "none";
+              "none";
           }, 3000);
         } catch (error) {
           console.error("Error updating member data:", error);
@@ -434,21 +502,22 @@ function editMemberData(email, userName, role, section) {
       }
     });
 
-  
-
-
-
   document
     .getElementById("forEditRole")
     .querySelectorAll("a")
     .forEach((roleItem) => {
       roleItem.addEventListener("click", () => {
         memberRoleInput.innerText = roleItem.innerText;
-        if (roleItem.innerText.includes("Head")||roleItem.innerText.includes("Manage")) {
+
+        if (
+          roleItem.innerText === "Head coach" ||
+          roleItem.innerText === "Management"
+        ) {
           document.getElementById("forEditClass").style.display = "none";
+          memberSectionInput.innerText = "FSSA"; // Pre-fill with "FSSA"
         } else {
           document.getElementById("forEditClass").style.display = "flex";
-          document.getElementById("editMemberClass").innerText="Choose class";
+          memberSectionInput.innerText = "Choose class"; // Reset to default
         }
       });
     });
@@ -463,21 +532,35 @@ function editMemberData(email, userName, role, section) {
     });
 }
 
-
 async function deleteDocument(email) {
-
-
   try {
     const documentRef = doc(db, "FSSA/users/teachers", email);
-
-    // Delete the document
     await deleteDoc(documentRef);
-    alert("deleted successfully")
+    document.getElementById("loadingLine").style.display = "block";
+    showSuccessMessage("Member deleted successfully");
+    fetchMembers();
+    setTimeout(() => {
+      document.getElementById("editMemberDataContainer").style.display = "none";
+      document.getElementById("containerTitle").innerText = "Members";
+      document.getElementById("loadingLine").style.display = "none";
+      membersContainer.style.display = "block";
+      editMemberForm.reset();
+    }, 3000);
     console.log(`Document with email ${email} deleted successfully.`);
   } catch (error) {
     console.error("Error deleting document:", error);
   }
 }
 
+function showLoading() {
+  document.getElementById("loading").style.display = "block";
+}
 
+function hideLoading() {
+  document.getElementById("loading").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetchMembers();
+});
 

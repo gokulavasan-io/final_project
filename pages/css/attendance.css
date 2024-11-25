@@ -48,7 +48,7 @@
 }
 
 .non-working {
-    background-color: #f1f2f8 !important;
+    background-color: #e0e2f3 !important;
 }
 
 
@@ -59,6 +59,7 @@
     display: flex;
     width: fit-content;
     gap: .5rem;
+    z-index: -100;
 }
 
 
@@ -211,6 +212,7 @@
     position: fixed;
     top: 11%;
     left: 24%;
+    z-index: -100;
 }
 #infoLogo i {
     font-size: 20px;
