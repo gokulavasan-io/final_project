@@ -317,3 +317,10 @@
 #emptyRemark img,#emptyHoliday img{
     width: 35%;
 }
+
+
+.handsontable td:first-of-type{
+    color: black !important;
+    font-family: var(--font);
+    font-size: .8rem;
+}

@@ -113,11 +113,11 @@
   <header class="w-100 position-fixed top-0">
     <div class="logo">Toodle</div>
     <div class="d-flex gap-2 align-items-center">
-      <button class="btn btn-danger " id="changeClass" style="display: none;">Choose Class</button>
+      <button class="btn btn-outline-danger " id="changeClass" style="display: none;">Choose Class</button>
       <div id="classNow">X</div>
     </div>
     <div class="user">
-      <img src="" id="userProfilePic" alt="">
+      <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
     </div>
   </header>
   <div class="user-info">
@@ -126,13 +126,14 @@
       <div id="teacher">Tech teacher</div>
     </div>
   </div>
-
+  <div id="successMessage" class="popup" style="display: none;"></div>
+  <div id="error-message" class="popup-message"></div>
 
   <div id="logout-warning">
     <div>Are you sure want to Logout ?</div>
     <div class="yes-no mt-4">
-      <button class="btn btn-success" id="yes">Yes</button>
-      <button class="btn btn-danger" id="no">No</button>
+      <button class="btn btn-outline-success" id="yes">Yes</button>
+      <button class="btn btn-outline-danger" id="no">No</button>
     </div>
   </div>
 
@@ -154,9 +155,10 @@
               </div>
             </div>
             <h3 id="userName">Admin Name</h3>
-            <p id="roleOfUser">Administrator</p>
-            <p id="sectionName">Class A</p>
-            <button id="changeProfileButton" class="btn btn-danger mt-3">Change Profile</button>
+            <p id="userRole" class="mt-3">Administrator</p>
+            <p id="userSection" class="mt-1">Class A</p>
+            <p id="userEmail" class="mt-1">abcde@gmail.com</p>
+            <button id="changeProfileButton" class="btn btn-outline-warning mt-3">Change Profile</button>
             <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
           </div>
 
@@ -166,10 +168,7 @@
               <i class="fa fa-users" aria-hidden="true"></i>
               <p>Members</p>
             </div>
-            <div class="d-flex align-items-center gap-3" id="showChangePassword">
-              <i class="fa fa-key" aria-hidden="true"></i>
-              <p>Change Password</p>
-            </div>
+         
 
             <div class="d-flex align-items-center gap-3" id="logout">
               <i class="lni lni-exit"></i>
@@ -183,66 +182,8 @@
           <h3 class="mb-4 mt-2" id="containerTitle" style="margin-left: 2rem;">Members</h3>
 
           <div id="members-container">
-            <button class="btn btn-success" id="addMember">Add a member</button>
-            <div class="member-item">
-              <img src="https://via.placeholder.com/60" alt="Member Avatar" class="rounded-circle">
-              <div>
-                <p class="memberName">Sukirthi</p>
-                <p class="memberDetail"><span class="memberRole">ELS coach</span> - <span class="memberClass">Class
-                    B</span></p>
-              </div>
-              <div class="ms-auto" id="editMemberDataBtn">
-                <button class="btn btn-sm btn-outline-primary"><i class="fas fa-pencil"></i></button>
-              </div>
-            </div>
-            <div class="member-item">
-              <img src="https://via.placeholder.com/60" alt="Member Avatar" class="rounded-circle">
-              <div>
-                <p class="memberName">BharatWaj</p>
-                <p class="memberDetail"><span class="memberRole">Tech coach</span> - <span class="memberClass">Class
-                    B</span></p>
-              </div>
-              <div class="ms-auto" id="editMemberDataBtn">
-                <button class="btn btn-sm btn-outline-primary"><i class="fas fa-pencil"></i></button>
-              </div>
-            </div>
-          </div>
-
-
-          <div id="change-password-container">
-            <form id="changePasswordForm">
-              <div class="mb-4">
-                <label for="oldPassword" class="form-label">Old Password</label>
-                <div class="input-group">
-                  <input type="password" class="form-control" id="oldPassword" placeholder="Enter your old password"
-                    required>
-                  <span class="input-group-text" id="toggleOldPassword"><img
-                      src="../../assets/images/changePassword_img/Eye close.svg" alt=""></span>
-                </div>
-                <div class="error-message" id="oldPasswordError"></div>
-              </div>
-              <div class="mb-4">
-                <label for="newPassword" class="form-label">New Password</label>
-                <div class="input-group">
-                  <input type="password" class="form-control" id="newPassword" placeholder="Enter your new password"
-                    required>
-                  <span class="input-group-text" id="toggleNewPassword"><img
-                      src="../../assets/images/changePassword_img/Eye close.svg" alt=""></span>
-                </div>
-                <div class="error-message" id="newPasswordError"></div>
-              </div>
-              <div class="mb-4">
-                <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                <div class="input-group">
-                  <input type="password" class="form-control" id="confirmPassword"
-                    placeholder="Confirm your new password" required>
-                  <span class="input-group-text" id="toggleConfirmPassword"><img
-                      src="../../assets/images/changePassword_img/Eye close.svg" alt=""></span>
-                </div>
-                <div class="error-message" id="confirmPasswordError"></div>
-              </div>
-              <button type="submit" class="btn btn-success w-75" id="changePassword">Change Password</button>
-            </form>
+            <button class="btn btn-outline-success" id="addMember">Add a member</button>
+            <div id="membersList"></div>
           </div>
 
 
@@ -259,25 +200,22 @@
                 <input type="email" class="form-control" id="newMemberEmail" placeholder="Enter email address">
                 <div class="error-message" id="newMemberEmailError"></div>
               </div>
-              <div class="form-group ">
-                <label class="mb-1" for="disabledTextInput">Password</label>
-                <input class="form-control" type="text" placeholder="FSSAsts@2024" readonly id="newMemberPassword">
-              </div>
-              <div class="dropdown">
+              <div class="dropdown" id="forSelectRole">
                 <label for="disabledTextInput">Select Role</label>
-                <button style="margin-left: 10px;" class="btn btn-warning dropdown-toggle " type="button"
+                <button style="margin-left: 10px;" class="btn btn-outline-warning dropdown-toggle " type="button"
                   id="newMemberRole" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Select Role
                 </button>
                 <div class="dropdown-menu" aria-labelledby="newMemberRole">
                   <a class="dropdown-item" href="#">Tech coach</a>
                   <a class="dropdown-item" href="#">ELS coach</a>
-                  <a class="dropdown-item" href="#">Head coach / management</a>
+                  <a class="dropdown-item" href="#">Head coach</a>
+                  <a class="dropdown-item" href="#">Management</a>
                 </div>
               </div>
-              <div class="dropdown">
+              <div class="dropdown" id="forSelectClass">
                 <label for="disabledTextInput">Select Class</label>
-                <button class="btn btn-warning dropdown-toggle " type="button" id="newMemberClass"
+                <button class="btn btn-outline-warning dropdown-toggle " type="button" id="newMemberClass"
                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Select Class
                 </button>
@@ -288,39 +226,40 @@
                 </div>
               </div>
               <div class="d-flex gap-4">
-                <button id="cancelNewMember" class="btn btn-danger">cancel</button>
-                <button type="submit" class="btn btn-success" id="confirmNewMember">Confirm</button>
+                <button id="cancelNewMember" class="btn btn-outline-danger">cancel</button>
+                <button type="submit" class="btn btn-outline-success" id="confirmNewMember">Confirm</button>
               </div>
             </form>
           </div>
 
 
           <div id="editMemberDataContainer">
-            <form>
+            <form id="editMemberForm" novalidate>
               <div class="form-group ">
                 <label class="mb-1" for="editUserName">User name</label>
                 <input type="text" id="editUserName" class="form-control" placeholder="Enter username">
-                <div class="error-message" id="editMemeberDataEmailError"></div>
+                <div class="error-message" id="editUserNameError"></div>
               </div>
               <div class="form-group ">
                 <label class="mb-1" for="editEmailAddress">Email address</label>
                 <input type="email" class="form-control" id="editEmailAddress" placeholder="xyz@gmail.com" readonly>
               </div>
-              <div class="dropdown">
+              <div class="dropdown" id="forEditRole">
                 <label for="editMemberRole">Select Role</label>
-                <button style="margin-left: 10px;" class="btn btn-warning dropdown-toggle " type="button"
+                <button style="margin-left: 10px;" class="btn btn-outline-warning dropdown-toggle " type="button"
                   id="editMemberRole" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Select Role
                 </button>
                 <div class="dropdown-menu" aria-labelledby="editMemberRole">
                   <a class="dropdown-item" href="#">Tech coach</a>
                   <a class="dropdown-item" href="#">ELS coach</a>
-                  <a class="dropdown-item" href="#">Head coach / management</a>
+                  <a class="dropdown-item" href="#">Head coach</a>
+                  <a class="dropdown-item" href="#">Management</a>
                 </div>
               </div>
-              <div class="dropdown">
+              <div class="dropdown" id="forEditClass">
                 <label for="editMemberClass">Select Class</label>
-                <button class="btn btn-warning dropdown-toggle " type="button" id="editMemberClass"
+                <button class="btn btn-outline-warning dropdown-toggle " type="button" id="editMemberClass"
                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Select Class
                 </button>
@@ -331,11 +270,11 @@
                 </div>
               </div>
               <div class="d-flex gap-4">
-                <button id="cancelEditMemberData" class="btn btn-danger">cancel</button>
-                <button type="submit" class="btn btn-success" id="confirmEditMemberData">Confirm</button>
+                <button id="cancelEditMemberData" class="btn btn-outline-danger">cancel</button>
+                <button type="submit" class="btn btn-outline-success" id="confirmEditMemberData">Confirm</button>
               </div>
             </form>
-            <button class="btn btn-danger" id="deleteMember">Delete Member</button>
+            <button class="btn btn-outline-danger" id="deleteMember">Delete Member</button>
           </div>
 
           <div id="loading">
