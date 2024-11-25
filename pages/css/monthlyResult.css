@@ -22,23 +22,14 @@
 }
 
 
-.seebuttons {
-    position: fixed;
-    bottom: 5%;
-    right: 2%;
-    display: none;
-    gap: 1rem;
-    z-index: 100;
-    font-family: poppins;
-    flex-direction: column;
 
-}
 
 .btnsContainer {
     position: fixed;
     top: 10%;
     right: 3%;
     font-family: poppins;
+    z-index: -100;
 }
 
 
@@ -69,14 +60,6 @@
     color: red;
 }
 
-#loading {
-    position: absolute;
-    left: 52%;
-    top: 48%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color: var(--border-left);
-}
 
 .handsontable td {
     white-space: nowrap !important;
@@ -90,6 +73,7 @@
     right: 28%;
     display: flex;
     gap: 1rem;
+    z-index: -100;
 }
 #checkboxes>div{
     display: flex;

@@ -174,6 +174,7 @@ function renderTable(data) {
         }
       },
     });
+    document.getElementById("loading").style.display="none"
   } else {
     hot.loadData(data);
   }
@@ -200,6 +201,7 @@ async function initTable() {
   const formattedData = formatDataWithAverage(rawData, includePET, includeProject);
   renderTable(formattedData);
   setupCheckboxListeners(rawData);
+
 }
 
 initTable();

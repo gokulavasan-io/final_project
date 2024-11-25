@@ -48,48 +48,6 @@ document.getElementById("attendance").addEventListener("click",()=>{
 })
 
 
-document.getElementById("logout").addEventListener("click", function () {
-  document.getElementById("logout-warning").style.display = "block";
-});
-
-document.getElementById("yes").addEventListener("click", function () {
-  signOut(auth)
-    .then(() => {
-      deleteCookie("userLoggedIn"); // Assuming you have a deleteCookie function
-      showLogoutMessage();
-
-      // Redirect to index.html and disable back navigation
-      setTimeout(() => {
-        window.location.replace("../../index.html");
-        history.pushState(null, null, "../../index.html");
-        window.addEventListener("popstate", function (event) {
-          history.pushState(null, null, "../../index.html");
-        });
-      }, 500);
-    })
-    .catch((error) => {
-      console.log("An error happened.");
-    });
-
-  document.getElementById("logout-warning").style.display = "none";
-});
-function deleteCookie(name) {
-  document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-}
-
-document.getElementById("no").addEventListener("click", function () {
-  document.getElementById("logout-warning").style.display = "none";
-});
-
-
-function showLogoutMessage() {
-  const message = document.getElementById("logoutMessage");
-  message.classList.add("show");
-  setTimeout(() => {
-    message.classList.remove("show");
-  }, 500);
-}
-
 document.getElementById("backButton").addEventListener("click",()=>{
   window.history.back();
 });

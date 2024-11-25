@@ -186,14 +186,6 @@ td {
     text-overflow: ellipsis !important;
 }
 
-#loading{
-    position: absolute;
-    left: 52%;
-    top: 48%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color:var(--border-left);
-}
 
 
 /* for generating tables */
@@ -288,6 +280,7 @@ td {
     top: 9%;
     right: 3%;
     font-family: var(--font);
+    z-index: -100;
 }
 
 
