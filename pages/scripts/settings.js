@@ -15,8 +15,7 @@ import {
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import {
-  getAuth,
-  onAuthStateChanged,
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut ,onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 // Firebase configuration
