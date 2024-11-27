@@ -274,10 +274,10 @@
         </div>
     </header>
 
-    <div id="loading" >
+    <!-- <div id="loading" >
         <div class="lineInLoading"></div>
         <p id="progressMessage">Please wait....</p>
-    </div>
+    </div> -->
 
 
     <div class="buttonContainer">
@@ -333,7 +333,7 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
-        const loading= document.getElementById("loading");
+       // const loading= document.getElementById("loading");
 
         document.getElementById("forClass").addEventListener("click",()=>{
             document.querySelector(".introInfo").style.display="none";
@@ -344,10 +344,11 @@
 
         // Function to fetch student marks
         async function fetchStudentMarks() {
-            const dbRef = ref(database, `/studentMarks/${section}/months/${month}/result`);
+            const dbRef = ref(database, `/FSSA/${section}/${month}/Result/finalResult`);
             const snapshot = await get(dbRef);
 
             if (snapshot.exists()) {
+                console.log(snapshot.val())
                 return snapshot.val();
             } else {
                 console.log("No data available");
@@ -378,9 +379,12 @@
             const data = await fetchStudentMarks();
 
             // Identify subjects based on keys in the dataset
-            const baseSubjects = ["English", "LifeSkills", "Tech", "ProblemSolving", "AcademicOverall"];
-            if ("Project" in data.classAverage) {
+            const baseSubjects = ["English", "LifeSkills", "Tech", "ProblemSolving", "Academic Overall"];
+            if ("Project" in data["Class Average"]) {
                 baseSubjects.splice(4, 0, "Project");
+            }
+            if("PET" in data["Class Average"]){
+                baseSubjects.splice(5,0,"PET");
             }
 
             const subjects = baseSubjects;
@@ -423,7 +427,7 @@
 
         // Display data in Handsontable
         async function displayTable() {
-            loading.style.display="none";
+           // loading.style.display="none";
             const { tableData, subjects } = await prepareTableData();
             const headers = ["", ...subjects]; // Include empty column header for labels like "Top 5" and "Bottom 5"
 
@@ -457,7 +461,7 @@
         ];
 
         async function fetchMonths(section) {
-            const monthRef = ref(database, `/studentMarks/${section}/months`);
+            const monthRef = ref(database, `/FSSA/ClassB/`);
             const monthSnapshot = await get(monthRef);
 
             if (monthSnapshot.exists()) {
