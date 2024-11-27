@@ -378,6 +378,7 @@ async function fetchMembers() {
           editMemberData(user.email, user.name, user.role, user.section);
         });
       });
+      hideLoading();
     } else {
       console.log("No users found!");
     }

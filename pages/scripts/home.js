@@ -60,7 +60,7 @@ document.querySelectorAll("#showClassesForLead button").forEach((button) => {
 });
 
 
-
+changeToClass()
 
 async function changeToManagementSide() {
   document.querySelector(".buttonForMonthChange").style.display = "none";
@@ -81,7 +81,7 @@ async function changeToClass() {
 async function fetchStudentMarks(month) {
   const dbRef = ref(
     database,
-    `/FSSA/${section}/${month}/result`
+    `/FSSA/${section}/${month}/Result/finalResult`
   );
   const snapshot = await get(dbRef);
 
@@ -348,7 +348,7 @@ async function fetchMonthlyData() {
   let months = [...monthsForGraph];
   
   for (let month of months) {
-    const dbRef = ref(database, `/FSSA/${section}/${month}/result/classAverage`);
+    const dbRef = ref(database, `/FSSA/${section}/${month}/Result/finalResult/Class Average`);
     const snapshot = await get(dbRef);
 
     if (snapshot.exists()) {

@@ -209,6 +209,10 @@
             <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
         </div>
     </header>
+    <!-- <div id="loading" >
+        <div class="lineInLoading"></div>
+        <p id="progressMessage">Please wait....</p>
+    </div> -->
 
 
     <div class="mainContainer">
@@ -281,7 +285,7 @@
 
         // Fetch months for all classes concurrently
         async function fetchMonths(section) {
-            const monthRef = ref(database, `/studentMarks/${section}/months`);
+            const monthRef = ref(database, `/FSSA/${section}`);
             const monthSnapshot = await get(monthRef);
 
             if (monthSnapshot.exists()) {
@@ -296,7 +300,7 @@
         async function fetchClassData(className) {
             const classData = {};
             for (const month of months) {
-                const dataRef = ref(database, `/studentMarks/${className}/months/${month}/result/classAverage`);
+                const dataRef = ref(database, `/FSSA/${className}/${month}/Result/finalResult/Class Average`);
                 const snapshot = await get(dataRef);
 
                 if (snapshot.exists()) {
@@ -361,7 +365,7 @@
                 borderWidth: 1,
                 borderDash: [5, 5]  // Dotted line for differentiation
             });
-            document.getElementById("loading").style.display = "none";
+            //document.getElementById("loading").style.display = "none";
             // Create a bar chart for the given category
             new Chart(ctx, {
                 type: 'bar',

@@ -95,3 +95,15 @@ body {
 
 }
 
+#login {
+    display: flex;
+    gap:1rem;
+    align-items: center;
+    justify-content: center;
+}
+
+#login img{
+    width: 30px;
+    background-color: white;
+    border-radius: 50px;
+}

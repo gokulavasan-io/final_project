@@ -323,12 +323,12 @@ h4{
     margin-bottom: 0;
 }
 
-.bottomContainer .warning{
+.bottomContainer .gradeWarning{
     height: 50%;
     display: flex;
     flex-direction: column;
 }
-.warning p{
+.gradeWarning p{
     font-size: .6rem;
     color: var(--report-primary);
 
