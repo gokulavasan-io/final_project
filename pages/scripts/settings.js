@@ -196,116 +196,102 @@ async function getProfilePic() {
 
 getProfilePic();
 
+
 function isUsernameValid(username) {
-  const usernameRegex = /^[a-zA-Z]{3,15}(?: [a-zA-Z](?: [a-zA-Z])?)?$/;
-  return usernameRegex.test(username);
+  return /^[a-zA-Z]{3,15}(?: [a-zA-Z](?: [a-zA-Z])?)?$/.test(username);
 }
 
 function isEmailValid(email) {
-  const emailRegex =
-    /^(?!\.)("[\w&'*+._%-]+(?:\\[\w&'*+._%-]+)*"|\w[\w&'*+._%-]*\w)@([A-Za-z0-9.-]+\.[A-Za-z]{2,})$/;
-  return emailRegex.test(email);
+  return /^(?!\.)("[\w&'*+._%-]+(?:\\[\w&'*+._%-]+)*"|\w[\w&'*+._%-]*\w)@([A-Za-z0-9.-]+\.[A-Za-z]{2,})$/.test(email);
 }
 
-document
-  .getElementById("confirmNewMember")
-  .addEventListener("click", async (e) => {
-    e.preventDefault();
+function clearErrorMessages() {
+  document.getElementById("newMemberNameError").innerText = "";
+  document.getElementById("newMemberEmailError").innerText = "";
+}
 
-    const username = document.getElementById("newMemberUserName").value.trim();
-    const email = document.getElementById("newMemberEmail").value.trim();
-    const role = document.getElementById("newMemberRole").innerText.trim();
-    let section = document.getElementById("newMemberClass").innerText.trim();
+function setErrorMessage(elementId, message) {
+  document.getElementById(elementId).innerText = message;
+}
 
-    // Clear previous error messages
-    document.getElementById("newMemberNameError").innerText = "";
-    document.getElementById("newMemberEmailError").innerText = "";
+document.getElementById("confirmNewMember").addEventListener("click", async (e) => {
+  e.preventDefault();
 
-    let isValid = true;
+  const username = document.getElementById("newMemberUserName").value.trim();
+  const email = document.getElementById("newMemberEmail").value.trim();
+  const role = document.getElementById("newMemberRole").innerText.trim();
+  let section = document.getElementById("newMemberClass").innerText.trim();
 
-    // Username validation
-    if (!isUsernameValid(username)) {
-      isValid = false;
-      document.getElementById("newMemberNameError").innerText =
-        "Username must be 3-15 characters and only contains alphabets.";
+  // Clear previous error messages
+  clearErrorMessages();
+  let isValid = true;
+
+  // Validate inputs
+  if (!isUsernameValid(username)) {
+    setErrorMessage("newMemberNameError", "Username must be 3-15 characters and only contain alphabets.");
+    isValid = false;
+  }
+
+  if (!isEmailValid(email)) {
+    setErrorMessage("newMemberEmailError", "Please enter a valid email address.");
+    isValid = false;
+  }
+
+  if (role.includes("elect")) {
+    showErrorMessage("Please select a role", 3000);
+    isValid = false;
+  }
+
+  if (
+    section.includes("elect") &&
+    !["Head coach", "Management"].includes(role)
+  ) {
+    showErrorMessage("Please select a class", 3000);
+    isValid = false;
+  }
+
+  if (!isValid) return; // Stop further execution if validation fails
+
+  if (["Head coach", "Management"].some((r) => role.includes(r))) {
+    section = "FSSA";
+  }
+
+  // Show loading indicator
+  document.getElementById("loadingLine").style.display = "block";
+
+  try {
+    const docRef = doc(db, "FSSA/users/teachers", email);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      showErrorMessage("User already exists", 3000);
+    } else {
+      await setDoc(docRef, {
+        name: username,
+        role,
+        section,
+        email,
+        profileLink: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjzpcE0fw9En2Z0l34Z0hzY35QhY4P6g2eqK1eGgk_up0tmsbI1YuSEAzk3SXVkLfj6gg&usqp=CAU",
+      });
+
+      fetchMembers();
+      document.getElementById("addMemberContainer").style.display = "none";
+      document.getElementById("containerTitle").innerText = "Members";
+      setTimeout(() => {
+        membersContainer.style.display = "block";
+        newMemberForm.reset();
+        document.getElementById("newMemberRole").innerText = "Select Role";
+        document.getElementById("newMemberClass").innerText = "Select Class";
+        showSuccessMessage("Member added successfully");
+      }, 1000);
     }
+  } catch (error) {
+    showErrorMessage("An error occurred while adding the user. Please try again.", 3000);
+  } finally {
+    document.getElementById("loadingLine").style.display = "none";
+  }
+});
 
-    // Email validation
-    if (!isEmailValid(email)) {
-      isValid = false;
-      document.getElementById("newMemberEmailError").innerText =
-        "Please enter a valid email address.";
-    }
-
-    // Role validation
-    if (role.includes("elect")) {
-      isValid = false;
-      showErrorMessage("Please select a role", 3000);
-    }
-
-    if (!isValid) {
-      return; // Stop further execution if validation fails
-    }
-
-
-    // Class validation (only required if role is not 'admin')
-    if (
-      section.includes("elect") &&
-      role !== "Head coach" &&
-      role !== "Management"
-    ) {
-      isValid = false;
-      showErrorMessage("Please select a class", 3000);
-    }
-
-    if (!isValid) {
-      return; // Stop further execution if validation fails
-    }
-
-    if (role.includes("Head") || role.includes("Manage")) {
-      section = "FSSA";
-    }
-    // Proceed if all validations pass
-    document.getElementById("loadingLine").style.display = "block";
-    try {
-      const docRef = doc(db, "FSSA/users/teachers", email);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        showErrorMessage("User already exists", 3000);
-      } else {
-        await setDoc(docRef, {
-          name: username,
-          role: role,
-          section: section,
-          email: email,
-          profileLink:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjzpcE0fw9En2Z0l34Z0hzY35QhY4P6g2eqK1eGgk_up0tmsbI1YuSEAzk3SXVkLfj6gg&usqp=CAU",
-        });
-
-        fetchMembers();
-        document.getElementById("addMemberContainer").style.display = "none";
-        document.getElementById("containerTitle").innerText = "Members";
-        setTimeout(() => {
-          membersContainer.style.display = "block";
-          newMemberForm.reset();
-          document.getElementById("newMemberRole").innerText = "Select Role";
-          document.getElementById("newMemberClass").innerText = "Select Class";
-          showSuccessMessage("Member added successfully");
-        }, 1000);
-        setTimeout(() => {
-          document.getElementById("loadingLine").style.display = "none";
-        }, 3000);
-      }
-    } catch (error) {
-      showErrorMessage(
-        "An error occurred while adding the user. Please try again.",
-        3000
-      );
-    } finally {
-      document.getElementById("loadingLine").style.display = "none";
-    }
-  });
 
 document
   .getElementById("forSelectRole")
@@ -568,4 +554,5 @@ function hideLoading() {
 document.addEventListener("DOMContentLoaded", () => {
   fetchMembers();
 });
+
 
