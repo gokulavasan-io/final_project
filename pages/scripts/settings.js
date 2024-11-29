@@ -240,7 +240,10 @@ document.getElementById("confirmNewMember").addEventListener("click", async (e) 
   if (role.includes("elect")) {
     showErrorMessage("Please select a role", 3000);
     isValid = false;
+    return;
   }
+
+
 
   if (
     section.includes("elect") &&
@@ -248,7 +251,10 @@ document.getElementById("confirmNewMember").addEventListener("click", async (e) 
   ) {
     showErrorMessage("Please select a class", 3000);
     isValid = false;
+    return;
   }
+
+  
 
   if (!isValid) return; // Stop further execution if validation fails
 
