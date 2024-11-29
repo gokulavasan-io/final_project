@@ -96,10 +96,9 @@ async function fetchDataAndDisplay() {
         const validMark = typeof mark === "number" && !isNaN(mark) ? mark : 0; // Replace NaN or non-numeric marks with 0
         return sum + validMark;
       }, 0);
-      
+
       const averageMarks = totalMarks / (student.marks.length || 1); // Avoid division by 0 if the array is empty
       student["Average"] = averageMarks.toFixed(2);
-      
 
       if (averageMarks >= 81) avgData.green += 1;
       else if (averageMarks >= 51) avgData.yellow += 1;
@@ -201,7 +200,7 @@ async function fetchDataAndDisplay() {
 
     updateCountTable(Object.values(avgData));
 
-    let colorsApplied = false; 
+    let colorsApplied = false;
 
     document
       .getElementById("showColors")
@@ -255,16 +254,15 @@ async function fetchDataAndDisplay() {
         // Toggle the colorsApplied state
         colorsApplied = !colorsApplied;
       });
-    
-    } else {
+  } else {
     document.getElementById("loading").style.display = "none";
     document.getElementById("forEmptyMonth").style.display = "flex";
   }
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
   fetchDataAndDisplay();
-})
+});
 
 async function updateCountTable(scoreRanges) {
   let totalStudents = scoreRanges.reduce((a, b) => a + b);
@@ -342,10 +340,8 @@ window.addEventListener("beforeunload", () => {
   document.getElementById(id).addEventListener("click", showNewMarkContainer);
 });
 
-
-
 let hot; // Global variable for Handsontable instance
-
+let newMarkFile;
 function showNewMarkContainer() {
   document.getElementById("subjectNew").innerText = subject;
   document.getElementById("monthNew").innerText = month;
@@ -360,7 +356,8 @@ function showNewMarkContainer() {
 
   // Check if hot is initialized or destroyed
   if (!hot || hot.isDestroyed) {
-    showNewMarkTable()
+    showNewMarkTable();
+    newMarkFile = true;
   } else {
     hot.render(); // Re-render the table if already initialized
   }
@@ -373,13 +370,14 @@ document.getElementById("closeBtnForNewMark").addEventListener("click", () => {
     hot.destroy(); // Destroy the instance when closing the container
     hot = null; // Clear the reference to avoid accessing destroyed instance
   }
-  document.getElementById("totalMarks").value=null;
-  document.getElementById("datasetName").value=null;
-  fetchDataAndDisplay(); // Call any necessary function to refresh data
+  newMarkFile = false;
+  document.getElementById("totalMarks").value = null;
+  document.getElementById("datasetName").value = null;
+  document.getElementById("saveToFirebase").innerText = "Save";
+  fetchDataAndDisplay();
 });
 
-
-async  function showNewMarkTable() {
+async function showNewMarkTable() {
   const container = document.getElementById("handsontableForNew");
   let data = [];
   let Students = [];
@@ -396,12 +394,12 @@ async  function showNewMarkTable() {
           Students = studentNames;
         } else {
           console.error("No student names found for the selected class.");
-          alert("No student names found for the selected class.");
+          showErrorMessage("No student names found for the selected class.",3000);
           return [];
         }
       } else {
         console.log("No such document!");
-        alert("No such document for the selected class.");
+        showErrorMessage("No such document for the selected class.",3000);
         return [];
       }
     } catch (error) {
@@ -489,7 +487,7 @@ async  function showNewMarkTable() {
       totalMarks = customTotalMarks;
       updateTableAverages(); // Update averages based on the new totalMarks
     } else {
-      alert("Please enter a valid total marks value.");
+      showErrorMessage("Please enter a valid total marks value.",3000);
     }
   });
 
@@ -521,7 +519,7 @@ async  function showNewMarkTable() {
 
     try {
       const snapshot = await get(ref(db, dataPath));
-      const tableData = hot.getData(); // Assumes tableData is an array of student data (e.g., [[name, marks, avg, remark], ...])
+      const tableData = hot.getData(); // Table data as an array of arrays [[name, marks, avg, remark], ...]
 
       // Transform the tableData into the desired structure
       const transformedStudents = {};
@@ -542,22 +540,25 @@ async  function showNewMarkTable() {
         timestamp: new Date().toISOString(),
       };
 
-
       if (snapshot.exists()) {
-        // Data already exists, update it
-        await update(ref(db, dataPath), saveData);
-        showSuccessMessage("Data updated successfully.");
+        if (newMarkFile) {
+          showErrorMessage(
+            "A file already exists with the same name. Please choose a different name.",3000
+          );
+        } else {
+          await update(ref(db, dataPath), saveData);
+          showSuccessMessage("Data updated successfully.");
+        }
       } else {
-        // Save new dataset
+        // Save new file
         await set(ref(db, dataPath), saveData);
+        newMarkFile = false;
         showSuccessMessage("Data saved successfully.");
+        document.getElementById("saveToFirebase").innerText = "Update";
       }
-
-      document.getElementById("saveToFirebase").innerText = "Update";
-      document.getElementById("forEmptyMonth").style.display = "none";
     } catch (error) {
       console.error("Error saving or updating data:", error);
-      alert("Error saving or updating data.");
+      showErrorMessage("Error saving or updating data. Please try again.",3000);
     }
   }
 
@@ -570,19 +571,35 @@ async  function showNewMarkTable() {
       );
 
       if (customName === "") {
-        alert("Please enter a valid dataset name.");
+        showErrorMessage("Please enter a valid dataset name.",3000);
         return; // Exit if the dataset name is empty
       }
       if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
-        alert("Please enter a valid Mark to find Total");
+        showErrorMessage("Please enter a valid Mark to find Total",4000);
         return; // Exit if the dataset name is empty
+      }
+      const totalMarks = parseInt(totalMarksInput.value);
+      if (validateMarksExceeding(totalMarks)) {
+        showErrorMessage(
+          "One or more marks exceed the total marks. Please correct them before saving.",4000
+        );
+        return;
       }
 
       saveDataToFirebase(customName); // Save data manually
     });
 }
 
-
+function validateMarksExceeding(totalMarks) {
+  const rowCount = hot.countRows();
+  for (let row = 0; row < rowCount; row++) {
+    const marks = hot.getDataAtCell(row, 1);
+    if (!isNaN(marks) && marks > totalMarks) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -710,7 +727,7 @@ function fetchAndDisplayData(datasetNameFromTable) {
                   if (!isNaN(marks)) {
                     if (marks > totalMarks) {
                       hotForExists.setCellMeta(row, 1, "className", "error");
-                      alert("Marks cannot exceed total marks.");
+                      showErrorMessage("Marks cannot exceed total marks.",2000);
                     } else {
                       hotForExists.setCellMeta(row, 1, "className", null);
                       const percentage = (marks / totalMarks) * 100;
@@ -721,7 +738,7 @@ function fetchAndDisplayData(datasetNameFromTable) {
                     hotForExists.setDataAtCell(row, 2, "Absent");
                     hotForExists.setCellMeta(row, 2, "className", "absent");
                   } else {
-                    alert("Invalid input. Enter a number or 'A' for absent.");
+                    showErrorMessage("Invalid input. Enter a number or 'A' for absent.",3000);
                     hotForExists.setDataAtCell(row, 1, oldValue);
                   }
                 }
@@ -729,7 +746,6 @@ function fetchAndDisplayData(datasetNameFromTable) {
               hotForExists.render(); // Re-render table to apply changes
               createChartForExist();
             }
-            
           },
         });
 
@@ -743,7 +759,7 @@ function fetchAndDisplayData(datasetNameFromTable) {
             updateCellColor(rowIndex, percentage.toFixed(2)); // Apply color
           }
         });
-        
+
         hotForExists.render();
       } else {
         alert("No data found for the selected dataset.");
@@ -859,7 +875,7 @@ if (updateTotalMarksButton) {
     if (!isNaN(totalMarks) && totalMarks > 0) {
       recalculateAverages(totalMarks); // Recalculate based on new total marks
     } else {
-      alert("Please enter a valid number for total marks.");
+      showErrorMessage("Please enter a valid number for total marks.",3000);
     }
   });
 }
@@ -972,7 +988,7 @@ async function renameDataset() {
       alert("Failed to rename the dataset.");
     }
   } else {
-    alert("Please enter a new name different from the current one.");
+    showErrorMessage("Please enter a new name different from the current one.",3000);
   }
 }
 
@@ -1049,3 +1065,12 @@ document
   .addEventListener("click", function () {
     document.getElementById("delete-warning").style.display = "none";
   });
+
+function showErrorMessage(str, time) {
+  const errorPopup = document.getElementById("error-message");
+  errorPopup.innerText = str;
+  errorPopup.style.display = "block";
+  setTimeout(() => {
+    errorPopup.style.display = "none";
+  }, time);
+}
