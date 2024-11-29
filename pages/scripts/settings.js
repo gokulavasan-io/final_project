@@ -256,10 +256,12 @@ document.getElementById("confirmNewMember").addEventListener("click", async (e) 
     section = "FSSA";
   }
 
+  if (!isValid) return;
   // Show loading indicator
   document.getElementById("loadingLine").style.display = "block";
-
+  if (!isValid) return;
   try {
+    if (!isValid) return;
     const docRef = doc(db, "FSSA/users/teachers", email);
     const docSnap = await getDoc(docRef);
 
