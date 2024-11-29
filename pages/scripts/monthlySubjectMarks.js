@@ -555,6 +555,7 @@ async function showNewMarkTable() {
         newMarkFile = false;
         showSuccessMessage("Data saved successfully.");
         document.getElementById("saveToFirebase").innerText = "Update";
+        document.getElementById("datasetName").readOnly=true;
       }
     } catch (error) {
       console.error("Error saving or updating data:", error);
