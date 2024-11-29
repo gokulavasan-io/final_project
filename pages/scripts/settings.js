@@ -197,7 +197,7 @@ async function getProfilePic() {
 getProfilePic();
 
 function isUsernameValid(username) {
-  const usernameRegex = /^[a-zA-Z]{3,15}$/;
+  const usernameRegex = /^[a-zA-Z]{3,15}(?: [a-zA-Z](?: [a-zA-Z])?)?$/;
   return usernameRegex.test(username);
 }
 
@@ -238,14 +238,19 @@ document
     }
 
     // Role validation
-    if (role === "Select Role") {
+    if (role.includes("elect")) {
       isValid = false;
       showErrorMessage("Please select a role", 3000);
     }
 
+    if (!isValid) {
+      return; // Stop further execution if validation fails
+    }
+
+
     // Class validation (only required if role is not 'admin')
     if (
-      section === "Select Class" &&
+      section.includes("elect") &&
       role !== "Head coach" &&
       role !== "Management"
     ) {
