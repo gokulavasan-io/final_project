@@ -18,15 +18,7 @@ import {
   getAuth, GoogleAuthProvider, signInWithPopup, signOut ,onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
-  authDomain: "fir-demo-4a5b4.firebaseapp.com",
-  projectId: "fir-demo-4a5b4",
-  storageBucket: "fir-demo-4a5b4.appspot.com",
-  messagingSenderId: "716679557063",
-  appId: "1:716679557063:web:603a78f59045ceeaf133e2",
-};
+import firebaseConfig from "../scripts/config.js"
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -199,8 +191,9 @@ getProfilePic();
 
 
 function isUsernameValid(username) {
-  return /^[a-zA-Z]{3,15}(?: [a-zA-Z](?: [a-zA-Z])?)?$/.test(username);
+  return /^[a-zA-Z]{3,20}(?: [a-zA-Z]{1,20})*?$/.test(username);
 }
+
 
 function isEmailValid(email) {
   return /^(?!\.)("[\w&'*+._%-]+(?:\\[\w&'*+._%-]+)*"|\w[\w&'*+._%-]*\w)@([A-Za-z0-9.-]+\.[A-Za-z]{2,})$/.test(email);
