@@ -614,7 +614,7 @@ function renderHandsontable(topBottomData) {
   }
 }
 
-// Process Data
+
 function processScores(data) {
   const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0 };
   const processedData = {};
@@ -652,29 +652,34 @@ function processScores(data) {
   return processedData;
 }
 
-// Create Pie Charts
 function createCharts(processedData) {
-  const chartContainer = document.getElementById("chartContainerForAllSubject");
-  chartContainer.innerHTML = "";
   Object.keys(processedData).forEach((subject) => {
-    // Create a canvas element for each chart
-    const canvas = document.createElement("canvas");
-    canvas.id = `chart-${subject}`;
-    chartContainer.appendChild(canvas);
+    const canvas = document.getElementById(`chart-${subject}`);
+    console.log(subject);
 
-    // Prepare data for the chart
     const chartData = Object.values(processedData[subject]);
     const total = chartData.reduce((sum, val) => sum + val, 0);
 
+    const labels = ["0-50", "51-80", "81-100"].filter(
+      (_, idx) => chartData[idx] > 0
+    );
+    const dataValues = chartData.filter((value) => value > 0);
+
+    
+    const colorMap = {
+      "0-50": "#f44336", // Red
+      "51-80": "#FFC107", // Yellow
+      "81-100": "#4caf50", // Green
+    };
+    const backgroundColors = labels.map((label) => colorMap[label]);
+
     const data = {
-      labels: ["0-50", "51-80", "81-100"].filter(
-        (_, idx) => chartData[idx] > 0
-      ),
+      labels,
       datasets: [
         {
           label: `${subject}`,
-          data: chartData.filter((value) => value > 0), // Exclude zero values
-          backgroundColor: ["#f44336", "#FFC107", "#4caf50"],
+          data: dataValues,
+          backgroundColor: backgroundColors,
           borderWidth: 0,
         },
       ],
@@ -689,6 +694,10 @@ function createCharts(processedData) {
         plugins: {
           legend: {
             display: false,
+          },
+          title: {
+            display: true,
+            text: `${subject}`,
           },
           tooltip: {
             callbacks: {
@@ -718,7 +727,7 @@ function createCharts(processedData) {
   });
 }
 
-// Main Function
+
 async function createChartsForAllSubjects(rawData) {
   const processedData = processScores(rawData);
   createCharts(processedData);
