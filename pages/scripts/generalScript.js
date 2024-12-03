@@ -26,6 +26,29 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore();
 
+// check for user is logged in
+window.onload = function () {
+  onAuthStateChanged(auth, async (user) => {
+    if (user) { 
+      const docRef = doc(db, "FSSA/users/teachers", user.email);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        await signOut(auth);
+        console.log("Unauthorized user. Signing out...");
+        window.location.href = "../../index.html";
+      } else {
+        console.log("User is logged in and authorized!");
+      }
+    } else {
+      console.log("No user is logged in.");
+      window.location.href = "../../index.html";
+    }
+  });
+};
+
+
+
+
 // hamburger menu
 const hamBurger = document.querySelector(".toggle-btn");
 hamBurger.addEventListener("click", function () {
@@ -70,23 +93,4 @@ if (section != "FSSA") {
 }
 
 
-// check for user is logged in
-window.onload = function () {
-  onAuthStateChanged(auth, async (user) => {
-    if (user) { 
-      const docRef = doc(db, "FSSA/users/teachers", user.email);
-      const docSnap = await getDoc(docRef);
-      if (!docSnap.exists()) {
-        await signOut(auth);
-        console.log("Unauthorized user. Signing out...");
-        window.location.href = "../../index.html";
-      } else {
-        console.log("User is logged in and authorized!");
-      }
-    } else {
-      console.log("No user is logged in.");
-      window.location.href = "../../index.html";
-    }
-  });
-};
 
