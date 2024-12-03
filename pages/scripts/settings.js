@@ -199,8 +199,9 @@ getProfilePic();
 
 
 function isUsernameValid(username) {
-  return /^[a-zA-Z]{3,15}(?: [a-zA-Z](?: [a-zA-Z])?)?$/.test(username);
+  return /^[a-zA-Z]{3,20}(?: [a-zA-Z]{1,20})*?$/.test(username);
 }
+
 
 function isEmailValid(email) {
   return /^(?!\.)("[\w&'*+._%-]+(?:\\[\w&'*+._%-]+)*"|\w[\w&'*+._%-]*\w)@([A-Za-z0-9.-]+\.[A-Za-z]{2,})$/.test(email);
