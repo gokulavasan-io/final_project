@@ -12,16 +12,8 @@ import {
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
-  authDomain: "fir-demo-4a5b4.firebaseapp.com",
-  projectId: "fir-demo-4a5b4",
-  storageBucket: "fir-demo-4a5b4.appspot.com",
-  messagingSenderId: "716679557063",
-  appId: "1:716679557063:web:603a78f59045ceeaf133e2",
-};
+import firebaseConfig from "../scripts/config.js";
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore();
@@ -29,7 +21,7 @@ const db = getFirestore();
 // check for user is logged in
 window.onload = function () {
   onAuthStateChanged(auth, async (user) => {
-    if (user) { 
+    if (user) {
       const docRef = doc(db, "FSSA/users/teachers", user.email);
       const docSnap = await getDoc(docRef);
       if (!docSnap.exists()) {
@@ -46,15 +38,13 @@ window.onload = function () {
   });
 };
 
-
-
-
 // hamburger menu
 const hamBurger = document.querySelector(".toggle-btn");
 hamBurger.addEventListener("click", function () {
   document.querySelector("#sidebar").classList.toggle("expand");
 });
 
+// favIcon
 const favIcon = document.createElement("link");
 favIcon.rel = "icon";
 favIcon.type = "image/x-icon";
@@ -84,13 +74,14 @@ const userName = localStorage.getItem("userName");
 const section = localStorage.getItem("section");
 const role = localStorage.getItem("userRole");
 
-document.getElementById("user").innerText = userName.slice(0, 1).toUpperCase();
+if (userName) {
+  document.getElementById("user").innerText = userName
+    .slice(0, 1)
+    .toUpperCase();
+}
 
 if (section != "FSSA") {
   document.getElementById("classNow").textContent = section.slice(-1);
 } else {
   document.getElementById("classNow").textContent = "All";
 }
-
-
-

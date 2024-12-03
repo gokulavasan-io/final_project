@@ -3,16 +3,7 @@ import {
   getAuth, GoogleAuthProvider, signInWithPopup, signOut ,onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
-  authDomain: "fir-demo-4a5b4.firebaseapp.com",
-  projectId: "fir-demo-4a5b4",
-  storageBucket: "fir-demo-4a5b4",
-  messagingSenderId: "716679557063",
-  appId: "1:716679557063:web:603a78f59045ceeaf133e2",
-};
+import firebaseConfig from "../scripts/config.js"
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
