@@ -12,7 +12,9 @@ import {
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-import firebaseConfig from "../scripts/config.js";
+import firebaseConfig from "../../config.js"
+
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

@@ -18,7 +18,9 @@ import {
   getAuth, GoogleAuthProvider, signInWithPopup, signOut ,onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
-import firebaseConfig from "../scripts/config.js"
+import firebaseConfig from "../../config.js"
+
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

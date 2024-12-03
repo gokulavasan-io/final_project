@@ -10,7 +10,8 @@ import {
   getDocs,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
-import firebaseConfig from "../scripts/config.js"
+import firebaseConfig from "../../config.js"
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

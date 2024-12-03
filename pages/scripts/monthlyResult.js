@@ -1,7 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
-import firebaseConfig from "../scripts/config.js"
+import firebaseConfig from "../../config.js"
+
+
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);

@@ -9,7 +9,9 @@ import {
   remove,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
-import firebaseConfig from "../scripts/config.js"
+import firebaseConfig from "../../config.js"
+
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
