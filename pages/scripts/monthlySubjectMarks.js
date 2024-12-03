@@ -62,6 +62,10 @@ async function fetchDataAndDisplay() {
     }
 
     document.getElementById("forEmptyMonth").style.display = "none";
+    document.getElementById("saveAverageData").style.display = "inline-block";
+    document.getElementById("showColors").style.display = "block";
+    document.querySelector(".forChart").style.display="flex";
+    document.querySelector(".averageTableContainer").style.display="flex";
 
     const sortedDatasets = Object.entries(datasets)
       .map(([datasetName, datasetDetails]) => ({
@@ -330,9 +334,10 @@ async function saveFirstTwoColumnsData() {
 document
   .getElementById("saveAverageData")
   .addEventListener("click", saveFirstTwoColumnsData);
-window.addEventListener("beforeunload", () => {
-  saveFirstTwoColumnsData();
-});
+
+  window.addEventListener("beforeunload", () => {
+    saveFirstTwoColumnsData(); 
+  });
 
 // for generation table///////////////////////////////////
 
@@ -374,6 +379,7 @@ document.getElementById("closeBtnForNewMark").addEventListener("click", () => {
   document.getElementById("totalMarks").value = null;
   document.getElementById("datasetName").value = null;
   document.getElementById("saveToFirebase").innerText = "Save";
+  document.getElementById("datasetName").readOnly=false;
   fetchDataAndDisplay();
 });
 

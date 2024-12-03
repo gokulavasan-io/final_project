@@ -150,20 +150,21 @@
                 <h4 id="subjectOfTheTable"></h4>
                 <h5 id="monOfTheSubject"></h5>
             </div>
-            <button id="showColors" class="btn btn-outline-dark">show colors</button>
+            <button id="showColors" class="btn btn-outline-dark" style="display: none;">show colors</button>
         </div>
     </div>
     <div class="buttons">
-        <button class="btn btn-outline-success" id="saveAverageData">Save</button>
+        <button class="btn btn-outline-success" id="saveAverageData" style="display: none;">Save</button>
         <button class="btn btn-outline-primary" id="newTest">New Test</button>
     </div>
-    <div id="newTestName">
-        <input type="text" name="" id="">
-    </div>
-    <div class="forChart">
+    <div class="forChart flex-column align-items-center" style="display: none;">
+        <h6 >Average</h6>
         <canvas id="myChart"></canvas>
     </div>
 
+
+   <div class="averageTableContainer " style="display: none;">
+    <h6 >Average</h6>
 
     <table class="table countTable table-bordered">
         <thead class="tableHead">
@@ -197,6 +198,7 @@
 
         </tbody>
     </table>
+   </div>
 
     <!-- for adding new mark -->
 
