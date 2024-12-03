@@ -1,11 +1,10 @@
 const firebaseConfig = {
-  apiKey: 'REPLACE_WITH_FIREBASE_API_KEY',
-  authDomain: 'REPLACE_WITH_FIREBASE_AUTH_DOMAIN',
-  projectId: 'REPLACE_WITH_FIREBASE_PROJECT_ID',
-  storageBucket: 'REPLACE_WITH_FIREBASE_STORAGE_BUCKET',
-  messagingSenderId: 'REPLACE_WITH_FIREBASE_MESSAGING_SENDER_ID',
-  appId: 'REPLACE_WITH_FIREBASE_APP_ID',
-};
-
+    apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
+    authDomain: "fir-demo-4a5b4.firebaseapp.com",
+    projectId: "fir-demo-4a5b4",
+    storageBucket: "fir-demo-4a5b4.appspot.com",
+    messagingSenderId: "716679557063",
+    appId: "1:716679557063:web:603a78f59045ceeaf133e2",
+  };
 
 export default firebaseConfig;
