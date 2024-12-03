@@ -1,0 +1,729 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  get,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDROuHKj-0FhMQbQtPVeEGVb4h89oME5T0",
+  authDomain: "fir-demo-4a5b4.firebaseapp.com",
+  projectId: "fir-demo-4a5b4",
+  storageBucket: "fir-demo-4a5b4.appspot.com",
+  messagingSenderId: "716679557063",
+  appId: "1:716679557063:web:603a78f59045ceeaf133e2",
+  databaseURL: "https://fir-demo-4a5b4-default-rtdb.firebaseio.com/",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const dbFirestore = getFirestore(app);
+const dbRealtime = getDatabase(app);
+const baseData = {};
+const subjects=["Academic Overall","English","LifeSkills","Tech","ProblemSolving","PET","Project"]
+Chart.register(ChartDataLabels);
+
+async function fetchData(className) {
+  await fetchMonths(className);
+
+  try {
+    if (className === "All") {
+      await fetchAllClasses(["ClassA", "ClassB", "ClassC"]);
+      return;
+    }
+
+    const { combinedAcademicData, baseData } = await fetchClassData(className);
+    if (!combinedAcademicData) return;
+
+    createChartsForAllSubjects(combinedAcademicData);
+    const topBottomData = calculateTopBottom(combinedAcademicData);
+    renderHandsontable(topBottomData);
+    processAndRender(combinedAcademicData, baseData);
+    processAndRenderCharts(combinedAcademicData, baseData, "Academic Overall");
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+  }
+}
+
+async function fetchClassData(className, months = null) {
+  // Fetch months if not provided
+  if (!months) {
+    const monthsRef = ref(dbRealtime, `/FSSA/${className}`);
+    const monthsSnapshot = await get(monthsRef);
+
+    if (!monthsSnapshot.exists()) {
+      console.warn(`No months found for class: ${className}`);
+      return null;
+    }
+
+    months = Object.keys(monthsSnapshot.val());
+  }
+
+  // Aggregate academic data
+  let combinedAcademicData = {};
+  let studentCount = {};
+  for (const month of months) {
+    const academicRef = ref(
+      dbRealtime,
+      `/FSSA/${className}/${month}/Result/finalResult`
+    );
+    const academicSnapshot = await get(academicRef);
+
+    if (academicSnapshot.exists()) {
+      const monthData = academicSnapshot.val();
+      for (const student in monthData) {
+        if (student === "Class Average") continue;
+
+        if (!combinedAcademicData[student]) {
+          combinedAcademicData[student] = {};
+          studentCount[student] = {};
+        }
+
+        for (const subject in monthData[student]) {
+          if (!combinedAcademicData[student][subject]) {
+            combinedAcademicData[student][subject] = 0;
+            studentCount[student][subject] = 0;
+          }
+          combinedAcademicData[student][subject] += monthData[student][subject];
+          studentCount[student][subject]++;
+        }
+      }
+    }
+  }
+
+  // Calculate averages
+  for (const student in combinedAcademicData) {
+    for (const subject in combinedAcademicData[student]) {
+      combinedAcademicData[student][subject] /= studentCount[student][subject];
+    }
+  }
+
+  // Fetch base data
+  const baseDataRef = collection(
+    dbFirestore,
+    `FSSA/studentsBaseData/${className}`
+  );
+  const baseDataSnapshot = await getDocs(baseDataRef);
+  let baseData = {};
+  baseDataSnapshot.forEach((doc) => {
+    baseData[doc.id] = doc.data();
+  });
+
+  return { combinedAcademicData, baseData };
+}
+
+async function fetchAllClasses(classes) {
+  let combinedAcademicData = {};
+  let combinedBaseData = {};
+
+  for (const className of classes) {
+    const { combinedAcademicData: classAcademicData, baseData: classBaseData } =
+      await fetchClassData(className);
+    if (classAcademicData) {
+      combinedAcademicData = { ...combinedAcademicData, ...classAcademicData };
+      combinedBaseData = { ...combinedBaseData, ...classBaseData };
+    }
+  }
+
+  const topBottomData = calculateTopBottom(combinedAcademicData);
+  renderHandsontable(topBottomData);
+  createChartsForAllSubjects(combinedAcademicData)
+  processAndRender(combinedAcademicData, combinedBaseData);
+  processAndRenderCharts(
+    combinedAcademicData,
+    combinedBaseData,
+    "Academic Overall"
+  );
+}
+
+let handsontableInstance = null;
+function processAndRender(data, baseData) {
+ 
+
+  const subjectButtonsContainer = document.getElementById(
+    "subjectsDropdownList"
+  );
+  subjectButtonsContainer.innerHTML = "";
+  subjects.forEach((subject) => {
+    const subjectItem = document.createElement("a");
+    subjectItem.textContent =
+      subject == "Academic Overall" ? "All Subjects" : subject;
+    subjectItem.href = "#";
+    subjectItem.className = "dropdown-item";
+    subjectItem.onclick = () => {
+      document.getElementById("subjectsDropdown").textContent =
+        subject == "Academic Overall" ? "All Subjects" : subject;
+      renderSubjectData(subject, data, baseData);
+    };
+    subjectButtonsContainer.appendChild(subjectItem);
+
+    if (subject === "Academic Overall") {
+      renderSubjectData(subject, data, baseData);
+    }
+  });
+}
+
+function renderSubjectData(subject, data, baseData) {
+  // Render Table
+  const subjectData = [];
+  for (const student in data) {
+    if (student === "Class Average") continue;
+    subjectData.push({
+      Name: student,
+      Marks: data[student][subject],
+    });
+  }
+  renderAcademicOverallTable(subjectData, subject);
+
+  // Render Charts
+  processAndRenderCharts(data, baseData, subject);
+}
+
+function renderAcademicOverallTable(subjectData, subject) {
+  const container = document.getElementById("academic-overall-table");
+  container.innerHTML = ""; // Clear existing table
+
+  const ranges = {
+    "80-100": [],
+    "50-80": [],
+    "0-50": [],
+  };
+
+  subjectData.forEach((entry) => {
+    const score = entry.Marks;
+    const nameScore = `${entry.Name} - ${score}`;
+
+    if (score >= 80) {
+      ranges["80-100"].push(nameScore);
+    } else if (score >= 50) {
+      ranges["50-80"].push(nameScore);
+    } else if (score >= 0) {
+      ranges["0-50"].push(nameScore);
+    }
+  });
+
+  const maxRows = Math.max(
+    ranges["80-100"].length,
+    ranges["50-80"].length,
+    ranges["0-50"].length
+  );
+
+  const tableData = Array.from({ length: maxRows }, (_, rowIndex) => ({
+    "80-100": ranges["80-100"][rowIndex] || "",
+    "50-80": ranges["50-80"][rowIndex] || "",
+    "0-50": ranges["0-50"][rowIndex] || "",
+  }));
+
+  // Create a title for the subject
+  const title = document.createElement("h3");
+  title.textContent = `Subject : ${
+    subject == "Academic Overall" ? "All Subjects" : subject
+  }`;
+  container.appendChild(title);
+
+  // Render table
+  const tableContainer = document.createElement("div");
+  container.appendChild(tableContainer);
+
+  handsontableInstance = new Handsontable(tableContainer, {
+    data: tableData,
+    colHeaders: ["80-100", "50-80", "0-50"],
+    columns: [
+      { data: "80-100", type: "text", readOnly: true },
+      { data: "50-80", type: "text", readOnly: true },
+      { data: "0-50", type: "text", readOnly: true },
+    ],
+    rowHeaders: true,
+    stretchH: "all",
+    width: container.offsetWidth,
+    height: "auto",
+    licenseKey: "non-commercial-and-evaluation",
+    cells: function (row, col) {
+      const cellProperties = {};
+      if (row >= 0) cellProperties.className = "fonts";
+      return cellProperties;
+    },
+  });
+}
+
+function processAndRenderCharts(academicData, baseData, subject) {
+  const studentData = [];
+  for (const student in academicData) {
+    if (student === "Class Average") continue;
+    const marks = academicData[student][subject];
+    if (baseData[student]) {
+      studentData.push({
+        name: student,
+        marks: marks,
+        ...baseData[student],
+      });
+    }
+  }
+
+  const groupData = (groupKey) => {
+    const groups = {};
+    studentData.forEach((student) => {
+      const groupValue = student[groupKey];
+      const marksRange =
+        student.marks >= 80 ? "80-100" : student.marks >= 50 ? "50-80" : "0-50";
+      if (!groups[groupValue]) {
+        groups[groupValue] = { "80-100": 0, "50-80": 0, "0-50": 0 };
+      }
+      groups[groupValue][marksRange]++;
+    });
+    return groups;
+  };
+
+  function getGroupItems(groupKey) {
+    if (groupKey == "medium") {
+      return ["English", "Tamil"];
+    } else if (groupKey == "school") {
+      return ["Govt", "Private"];
+    } else if (groupKey == "category") {
+      return ["A", "B", "C+", "D", "E"];
+    } else if (groupKey == "gender") {
+      return ["Male", "Female"];
+    } else {
+      return ["17", "18", "19", "20", "21"];
+    }
+  }
+
+  const renderCharts = (groupKey, containerId, titlePrefix) => {
+    const groups = groupData(groupKey);
+
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+
+    const heading = document.createElement("h3");
+    heading.textContent = capitalizeFirstLetter(groupKey);
+    container.appendChild(heading);
+
+    let groupItems = getGroupItems(groupKey);
+
+    for (const group of groupItems) {
+      if (!groups[group]) {
+        console.warn(`No data found for group: ${group}`);
+        continue;
+      }
+
+      const chartId = `${groupKey}-${group}-chart`;
+      const canvas = document.createElement("canvas");
+      canvas.id = chartId;
+      container.appendChild(canvas);
+
+      const data = Object.values(groups[group]);
+      const labels = Object.keys(groups[group]);
+
+      new Chart(canvas, {
+        type: "pie",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              data: data,
+              backgroundColor: ["#4caf50", "#FFC107", "#f44336"],
+              borderWidth: 0,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false,
+            },
+            title: {
+              display: true,
+              text: `${
+                group == "Govt"
+                  ? "Govt / GovtAided"
+                  : group == "Tamil"
+                  ? "Tamil / Malayalam"
+                  : group
+              } - ${data.reduce((sum, val) => sum + val, 0)}`,
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  const value = context.raw;
+                  const total = context.dataset.data.reduce(
+                    (sum, val) => sum + val,
+                    0
+                  );
+                  const percentage = ((value / total) * 100).toFixed(1);
+                  return `  ${value} (${percentage}%)`;
+                },
+              },
+            },
+            datalabels: {
+              display: true,
+              color: "white",
+              formatter: (value, context) => {
+                // Get the total sum of the data
+                const total = context.dataset.data.reduce(
+                  (sum, val) => sum + val,
+                  0
+                );
+
+                // Avoid division by zero and hide 0% labels
+                if (total === 0 || value === 0) {
+                  return null; // Return null to hide 0% labels
+                }
+
+                // Calculate the percentage
+                const percentage = ((value / total) * 100).toFixed(2) + "%";
+                return percentage; // Show percentage instead of count
+              },
+              font: {
+                weight: "bold",
+              },
+              anchor: "center",
+              align: "center",
+              offset: 1,
+            },
+          },
+        },
+      });
+    }
+  };
+
+  renderCharts("gender", "gender-charts", "Gender");
+  renderCharts("category", "category-charts", "Category");
+  renderCharts("age", "age-charts", "Age");
+  renderCharts("medium", "medium-charts", "Medium");
+  renderCharts("school", "school-charts", "School");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const dropdownItems = document.querySelectorAll(".dropdown-item");
+
+  dropdownItems.forEach((item) => {
+    item.addEventListener("click", (event) => {
+      const selectedClass = event.target.dataset.class;
+      document.getElementById("dropdownMenuButton").innerText =
+        event.target.textContent;
+      fetchData(selectedClass);
+    });
+  });
+});
+
+async function fetchMonths(className) {
+  const monthsRef = ref(dbRealtime, `/FSSA/${className}/`);
+  const snapshot = await get(monthsRef);
+
+  if (snapshot.exists()) {
+    const months = Object.keys(snapshot.val());
+    populateMonthsDropdown(months, className);
+  } else {
+    console.error("No months found for this class.");
+  }
+}
+
+function populateMonthsDropdown(months, className) {
+  const dropdownMenu = document.getElementById("months-dropdown-menu");
+  dropdownMenu.innerHTML = ""; // Clear existing options
+
+  months.forEach((month) => {
+    const monthItem = document.createElement("a");
+    monthItem.className = "dropdown-item";
+    monthItem.href = "#";
+    monthItem.textContent = month;
+    monthItem.onclick = () => {
+      document.getElementById("months-dropdown").innerText = month; // Update dropdown button text
+      fetchDataForMonth(className, month);
+    };
+    dropdownMenu.appendChild(monthItem);
+  });
+
+  // Add "All Months" option
+  const allMonthsItem = document.createElement("a");
+  allMonthsItem.className = "dropdown-item";
+  allMonthsItem.href = "#";
+  allMonthsItem.textContent = "All Months";
+  allMonthsItem.onclick = () => {
+    document.getElementById("months-dropdown").innerText = "All Months";
+    fetchAllMonthsData(className, months);
+  };
+  dropdownMenu.appendChild(allMonthsItem);
+}
+async function fetchDataForMonth(className, month) {
+  try {
+    const academicRef = ref(
+      dbRealtime,
+      `/FSSA/${className}/${month}/Result/finalResult`
+    );
+    const academicSnapshot = await get(academicRef);
+
+    const baseDataRef = collection(
+      dbFirestore,
+      `FSSA/studentsBaseData/${className}`
+    );
+    const baseDataSnapshot = await getDocs(baseDataRef);
+
+    baseDataSnapshot.forEach((doc) => {
+      baseData[doc.id] = doc.data();
+    });
+
+    if (academicSnapshot.exists()) {
+      const academicData = academicSnapshot.val();
+      processAndRender(academicData, baseData);
+      processAndRenderCharts(academicData, baseData, "Academic Overall");
+      const topBottomData = calculateTopBottom(academicData);
+      renderHandsontable(topBottomData);
+    } else {
+      console.error("No data found for the selected month.");
+    }
+  } catch (error) {
+    console.error("Error fetching data for the month: ", error);
+  }
+}
+
+async function fetchAllMonthsData(className, months) {
+  let combinedAcademicData = {};
+  let studentCount = {};
+
+  for (const month of months) {
+    const academicRef = ref(
+      dbRealtime,
+      `/FSSA/${className}/${month}/Result/finalResult`
+    );
+    const snapshot = await get(academicRef);
+
+    if (snapshot.exists()) {
+      const monthData = snapshot.val();
+
+      for (const student in monthData) {
+        if (student === "Class Average") continue;
+
+        if (!combinedAcademicData[student]) {
+          combinedAcademicData[student] = {};
+          studentCount[student] = {};
+        }
+
+        for (const subject in monthData[student]) {
+          if (!combinedAcademicData[student][subject]) {
+            combinedAcademicData[student][subject] = 0;
+            studentCount[student][subject] = 0;
+          }
+          combinedAcademicData[student][subject] += monthData[student][subject];
+          studentCount[student][subject]++;
+        }
+      }
+    }
+  }
+
+  // Calculate averages
+  for (const student in combinedAcademicData) {
+    for (const subject in combinedAcademicData[student]) {
+      combinedAcademicData[student][subject] /= studentCount[student][subject];
+    }
+  }
+  const topBottomData = calculateTopBottom(combinedAcademicData);
+  renderHandsontable(topBottomData);
+  processAndRender(combinedAcademicData, baseData);
+  processAndRenderCharts(combinedAcademicData, baseData, "Academic Overall");
+}
+
+function calculateTopBottom(academicData) {
+  const result = subjects.map((subject) => {
+    const studentMarks = Object.entries(academicData)
+      .filter(([student]) => student !== "Class Average") // Exclude class average
+      .map(([student, scores]) => ({
+        name: student,
+        marks: scores[subject] || 0,
+      }))
+      .sort((a, b) => b.marks - a.marks); // Sort descending by marks
+    return {
+      subject,
+      top5: studentMarks.slice(0, 5),
+      bottom5: studentMarks.slice(-5),
+    };
+  });
+  return result;
+}
+
+let handsontableInstanceForTopAndBottom;
+
+function renderHandsontable(topBottomData) {
+  const tableData = [];
+
+
+  const top5Data = Array(5)
+    .fill(null)
+    .map((_, rank) => {
+      const row = [""]; 
+      topBottomData.forEach((entry) => {
+        row.push(`${entry.top5[rank]?.name} - ${entry.top5[rank]?.marks || 0}`);
+      });
+      return row;
+    });
+
+  const bottom5Data = Array(5)
+    .fill(null)
+    .map((_, rank) => {
+      const row = [""]; 
+      topBottomData.forEach((entry) => {
+        row.push(
+          `${entry.bottom5[rank]?.name} - ${entry.bottom5[rank]?.marks || 0}`
+        );
+      });
+      return row;
+    });
+    top5Data[2][0]="Top 5";
+    bottom5Data[2][0]="Bottom 5";
+
+
+  tableData.push([...Array(subjects.length + 1).fill("")])
+  tableData.push(...top5Data); 
+  tableData.push([""]); 
+  tableData.push(...bottom5Data); 
+
+  const container = document.getElementById("top-bottom-table");
+
+  if (handsontableInstanceForTopAndBottom) {
+    handsontableInstanceForTopAndBottom.updateSettings({ data: tableData });
+  } else {
+    const headers = ["", ...subjects]
+    handsontableInstanceForTopAndBottom = new Handsontable(container, {
+      data: tableData,
+      colHeaders: headers, 
+      rowHeaders: false, 
+      licenseKey: "non-commercial-and-evaluation", 
+      stretchH: "all", 
+      width: container.offsetWidth, 
+      height: "auto",
+      cells: function (row, col) {
+        const cellProperties = {};
+        if (row >= 0) cellProperties.readOnly = true;
+        if (row >= 0) cellProperties.className = "fonts";
+        if (row == 4 && col == 0) cellProperties.className = "htCenter";
+        if (row > 0 && col == 0 && row < 6 && col == 0)
+          cellProperties.className = "top5Cells";
+        if (row > 6 && col == 0 && row < 12 && col == 0)
+          cellProperties.className = "bottom5Cells";
+        // if (row == 0) cellProperties.className = "htCenter classAverage";  
+        return cellProperties;
+      },
+    });
+  }
+}
+
+// Process Data
+function processScores(data) {
+  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0 };
+  const processedData = {};
+
+  // Exclude non-student keys like "Class Average"
+  const students = Object.keys(data).filter((key) => key !== "Class Average");
+
+  // Initialize subject keys
+  students.forEach((student) => {
+    Object.keys(data[student])
+      .filter(
+        (subject) =>
+          subject !== "Behavior" &&
+          subject !== "Attendance" &&
+          subject !== "Overall Average"
+      )
+      .forEach((subject) => {
+        if (!processedData[subject]) {
+          processedData[subject] = { ...scoreRanges };
+        }
+      });
+  });
+
+  // Populate ranges for each subject
+  students.forEach((student) => {
+    Object.entries(data[student]).forEach(([subject, score]) => {
+      if (processedData[subject]) {
+        if (score <= 50) processedData[subject]["0-50"]++;
+        else if (score <= 80) processedData[subject]["51-80"]++;
+        else if (score <= 100) processedData[subject]["81-100"]++;
+      }
+    });
+  });
+
+  return processedData;
+}
+
+// Create Pie Charts
+function createCharts(processedData) {
+  const chartContainer = document.getElementById("chartContainerForAllSubject");
+  chartContainer.innerHTML = "";
+  Object.keys(processedData).forEach((subject) => {
+    // Create a canvas element for each chart
+    const canvas = document.createElement("canvas");
+    canvas.id = `chart-${subject}`;
+    chartContainer.appendChild(canvas);
+
+    // Prepare data for the chart
+    const chartData = Object.values(processedData[subject]);
+    const total = chartData.reduce((sum, val) => sum + val, 0);
+
+    const data = {
+      labels: ["0-50", "51-80", "81-100"].filter(
+        (_, idx) => chartData[idx] > 0
+      ),
+      datasets: [
+        {
+          label: `${subject}`,
+          data: chartData.filter((value) => value > 0), // Exclude zero values
+          backgroundColor: ["#f44336", "#FFC107", "#4caf50"],
+          borderWidth: 0,
+        },
+      ],
+    };
+
+    // Create a pie chart
+    new Chart(canvas, {
+      type: "pie",
+      data,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const value = context.raw;
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `  ${value} (${percentage}%)`;
+              },
+            },
+          },
+          datalabels: {
+            formatter: (value, context) => {
+              const percentage = ((value / total) * 100).toFixed(1);
+              return percentage > 0 ? `${percentage}%` : null;
+            },
+            color: "#fff",
+            font: {
+              weight: "bold",
+            },
+            anchor: "center",
+            align: "center",
+          },
+        },
+      },
+      plugins: [],
+    });
+  });
+}
+
+// Main Function
+async function createChartsForAllSubjects(rawData) {
+  const processedData = processScores(rawData);
+  createCharts(processedData);
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

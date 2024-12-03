@@ -168,9 +168,10 @@ async function getProfilePic() {
           );
           if (docSnap.data()["role"] == "Management") {
             document.querySelector(".right-section").style.display = "block";
-          }
-          if (docSnap.data()["role"] == "Management") {
-            document.getElementById("showMembers").style.display = "none";
+            document.getElementById("addMember").style.display = "block";
+            document.querySelectorAll(".member-item button").forEach(btn=>{
+              btn.style.display="block";
+            })
           }
 
           const profileLink = docSnap.data().profileLink;
