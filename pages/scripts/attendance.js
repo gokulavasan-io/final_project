@@ -15,7 +15,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 import Handsontable from "https://cdn.jsdelivr.net/npm/handsontable@11.0.0/+esm"; 
 
-import firebaseConfig from "../scripts/config.js"
+import firebaseConfig from "../../config.js"
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
