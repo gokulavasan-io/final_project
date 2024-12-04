@@ -238,15 +238,17 @@ function calculateTotalScore(count) {
   totalScore += count["Present"];
 
   if (count["Late Arrival"] < 3) {
-    totalScore += count["Late Arrival"]; // Full points if less than 3
+    totalScore += count["Late Arrival"]; 
   } else {
-    totalScore += 2 + Math.floor((count["Late Arrival"] - 2) / 3) * 0.5;
+    totalScore+= Math.floor(count["Late Arrival"]%3)
+    totalScore +=Math.floor((count["Late Arrival"]) / 3) * 0.5;
   }
 
   if (count["Approved Permission"] < 3) {
-    totalScore += count["Approved Permission"]; // Full points if less than 3
+    totalScore += count["Approved Permission"]; 
   } else {
-    totalScore += 2 + Math.floor((count["Approved Permission"] - 2) / 3) * 0.5;
+    totalScore+= Math.floor(count["Approved Permission"]%3)
+    totalScore += Math.floor((count["Approved Permission"]) / 3) * 0.5;
   }
 
   totalScore += count["Half Day Leave"] * 0.5;
