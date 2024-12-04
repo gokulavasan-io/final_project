@@ -10,16 +10,28 @@ import {
   getDocs,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
-import firebaseConfig from "../../config.js"
-
+import firebaseConfig from "../../config.js";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const dbFirestore = getFirestore(app);
 const dbRealtime = getDatabase(app);
 const baseData = {};
-const subjects=["Academic Overall","English","LifeSkills","Tech","ProblemSolving","PET","Project"]
+const subjects = [
+  "Academic Overall",
+  "English",
+  "LifeSkills",
+  "Tech",
+  "ProblemSolving",
+  "PET",
+  "Project",
+];
 Chart.register(ChartDataLabels);
+
+let subject = "Academic Overall";
+document.getElementById("months-dropdown").innerText = "All Months";
+let month = document.getElementById("months-dropdown").innerText;
+document.getElementById("subjectsDropdown").textContent = "All Subjects";
 
 async function fetchData(className) {
   await fetchMonths(className);
@@ -37,10 +49,30 @@ async function fetchData(className) {
     const topBottomData = calculateTopBottom(combinedAcademicData);
     renderHandsontable(topBottomData);
     processAndRender(combinedAcademicData, baseData);
-    processAndRenderCharts(combinedAcademicData, baseData, "Academic Overall");
+    processAndRenderCharts(combinedAcademicData, baseData, subject);
   } catch (error) {
     console.error("Error fetching data: ", error);
   }
+}
+
+async function fetchAllClasses(classes) {
+  let combinedAcademicData = {};
+  let combinedBaseData = {};
+
+  for (const className of classes) {
+    const { combinedAcademicData: classAcademicData, baseData: classBaseData } =
+      await fetchClassData(className);
+    if (classAcademicData) {
+      combinedAcademicData = { ...combinedAcademicData, ...classAcademicData };
+      combinedBaseData = { ...combinedBaseData, ...classBaseData };
+    }
+  }
+
+  const topBottomData = calculateTopBottom(combinedAcademicData);
+  renderHandsontable(topBottomData);
+  createChartsForAllSubjects(combinedAcademicData);
+  processAndRender(combinedAcademicData, combinedBaseData);
+  processAndRenderCharts(combinedAcademicData, combinedBaseData, subject);
 }
 
 async function fetchClassData(className, months = null) {
@@ -110,31 +142,6 @@ async function fetchClassData(className, months = null) {
   return { combinedAcademicData, baseData };
 }
 
-async function fetchAllClasses(classes) {
-  let combinedAcademicData = {};
-  let combinedBaseData = {};
-
-  for (const className of classes) {
-    const { combinedAcademicData: classAcademicData, baseData: classBaseData } =
-      await fetchClassData(className);
-    if (classAcademicData) {
-      combinedAcademicData = { ...combinedAcademicData, ...classAcademicData };
-      combinedBaseData = { ...combinedBaseData, ...classBaseData };
-    }
-  }
-
-  const topBottomData = calculateTopBottom(combinedAcademicData);
-  renderHandsontable(topBottomData);
-  createChartsForAllSubjects(combinedAcademicData)
-  processAndRender(combinedAcademicData, combinedBaseData);
-  processAndRenderCharts(
-    combinedAcademicData,
-    combinedBaseData,
-    "Academic Overall"
-  );
-}
-
-
 document.addEventListener("DOMContentLoaded", () => {
   const dropdownItems = document.querySelectorAll(".dropdown-item");
 
@@ -145,48 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
         event.target.textContent;
       fetchData(selectedClass);
     });
-  });function processAndRender(data, baseData) {
- 
-
-    const subjectButtonsContainer = document.getElementById(
-      "subjectsDropdownList"
-    );
-    subjectButtonsContainer.innerHTML = "";
-    subjects.forEach((subject) => {
-      const subjectItem = document.createElement("a");
-      subjectItem.textContent =
-        subject == "Academic Overall" ? "All Subjects" : subject;
-      subjectItem.href = "#";
-      subjectItem.className = "dropdown-item";
-      subjectItem.onclick = () => {
-        document.getElementById("subjectsDropdown").textContent =
-          subject == "Academic Overall" ? "All Subjects" : subject;
-        renderSubjectData(subject, data, baseData);
-      };
-      subjectButtonsContainer.appendChild(subjectItem);
-  
-      if (subject === "Academic Overall") {
-        renderSubjectData(subject, data, baseData);
-      }
-    });
-  }
+  });
 });
-
-async function fetchMonths(className) {
-  const monthsRef = ref(dbRealtime, `/FSSA/${className}/`);
-  const snapshot = await get(monthsRef);
-
-  if (snapshot.exists()) {
-    const months = Object.keys(snapshot.val());
-    populateMonthsDropdown(months, className);
-  } else {
-    console.error("No months found for this class.");
-  }
-}
 
 function populateMonthsDropdown(months, className) {
   const dropdownMenu = document.getElementById("months-dropdown-menu");
-  dropdownMenu.innerHTML = ""; // Clear existing options
+  dropdownMenu.innerHTML = "";
 
   months.forEach((month) => {
     const monthItem = document.createElement("a");
@@ -232,7 +203,7 @@ async function fetchDataForMonth(className, month) {
     if (academicSnapshot.exists()) {
       const academicData = academicSnapshot.val();
       processAndRender(academicData, baseData);
-      processAndRenderCharts(academicData, baseData, "Academic Overall");
+      processAndRenderCharts(academicData, baseData, subject);
       const topBottomData = calculateTopBottom(academicData);
       renderHandsontable(topBottomData);
     } else {
@@ -286,31 +257,32 @@ async function fetchAllMonthsData(className, months) {
   const topBottomData = calculateTopBottom(combinedAcademicData);
   renderHandsontable(topBottomData);
   processAndRender(combinedAcademicData, baseData);
-  processAndRenderCharts(combinedAcademicData, baseData, "Academic Overall");
+  processAndRenderCharts(combinedAcademicData, baseData, subject);
 }
 function processAndRender(data, baseData) {
   const subjectButtonsContainer = document.getElementById(
     "subjectsDropdownList"
   );
   subjectButtonsContainer.innerHTML = "";
-  subjects.forEach((subject) => {
+  subjects.forEach((sub) => {
     const subjectItem = document.createElement("a");
-    subjectItem.textContent =
-      subject == "Academic Overall" ? "All Subjects" : subject;
+    subjectItem.textContent = sub == "Academic Overall" ? "All Subjects" : sub;
     subjectItem.href = "#";
     subjectItem.className = "dropdown-item";
     subjectItem.onclick = () => {
       document.getElementById("subjectsDropdown").textContent =
-        subject == "Academic Overall" ? "All Subjects" : subject;
-      renderSubjectData(subject, data, baseData);
+        sub == "Academic Overall" ? "All Subjects" : sub;
+      subject = sub;
+      renderSubjectData(sub, data, baseData);
     };
     subjectButtonsContainer.appendChild(subjectItem);
 
-    if (subject === "Academic Overall") {
+    if (sub === subject) {
       renderSubjectData(subject, data, baseData);
     }
   });
 }
+
 function renderSubjectData(subject, data, baseData) {
   // Render Table
   const subjectData = [];
@@ -322,22 +294,26 @@ function renderSubjectData(subject, data, baseData) {
     });
   }
   renderAcademicOverallTable(subjectData, subject);
-
-  // Render Charts
   processAndRenderCharts(data, baseData, subject);
 }
 
-
-
-
-
+// charts  and tables
 
 let handsontableInstance = null;
 
+async function fetchMonths(className) {
+  const monthsRef = ref(dbRealtime, `/FSSA/${className}/`);
+  const snapshot = await get(monthsRef);
 
+  if (snapshot.exists()) {
+    const months = Object.keys(snapshot.val());
+    populateMonthsDropdown(months, className);
+  } else {
+    console.error("No months found for this class.");
+  }
+}
 
-
-function renderAcademicOverallTable(subjectData, subject) {
+async function renderAcademicOverallTable(subjectData, subject) {
   const container = document.getElementById("academic-overall-table");
   container.innerHTML = ""; // Clear existing table
 
@@ -404,7 +380,7 @@ function renderAcademicOverallTable(subjectData, subject) {
   });
 }
 
-function processAndRenderCharts(academicData, baseData, subject) {
+async function processAndRenderCharts(academicData, baseData, subject) {
   const studentData = [];
   for (const student in academicData) {
     if (student === "Class Average") continue;
@@ -552,7 +528,6 @@ function processAndRenderCharts(academicData, baseData, subject) {
   renderCharts("school", "school-charts", "School");
 }
 
-
 function calculateTopBottom(academicData) {
   const result = subjects.map((subject) => {
     const studentMarks = Object.entries(academicData)
@@ -573,14 +548,13 @@ function calculateTopBottom(academicData) {
 
 let handsontableInstanceForTopAndBottom;
 
-function renderHandsontable(topBottomData) {
+async function renderHandsontable(topBottomData) {
   const tableData = [];
-
 
   const top5Data = Array(5)
     .fill(null)
     .map((_, rank) => {
-      const row = [""]; 
+      const row = [""];
       topBottomData.forEach((entry) => {
         row.push(`${entry.top5[rank]?.name} - ${entry.top5[rank]?.marks || 0}`);
       });
@@ -590,7 +564,7 @@ function renderHandsontable(topBottomData) {
   const bottom5Data = Array(5)
     .fill(null)
     .map((_, rank) => {
-      const row = [""]; 
+      const row = [""];
       topBottomData.forEach((entry) => {
         row.push(
           `${entry.bottom5[rank]?.name} - ${entry.bottom5[rank]?.marks || 0}`
@@ -598,28 +572,27 @@ function renderHandsontable(topBottomData) {
       });
       return row;
     });
-    top5Data[2][0]="Top 5";
-    bottom5Data[2][0]="Bottom 5";
+  top5Data[2][0] = "Top 5";
+  bottom5Data[2][0] = "Bottom 5";
 
-
-  tableData.push([...Array(subjects.length + 1).fill("")])
-  tableData.push(...top5Data); 
-  tableData.push([""]); 
-  tableData.push(...bottom5Data); 
+  tableData.push([...Array(subjects.length + 1).fill("")]);
+  tableData.push(...top5Data);
+  tableData.push([""]);
+  tableData.push(...bottom5Data);
 
   const container = document.getElementById("top-bottom-table");
 
   if (handsontableInstanceForTopAndBottom) {
     handsontableInstanceForTopAndBottom.updateSettings({ data: tableData });
   } else {
-    const headers = ["", ...subjects]
+    const headers = ["", ...subjects];
     handsontableInstanceForTopAndBottom = new Handsontable(container, {
       data: tableData,
-      colHeaders: headers, 
-      rowHeaders: false, 
-      licenseKey: "non-commercial-and-evaluation", 
-      stretchH: "all", 
-      width: container.offsetWidth, 
+      colHeaders: headers,
+      rowHeaders: false,
+      licenseKey: "non-commercial-and-evaluation",
+      stretchH: "all",
+      width: container.offsetWidth,
       height: "auto",
       cells: function (row, col) {
         const cellProperties = {};
@@ -630,13 +603,12 @@ function renderHandsontable(topBottomData) {
           cellProperties.className = "top5Cells";
         if (row > 6 && col == 0 && row < 12 && col == 0)
           cellProperties.className = "bottom5Cells";
-        // if (row == 0) cellProperties.className = "htCenter classAverage";  
+        // if (row == 0) cellProperties.className = "htCenter classAverage";
         return cellProperties;
       },
     });
   }
 }
-
 
 function processScores(data) {
   const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0 };
@@ -645,20 +617,10 @@ function processScores(data) {
   // Exclude non-student keys like "Class Average"
   const students = Object.keys(data).filter((key) => key !== "Class Average");
 
-  // Initialize subject keys
-  students.forEach((student) => {
-    Object.keys(data[student])
-      .filter(
-        (subject) =>
-          subject !== "Behavior" &&
-          subject !== "Attendance" &&
-          subject !== "Overall Average"
-      )
-      .forEach((subject) => {
-        if (!processedData[subject]) {
-          processedData[subject] = { ...scoreRanges };
-        }
-      });
+  subjects.forEach((subject) => {
+    if (!processedData[subject]) {
+      processedData[subject] = { ...scoreRanges };
+    }
   });
 
   // Populate ranges for each subject
@@ -672,13 +634,34 @@ function processScores(data) {
     });
   });
 
+  if (!Object.keys(students[0]).includes("PET")) {
+    processedData["PET"]["0-50"] = students.length;
+  }
+  if (!Object.keys(students[0]).includes("Project")) {
+    processedData["Project"]["0-50"] = students.length;
+  }
+
   return processedData;
 }
 
+const existingCharts = {};
+
 function createCharts(processedData) {
+  console.log(processedData);
+
   Object.keys(processedData).forEach((subject) => {
-    const canvas = document.getElementById(`chart-${subject}`);
-    console.log(subject);
+    const canvasId = `chart-${subject}`;
+    const canvas = document.getElementById(canvasId);
+
+    if (!canvas) {
+      console.error(`Canvas element with ID ${canvasId} not found.`);
+      return;
+    }
+
+    // Destroy any existing chart for this canvas
+    if (existingCharts[canvasId]) {
+      existingCharts[canvasId].destroy();
+    }
 
     const chartData = Object.values(processedData[subject]);
     const total = chartData.reduce((sum, val) => sum + val, 0);
@@ -688,7 +671,6 @@ function createCharts(processedData) {
     );
     const dataValues = chartData.filter((value) => value > 0);
 
-    
     const colorMap = {
       "0-50": "#f44336", // Red
       "51-80": "#FFC107", // Yellow
@@ -709,7 +691,7 @@ function createCharts(processedData) {
     };
 
     // Create a pie chart
-    new Chart(canvas, {
+    const newChart = new Chart(canvas, {
       type: "pie",
       data,
       options: {
@@ -747,9 +729,11 @@ function createCharts(processedData) {
       },
       plugins: [],
     });
+
+    // Store the new chart instance for later cleanup
+    existingCharts[canvasId] = newChart;
   });
 }
-
 
 async function createChartsForAllSubjects(rawData) {
   const processedData = processScores(rawData);
