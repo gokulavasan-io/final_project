@@ -130,46 +130,46 @@
         </div>
     </header>
 
-    <!-- <div id="loading" >
-    <div class="lineInLoading"></div>
-    <p id="progressMessage">Please wait....</p>
-</div> -->
-
-
-<div class="pageHead">
-    <h1>Subject Analysis</h1>
-<div class="buttonsForSelection d-flex gap-3">
-    <div class="dropdown mb-4">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            Select Class
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <li><a class="dropdown-item" href="#" data-class="ClassA">Class A</a></li>
-            <li><a class="dropdown-item" href="#" data-class="ClassB">Class B</a></li>
-            <li><a class="dropdown-item" href="#" data-class="ClassC">Class C</a></li>
-            <li><a class="dropdown-item" href="#" data-class="All">All</a></li>
-        </ul>
-    </div>
-
-    <div class="dropdown mb-4">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="months-dropdown"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            Select Month
-        </button>
-        <ul class="dropdown-menu" id="months-dropdown-menu" aria-labelledby="months-dropdown"></ul>
+    <div id="loading">
+        <div class="lineInLoading"></div>
+        <p id="progressMessage">Please wait....</p>
     </div>
 
 
-    <div class="dropdown mb-4">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="subjectsDropdown"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            Select subject
-        </button>
-        <ul class="dropdown-menu" id="subjectsDropdownList" aria-labelledby="subjectsDropdown"></ul>
+    <div class="pageHead">
+        <h1>Subject Analysis</h1>
+        <div class="buttonsForSelection d-flex gap-3">
+            <div class="dropdown mb-4">
+                <button class="btn btn-outline-dark dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Select Class
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><a class="dropdown-item dropdown-item-class" href="#" data-class="ClassA">Class A</a></li>
+                    <li><a class="dropdown-item dropdown-item-class" href="#" data-class="ClassB">Class B</a></li>
+                    <li><a class="dropdown-item dropdown-item-class" href="#" data-class="ClassC">Class C</a></li>
+                    <li><a class="dropdown-item dropdown-item-class" href="#" data-class="All">All</a></li>
+                </ul>
+            </div>
+
+            <div class="dropdown mb-4">
+                <button class="btn btn-outline-dark dropdown-toggle" type="button" id="months-dropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Select Month
+                </button>
+                <ul class="dropdown-menu" id="months-dropdown-menu" aria-labelledby="months-dropdown"></ul>
+            </div>
+
+
+            <div class="dropdown mb-4">
+                <button class="btn btn-outline-dark dropdown-toggle" type="button" id="subjectsDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Select subject
+                </button>
+                <ul class="dropdown-menu" id="subjectsDropdownList" aria-labelledby="subjectsDropdown"></ul>
+            </div>
+        </div>
     </div>
-</div>
-</div>
     <div class="mainContainer">
 
         <div class="topBottomContainer">
@@ -184,10 +184,14 @@
                 <canvas id="chart-Project"></canvas>
             </div>
         </div>
-       
 
-        <div class="academecTableContainer">
+
+        <div class="academecTableContainer"> 
             <div id="academic-overall-table"></div>
+            <div id="noMarksMsg">
+                <img src="../../assets/images/monthlySubjects_img/img_empty_marks.png" alt="" class="img-fluid">
+                <h4><span id="subjectNameForNoMarks">guhbijnok</span> Marks Not Found</h4>
+            </div>
         </div>
 
 
