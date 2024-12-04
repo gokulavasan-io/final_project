@@ -137,10 +137,13 @@ async function uploadFile(file) {
     fetchMembers();
   } catch (error) {
     console.error("Error uploading file or updating Firestore:", error);
+  }finally{
+    hideLoading();
   }
 }
 
 async function getProfilePic() {
+  showLoading();
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       console.log(user);
@@ -174,14 +177,14 @@ async function getProfilePic() {
           } else {
             document.getElementById("userProfilePhoto").src = profileLink;
           }
-          setTimeout(() => {
-            hideLoading();
-          }, 3000);
+
         } else {
           console.log("No such document!");
         }
       } catch (error) {
         console.error("Error fetching document:", error);
+      }finally{
+        hideLoading();
       }
     } else {
       console.log("No user is currently signed in.");
@@ -373,12 +376,14 @@ async function fetchMembers() {
           editMemberData(user.email, user.name, user.role, user.section);
         });
       });
-      hideLoading();
+      
     } else {
       console.log("No users found!");
     }
   } catch (error) {
     console.error("Error fetching members:", error);
+  }finally{
+    hideLoading();
   }
 }
 
