@@ -16,6 +16,12 @@
     --font:poppins;
 }
 
+#backMonthlyHome {
+    display: none;
+}
+#changeClass{
+    display: block
+}
 .main-container{
     width: 91%;
     height: 85%;

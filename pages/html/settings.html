@@ -21,109 +21,13 @@
 
 <body>
   <!-- aside bar -->
-  <aside id="sidebar">
+  <aside id="sidebar"></aside>
+  <header class="w-100 position-fixed top-0"></header>
 
-    <ul class="sidebar-nav mt-5">
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link" id="backButton">
-          <i class="lni lni-chevron-left-circle"></i>
-          <span>Go back</span>
-        </a>
-      </li>
-      <li class="sidebar-item">
-        <a href="../html/home.html" class="sidebar-link" id="home">
-          <i class="lni lni-home"></i>
-          <span>Home</span>
-        </a>
-      </li>
-      <li class="sidebar-item">
-        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#auth"
-          aria-expanded="false" aria-controls="auth">
-          <i class="lni lni-book"></i>
-          <span>Subjects</span>
-        </a>
-        <ul id="auth" class="sidebar-dropdown list-unstyled collapse subjectsAside" data-bs-parent="#sidebar">
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link" id="english">English</a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link" id="life-skills">Life Skills</a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link" id="tech">Tech</a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link" id="problem-solving">Problem Solving</a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link" id="project">Project</a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link" id="pet">PET</a>
-          </li>
-          <li class="sidebar-item">
-            <a href="#" class="sidebar-link" id="behavior">Behavior</a>
-          </li>
-
-        </ul>
-      </li>
-
-      <li class="sidebar-item">
-        <a class="sidebar-link" href="#" id="attendance">
-          <i class="fa fa-calendar" aria-hidden="true"></i>
-          <span>Attendance</span>
-        </a>
-      </li>
-      <li class="sidebar-item">
-        <a class="sidebar-link " id="monthlyReport" href="./monthlyHome.html">
-          <i class="fa fa-list-alt" aria-hidden="true"></i>
-          <span>Monthly report</span>
-        </a>
-      </li>
-      <li class="sidebar-item" id="analysisNav">
-        <a href="#" class="sidebar-link">
-          <i class="lni lni-bar-chart"></i>
-          <span>Analysis</span>
-        </a>
-      </li>
-
-
-    </ul>
-
-    <div class="d-flex flex-column sidebar-footer">
-      <li class="sidebar-item" id="setting">
-        <a href="../../pages/html/settings.html" class="sidebar-link d-flex align-items-center">
-          <i class="fa fa-gear"></i>
-          <span>setting</span>
-        </a>
-      </li>
-      <div class="d-flex">
-        <button class="toggle-btn" type="button">
-          <i class="lni lni-grid-alt"></i>
-        </button>
-        <div class="sidebar-logo">
-          <a href="#">Toodle</a>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-
-
-  <header class="w-100 position-fixed top-0">
-    <div class="logo">Toodle</div>
-    <div class="d-flex gap-2 align-items-center">
-      <div id="classNow">X</div>
-    </div>
-    <div class="user">
-      <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
-    </div>
-  </header>
-
-  <div id="loading" >
+  <div id="loading">
     <div class="lineInLoading"></div>
     <p id="progressMessage">Please wait....</p>
-</div>
+  </div>
 
   <div id="successMessage" class="popup" style="display: none;"></div>
   <div id="error-message" class="popup-message"></div>
@@ -142,7 +46,7 @@
       <button class="btn btn-danger" id="deleteNo">No</button>
     </div>
   </div>
-  
+
 
   <div id="logoutMessage" class="popup">
     Successfully Logged Out
@@ -175,7 +79,7 @@
               <i class="fa fa-users" aria-hidden="true"></i>
               <p>Members</p>
             </div>
-         
+
 
             <div class="d-flex align-items-center gap-3" id="logout">
               <i class="lni lni-exit"></i>
@@ -294,22 +198,13 @@
   </div>
 
 
-
-
-
-
-
-
-
-
-
   <script type="module" src="../scripts/generalScript.js"></script>
   <script type="module" src="../scripts/settings.js"></script>
 
   <!-- bootstrap link -->
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
 
 
 

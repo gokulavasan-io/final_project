@@ -9,19 +9,26 @@ import {
   remove,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
-import firebaseConfig from "../../config.js"
-
-
+import firebaseConfig from "../../config.js";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const section = localStorage.getItem("section");
 const orderedMonths = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
-
 
 // Function to get all existing months from Firebase and render them
 function getAllData() {
@@ -48,12 +55,11 @@ function getAllData() {
         monthNames.forEach((month) => {
           appendMonthToUI(month, container, false);
         });
-  document.getElementById("loading").style.display = "none";
-
-      } else {
-        alert("No months available in the database");
+ 
         document.getElementById("loading").style.display = "none";
-
+      } else {
+      
+        document.getElementById("loading").style.display = "none";
       }
     })
     .catch((error) => {
@@ -93,6 +99,7 @@ function appendMonthToUI(monthName, container, showCheckbox) {
     }
   });
   container.appendChild(div);
+
 }
 
 // Variable to track delete mode
@@ -111,18 +118,16 @@ document.getElementById("delete-btn").addEventListener("click", function () {
   } else {
     // If in delete mode, confirm deletion
     if (selectedCheckboxes.length > 0) {
-      if (selectedCheckboxes.length>1) {
-        document.querySelector(".warningText").innerText="Are you sure want to delete these months ?"
+      if (selectedCheckboxes.length > 1) {
+        document.querySelector(".warningText").innerText =
+          "Are you sure want to delete these months ?";
       }
-      document.getElementById("deleteWarning").style.display="flex";
-      document.getElementById("deleteYes").addEventListener("click",()=>{
-      document.getElementById("deleteWarning").style.display="none";
+      document.getElementById("deleteWarning").style.display = "flex";
+      document.getElementById("deleteYes").addEventListener("click", () => {
+        document.getElementById("deleteWarning").style.display = "none";
         selectedCheckboxes.forEach((checkbox) => {
           const monthName = checkbox.value;
-          const monthRef = ref(
-            database,
-            `/FSSA/${section}/${monthName}`
-          );
+          const monthRef = ref(database, `/FSSA/${section}/${monthName}`);
           remove(monthRef)
             .then(() => {
               checkbox.parentElement.remove();
@@ -132,10 +137,10 @@ document.getElementById("delete-btn").addEventListener("click", function () {
               console.error("Failed to delete month:", monthName, error);
             });
         });
-      })
-      document.getElementById("deleteNo").addEventListener("click",()=>{
-      document.getElementById("deleteWarning").style.display="none";
-      })
+      });
+      document.getElementById("deleteNo").addEventListener("click", () => {
+        document.getElementById("deleteWarning").style.display = "none";
+      });
     } else {
       alert("No months selected for deletion.");
     }
@@ -161,10 +166,7 @@ document.getElementById("confirm").addEventListener("click", function () {
     document.getElementById("newMonth").value.trim()
   );
   if (monthInput) {
-    const monthRef = ref(
-      database,
-      `/FSSA/${section}/${monthInput}`
-    );
+    const monthRef = ref(database, `/FSSA/${section}/${monthInput}`);
     set(monthRef, true)
       .then(() => {
         showSuccessMessage("added new month !!!");
@@ -187,8 +189,31 @@ document.getElementById("cancel").addEventListener("click", function () {
   document.getElementById("newMonth").value = "";
 });
 
-// Fetch existing months on page load
-getAllData();
+
+document.addEventListener("DOMContentLoaded",()=>{
+  checkOrCreateMonth();
+  getAllData();
+})
+
+async function checkOrCreateMonth() {
+  const month = getCurrentMonth();
+  const attendancePath = `/FSSA/${section}/${month}`;
+  const attendanceRef = ref(database, attendancePath);
+  const attendanceSnap = await get(attendanceRef);
+
+  if(!attendanceSnap.exists()){
+    await set(attendanceRef, { Attendance: true });
+    console.log(`${month} has been created in Firebase.`);
+    location.reload();
+  }
+else{
+  console.log(`${month} already in attendance`);
+  
+}}
+function getCurrentMonth() {
+  return orderedMonths[new Date().getMonth()];
+}
+
 
 function showSuccessMessage(str) {
   const message = document.getElementById("successMessage");
@@ -202,3 +227,6 @@ function showSuccessMessage(str) {
 function capitalizeFirstLetter(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
+
+
+

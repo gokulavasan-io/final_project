@@ -20,7 +20,6 @@ const firestore = getFirestore(app);
 
 const role = localStorage.getItem("userRole");
 let section = localStorage.getItem("section");
-document.getElementById("classNow").innerText=section.slice(-1);
 
 
 let monthsForSelection = [];
@@ -28,14 +27,17 @@ let monthsForGraph=[];
 const classes = ["ClassA", "ClassB", "ClassC"];
 
 baseDataFetch();
-if(role!="Tech coach"||role!="ELS coach"){
-  document.getElementById("changeClass").style.display="flex";
-}
 
 
-document.getElementById("changeClass").addEventListener("click", function () {
-  document.getElementById("showClassesForLead").style.display = "flex";
-});
+setTimeout(()=>{
+  if(role!="Tech coach"||role!="ELS coach"){
+    document.getElementById("changeClass").style.display="flex";
+  }
+  
+  document.getElementById("changeClass").addEventListener("click", function () {
+    document.getElementById("showClassesForLead").style.display = "flex";
+  });
+},2500)
 
 document.getElementById("allMonth").addEventListener("click",()=>{
   calculateAndDisplayTopBottomAverages();
@@ -52,7 +54,7 @@ document.querySelectorAll("#showClassesForLead button").forEach((button) => {
 });
 
 
-changeToClass()
+changeToClass();
 
 async function changeToManagementSide() {
   document.querySelector(".buttonForMonthChange").style.display = "none";

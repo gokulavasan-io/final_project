@@ -21,108 +21,15 @@
 <body>
 
     <!-- aside bar -->
-    <aside id="sidebar">
+    <aside id="sidebar"></aside>
 
-        <ul class="sidebar-nav mt-5">
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link" id="backButton">
-                    <i class="lni lni-chevron-left-circle"></i>
-                    <span>Go back</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="../html/home.html" class="sidebar-link" id="home">
-                    <i class="lni lni-home"></i>
-                    <span>Home</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#auth"
-                    aria-expanded="false" aria-controls="auth">
-                    <i class="lni lni-book"></i>
-                    <span>Subjects</span>
-                </a>
-                <ul id="auth" class="sidebar-dropdown list-unstyled collapse subjectsAside" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link" id="english">English</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link" id="life-skills">Life Skills</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link" id="tech">Tech</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link" id="problem-solving">Problem Solving</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link" id="project">Project</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link" id="pet">PET</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link" id="behavior">Behavior</a>
-                    </li>
-
-                </ul>
-            </li>
-
-            <li class="sidebar-item">
-                <a class="sidebar-link" href="#" id="attendance">
-                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                    <span>Attendance</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a class="sidebar-link " id="monthlyReport" href="./monthlyHome.html">
-                    <i class="fa fa-list-alt" aria-hidden="true"></i>
-                    <span>Monthly report</span>
-                </a>
-            </li>
-            <li class="sidebar-item" id="analysisNav">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-bar-chart"></i>
-                    <span>Analysis</span>
-                </a>
-            </li>
-
-]
-        </ul>
-
-        <div class="d-flex flex-column sidebar-footer">
-            <li class="sidebar-item" id="setting">
-                <a href="../html/settings.html" class="sidebar-link d-flex align-items-center">
-                    <i class="fa fa-gear"></i>
-                    <span>setting</span>
-                </a>
-            </li>
-            <div class="d-flex">
-                <button class="toggle-btn" type="button">
-                    <i class="lni lni-grid-alt"></i>
-                </button>
-                <div class="sidebar-logo">
-                    <a href="#">Toodle</a>
-                </div>
-            </div>
-        </div>
-    </aside>
 
 
     <!-- main page starts -->
 
-    <header class="w-100 position-fixed top-0">
-        <div class="logo">Toodle</div>
+    <header class="w-100 position-fixed top-0"></header>
 
-        <div class="d-flex gap-2 align-items-center">
-            <div id="classNow">X</div>
-        </div>
-        <div class="user">
-            <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
-        </div>
-    </header>
-
-    <div id="loading" >
+    <div id="loading">
         <div class="lineInLoading"></div>
         <p id="progressMessage">Please wait....</p>
     </div>
@@ -132,28 +39,28 @@
     <div id="checkboxes">
 
         <div class="checkbox-wrapper-55">
-          <label class="rocker rocker-small">
-            <input type="checkbox" id="includeProject">
-            <span class="switch-left">Yes</span>
-            <span class="switch-right">No</span>
-          </label>
-          <label for="">Project</label>
+            <label class="rocker rocker-small">
+                <input type="checkbox" id="includeProject">
+                <span class="switch-left">Yes</span>
+                <span class="switch-right">No</span>
+            </label>
+            <label for="">Project</label>
         </div>
         <div class="checkbox-wrapper-55">
-          <label class="rocker rocker-small">
-            <input type="checkbox" id="includePET">
-            <span class="switch-left">Yes</span>
-            <span class="switch-right">No</span>
-          </label>
-          <label for="">PET</label>
+            <label class="rocker rocker-small">
+                <input type="checkbox" id="includePET">
+                <span class="switch-left">Yes</span>
+                <span class="switch-right">No</span>
+            </label>
+            <label for="">PET</label>
         </div>
 
-      </div>
+    </div>
 
 
     <div class="btnsContainer">
         <button id="saveResult" class="btn btn-outline-success ">Save marks</button>
-    <button class="btn btn-outline-dark" id="seeMarks">Get report Card</button>
+        <button class="btn btn-outline-dark" id="seeMarks">Get report Card</button>
     </div>
 
 
