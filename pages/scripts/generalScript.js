@@ -12,19 +12,20 @@ import {
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-import firebaseConfig from "../../config.js"
-
-
+import firebaseConfig from "../../config.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore();
 
+const userName = localStorage.getItem("userName");
+const section = localStorage.getItem("section");
+
 document.addEventListener("DOMContentLoaded", () => {
-  fetch('../html/asideBar.html')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('sidebar').innerHTML = data;
+  fetch("../html/asideBar.html")
+    .then((response) => response.text())
+    .then((data) => {
+      document.getElementById("sidebar").innerHTML = data;
 
       // Ensure these elements exist after loading the sidebar content
       const hamBurger = document.querySelector(".toggle-btn");
@@ -64,11 +65,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     });
+
+  document.querySelector("header").innerHTML = `<div class="logo">Toodle</div>
+<div class="d-flex gap-2 align-items-center">
+    <button class="btn btn-outline-light " id="changeClass" style="display: none;">Choose Class</button>
+    <div id="classNow">X</div>
+</div>
+<div class="user">
+    <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
+</div>`;
+
+  if (userName) {
+    document.getElementById("user").innerText = userName
+      .slice(0, 1)
+      .toUpperCase();
+  }
+
+  if (section != "FSSA") {
+    document.getElementById("classNow").textContent = section.slice(-1);
+  } else {
+    document.getElementById("classNow").textContent = "All";
+  }
 });
 
-
-
-// check for user is logged in
 window.onload = function () {
   onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -88,29 +107,9 @@ window.onload = function () {
   });
 };
 
-
-
 // favIcon
 const favIcon = document.createElement("link");
 favIcon.rel = "icon";
 favIcon.type = "image/x-icon";
 favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
 document.head.appendChild(favIcon);
-
-
-
-const userName = localStorage.getItem("userName");
-const section = localStorage.getItem("section");
-const role = localStorage.getItem("userRole");
-
-if (userName) {
-  document.getElementById("user").innerText = userName
-    .slice(0, 1)
-    .toUpperCase();
-}
-
-if (section != "FSSA") {
-  document.getElementById("classNow").textContent = section.slice(-1);
-} else {
-  document.getElementById("classNow").textContent = "All";
-}
