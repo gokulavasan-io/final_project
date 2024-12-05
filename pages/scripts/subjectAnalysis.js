@@ -34,6 +34,8 @@ document.getElementById("months-dropdown").innerText = "All Months";
 document.getElementById("subjectsDropdown").textContent = "All Subjects";
 
 async function fetchData(className) {
+  document.getElementById("pleaseSelect").style.display="none";
+
   showLoading();
   await fetchMonths(className);
 
@@ -161,6 +163,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const selectedClass = event.target.dataset.class;
       document.getElementById("dropdownMenuButton").innerText =
         event.target.textContent;
+        document.getElementById("noMonthMarks").style.display="none";
+        document.querySelector(".mainContainer").style.display="block";
       fetchData(selectedClass);
     });
   });
@@ -178,6 +182,8 @@ function populateMonthsDropdown(months, className) {
       monthItem.textContent = month;
       monthItem.onclick = () => {
         selectedMonth = month;
+        document.getElementById("noMonthMarks").style.display="none";
+        document.querySelector(".mainContainer").style.display="block";
         document.getElementById("months-dropdown").innerText = month;
         fetchDataForMonth(className, month);
       };
@@ -198,6 +204,8 @@ function populateMonthsDropdown(months, className) {
   allMonthsItem.textContent = "All Months";
   allMonthsItem.onclick = () => {
     selectedMonth = "All Months";
+    document.getElementById("noMonthMarks").style.display="none";
+    document.querySelector(".mainContainer").style.display="block";
     document.getElementById("months-dropdown").innerText = "All Months";
     fetchAllMonthsData(className, months);
   };
@@ -229,9 +237,15 @@ async function fetchDataForMonth(className, month) {
       processAndRender(academicData, baseData);
       processAndRenderCharts(academicData, baseData, subject);
       const topBottomData = calculateTopBottom(academicData);
+      createChartsForAllSubjects(academicData)
       renderHandsontable(topBottomData);
     } else {
       console.error("No data found for the selected month.");
+      document.querySelector(".mainContainer").style.display="none";
+      document.getElementById("noMonthMarks").style.display="flex";
+      document.getElementById("monthName").innerText=selectedMonth;
+      document.getElementById("classNameForNoMonth").innerText=className;
+
     }
   } catch (error) {
     console.error("Error fetching data for the month: ", error);
@@ -286,6 +300,7 @@ async function fetchAllMonthsData(className, months) {
     }
     const topBottomData = calculateTopBottom(combinedAcademicData);
     renderHandsontable(topBottomData);
+    createChartsForAllSubjects(combinedAcademicData)
     processAndRender(combinedAcademicData, baseData);
     processAndRenderCharts(combinedAcademicData, baseData, subject);
   } catch (e) {
@@ -308,6 +323,8 @@ function processAndRender(data, baseData) {
       document.getElementById("subjectsDropdown").textContent =
         sub == "Academic Overall" ? "All Subjects" : sub;
       subject = sub;
+      document.getElementById("noMonthMarks").style.display="none";
+      document.querySelector(".mainContainer").style.display="block";
       showLoading();
       renderSubjectData(sub, data, baseData);
       setTimeout(() => {
