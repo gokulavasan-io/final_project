@@ -60,8 +60,8 @@ function getAllData() {
         });
         document.getElementById("loading").style.display = "none";
       } else {
-        alert("No months available in the database");
         document.getElementById("loading").style.display = "none";
+        document.getElementById("forEmptyMonth").style.display="flex";
 
       }
     })

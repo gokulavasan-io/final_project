@@ -45,7 +45,7 @@ const students = [
         },
         {
             "section":"ClassA",
-            "name": "Hari Krishnan Balasubramanian",
+            "name": "Hari Krishnan",
             "age": 19,
             "category": "D",
             "school": "Govt",
@@ -54,7 +54,7 @@ const students = [
         },
         {
             "section":"ClassA",
-            "name": "Harish Karthick Maheswaran",
+            "name": "Harish Karthick",
             "age": 17,
             "category": "E",
             "school": "Govt",
@@ -63,7 +63,7 @@ const students = [
         },
         {
             "section":"ClassA",
-            "name": "Joshitha",
+            "name": "Joshitha A",
             "age": 17,
             "category": "A",
             "school": "Govt",
@@ -90,7 +90,7 @@ const students = [
         },
         {
             "section":"ClassA",
-            "name": "Karthikeyan",
+            "name": "Karthikeyan S",
             "age": 20,
             "category": "C+",
             "school": "Govt",
@@ -135,7 +135,7 @@ const students = [
         },
         {
             "section":"ClassA",
-            "name": "Muthamizhan",
+            "name": "Muthamizhan B",
             "age": 18,
             "category": "B",
             "school": "Govt",
@@ -288,7 +288,7 @@ const students = [
         },
         {
             "section":"ClassB",
-            "name": "Gopika",
+            "name": "Gopika S",
             "age": 17,
             "category": "E",
             "school": "Govt",
@@ -341,7 +341,7 @@ const students = [
         },
         {
             "section":"ClassB",
-            "name": "Krishna Moorthy",
+            "name": "Krishna Moorthy D",
             "age": 17,
             "category": "E",
             "school": "Govt",
@@ -377,7 +377,7 @@ const students = [
         },
         {
             "section":"ClassB",
-            "name": "Mohamed Mohideen Thayub",
+            "name": "Mohamed Thayub",
             "age": 19,
             "category": "D",
             "school": "Govt",
@@ -512,7 +512,7 @@ const students = [
         },
         {
             "section":"ClassC",
-            "name": "Brindha",
+            "name": "Brindha N",
             "age": 19,
             "category": "D",
             "school": "Govt",
@@ -739,7 +739,7 @@ const students = [
 
 async function saveStudents() {
     for (const student of students) {
-        const { section, name, ...data } = student; // Separate the section and name
+        const { section, name, ...data } = student; 
         const sectionPath = `/FSSA/studentsBaseData/${section}`; // Define path based on section
 
         try {

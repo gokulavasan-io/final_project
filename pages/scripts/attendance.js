@@ -1244,3 +1244,4 @@ async function handleDelete() {
     localStorage.removeItem("selectedRowIndex");
   };
 }
+
