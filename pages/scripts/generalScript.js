@@ -113,3 +113,34 @@ favIcon.rel = "icon";
 favIcon.type = "image/x-icon";
 favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
 document.head.appendChild(favIcon);
+
+const loadingContainer = document.getElementById("loading");
+const noNetworkDiv = document.createElement("div");
+noNetworkDiv.innerHTML = ` <div id="noNetworkMsg">
+            <img src="../../assets/images/monthlySubjects_img/img_no_network.png" alt="">
+            <div><p >No Network</p>
+            <p>Please check your Internet Connection</p>
+            </div>
+        </div>`;
+
+function updateNetworkStatus() {
+  if (navigator.onLine) {
+    if (document.getElementById("noNetworkMsg")) {
+      document.getElementById("noNetworkMsg").style.display = "none";
+      loadingContainer.style.display = "none";
+    }
+    document.getElementById("progressMessage").style.display = "flex";
+  } else {
+    loadingContainer.style.display = "flex";
+    document.getElementById("progressMessage").style.display = "none";
+    if (!document.getElementById("noNetworkMsg")) {
+      loadingContainer.appendChild(noNetworkDiv);
+    } else {
+      document.getElementById("noNetworkMsg").style.display = "flex";
+    }
+  }
+}
+
+window.addEventListener("online", updateNetworkStatus);
+window.addEventListener("offline", updateNetworkStatus);
+updateNetworkStatus();

@@ -13,6 +13,7 @@ const auth = getAuth();
 const db = getFirestore();
 const provider = new GoogleAuthProvider();
 
+
 window.onload = function () {
   onAuthStateChanged(auth,async (user) => {
     if (user) {const docRef = doc(db, "FSSA/users/teachers", user.email);
@@ -28,13 +29,15 @@ window.onload = function () {
         else{
           localStorage.setItem("section",userData.section)
         }
-
-          window.location.href = "../../pages/html/home.html";
+        window.location.href = "../../pages/html/home.html";
       } else {
+          hideLoading();
           showErrorMessage("You are not approved to access this site.",5000);
           await signOut(auth);
       }
     } else {
+      hideLoading();
+      updateNetworkStatus();
       console.log("User is not logged in.");
       window.history.pushState(null, null, window.location.href);
       window.addEventListener("popstate", function () {
@@ -101,3 +104,38 @@ function showErrorMessage(str,time) {
   }, time);
 }
 
+
+const loading = document.getElementById("loading");
+const noNetworkDiv = document.createElement("div");
+noNetworkDiv.innerHTML = ` <div id="noNetworkMsg">
+            <img src="../../assets/images/monthlySubjects_img/img_no_network.png" alt="">
+            <div><p >No Network</p>
+            <p>Please check your Internet Connection</p>
+            </div>
+        </div>`;
+
+function updateNetworkStatus() {
+  if (navigator.onLine) {
+    if (document.getElementById("noNetworkMsg")) {
+      document.getElementById("noNetworkMsg").style.display = "none";
+      loading.style.display = "none";
+    }
+    document.getElementById("progressMessage").style.display = "flex";
+  } else {
+    loading.style.display = "flex";
+    document.getElementById("progressMessage").style.display = "none";
+    if (!document.getElementById("noNetworkMsg")) {
+      loading.appendChild(noNetworkDiv);
+    } else {
+      document.getElementById("noNetworkMsg").style.display = "flex";
+    }
+  }
+}
+
+window.addEventListener("online", updateNetworkStatus);
+window.addEventListener("offline", updateNetworkStatus);
+updateNetworkStatus();
+
+function hideLoading() {
+  loading.style.display="none";
+}
