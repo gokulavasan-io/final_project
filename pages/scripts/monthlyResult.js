@@ -158,9 +158,11 @@ function renderTable(data) {
       columnSorting: true,
       width: "100%",
       height:"100%",
-      licenseKey: "non-commercial-and-evaluation",
-
-      // Hook to disable sorting for the Class Average row
+      licenseKey: "non-commercial-and-evaluation",cells: function (row, col) {
+        const cellProperties = {};
+        if (row >= 0) cellProperties.className = "fonts";
+        return cellProperties;
+      },
       beforeColumnSort: (column, order) => {
         const data = hot.getData();
         const lastRow = data[data.length - 1];

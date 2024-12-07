@@ -174,8 +174,7 @@ async function fetchDataAndDisplay() {
           {
             data: [avgData.green, avgData.yellow, avgData.red],
             backgroundColor: ["#4CAF50", "#FFEB3B", "#F44336"],
-            borderColor: ["#4CAF50", "#FFEB3B", "#F44336"],
-            borderWidth: 1,
+            borderWidth: 2,
           },
         ],
       },
@@ -301,6 +300,9 @@ function getFirstTwoColumnsData() {
 }
 
 async function saveFirstTwoColumnsData() {
+  if(subject=="AttendanceMarks"){
+    subject="Attendance"
+  }
   const datasetPath = `/FSSA/${section}/${month}/Result/${subject}`;
   const rawData = getFirstTwoColumnsData(); // Get the formatted data directly
 
@@ -635,6 +637,7 @@ async function createChart() {
         {
           data: Object.values(scoreRanges),
           backgroundColor: ["red", "#FBEC5D", "green", "blue"],
+          borderWidth: 1,
         },
       ],
     },

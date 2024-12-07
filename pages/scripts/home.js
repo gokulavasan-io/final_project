@@ -54,7 +54,7 @@ document.querySelectorAll("#showClassesForLead button").forEach((button) => {
 });
 
 
-changeToClass();
+changeToManagementSide();
 
 async function changeToManagementSide() {
   document.querySelector(".buttonForMonthChange").style.display = "none";
@@ -195,7 +195,7 @@ async function monthsReadyForButton() {
 
 
 function isMonthComplete(data) {
-  const subjects = role === "others" 
+  const subjects = role === "FSSA" 
     ? ["English", "LifeSkills", "Tech", "ProblemSolving"] 
     : role === "Tech" 
     ? ["Tech", "ProblemSolving"] 
@@ -330,12 +330,14 @@ function changeBaseDataCount(data) {
 
 
 async function fetchMonthlyData() {
+    
   // Define subjects before using them
-  const subjects = role === "others" 
-    ? ["English", "LifeSkills", "Tech", "ProblemSolving"] 
-    : role === "Tech" 
-    ? ["Tech", "ProblemSolving"] 
-    : ["English", "LifeSkills"];
+  // const subjects = role=="FSSA"
+  //   ? ["English", "LifeSkills", "Tech", "ProblemSolving"] 
+  //   : role === "Tech" 
+  //   ? ["Tech", "ProblemSolving"] 
+  //   : ["English", "LifeSkills"];
+  let subjects=["English", "LifeSkills", "Tech", "ProblemSolving"] ;
   
   const subjectDataArrays = subjects.map(() => []); // Initialize an array for each subject
   
@@ -372,16 +374,17 @@ async function fetchMonthlyData() {
     validSubjectDataArrays[i] = [...dataArray, avg]; // Add the average to the end
   });
 
-  // Plot the data if available
-  if (role !== "others") {
-    createChart('techChart', `${subjects[0]} Average by Month`, validMonths, validSubjectDataArrays[0]);
-    createChart('problemSolvingChart', `${subjects[1]} Average by Month`, validMonths, validSubjectDataArrays[1]);
-  } else {
-    createChart('menglishChart', `${subjects[0]} Average by Month`, validMonths, validSubjectDataArrays[0]);
-    createChart('mlsChart', `${subjects[1]} Average by Month`, validMonths, validSubjectDataArrays[1]);
-    createChart('mtechChart', `${subjects[2]} Average by Month`, validMonths, validSubjectDataArrays[2]);
-    createChart('mproblemSolvingChart', `${subjects[3]} Average by Month`, validMonths, validSubjectDataArrays[3]);
-  }
+  // // Plot the data if available
+  // if (section!="FSSA") {
+  //   createChart('techChart', `${subjects[0]} Average by Month`, validMonths, validSubjectDataArrays[0]);
+  //   createChart('problemSolvingChart', `${subjects[1]} Average by Month`, validMonths, validSubjectDataArrays[1]);
+  // } else if(section=="FSSA"){
+    
+    createChart('menglishChart', `${subjects[0]}`, validMonths, validSubjectDataArrays[0]);
+    createChart('mlsChart', `${subjects[1]}`, validMonths, validSubjectDataArrays[1]);
+    createChart('mtechChart', `${subjects[2]}`, validMonths, validSubjectDataArrays[2]);
+    createChart('mproblemSolvingChart', `${subjects[3]}`, validMonths, validSubjectDataArrays[3]);
+  // }
 }
 
 function calculateAverage(dataArray) {
@@ -413,13 +416,14 @@ function createChart(chartId, label, labels, data) {
               data: data,
               backgroundColor: backgroundColors,
               borderColor: borderColors,
-              borderWidth: 1
+              borderWidth: 1,
           }]
       },
       options: {
           scales: {
               y: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  max: 100
               }
           }
       }
