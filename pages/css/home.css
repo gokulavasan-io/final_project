@@ -85,7 +85,7 @@
 .baseData>div{
     height: 100%;
     width: 100%;
-    border-radius: 20px; /* Soft rounded corners for a modern look */
+    border-radius: 10px; /* Soft rounded corners for a modern look */
     background: rgba(255, 255, 255, 0.8); /* White with transparency */
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     backdrop-filter: blur(10px); /* Glass-like blur effect */
@@ -93,8 +93,8 @@
     padding: 20px; /* Inner spacing */
 }
 .baseData h6{
-    color: rgb(176, 1, 149);
-    /* text-decoration: underline; */
+    /* color: rgb(176, 1, 149); */
+    color: rgb(173, 2, 2);
     font-weight: bolder;
 }
 

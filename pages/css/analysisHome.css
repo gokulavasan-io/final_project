@@ -26,7 +26,7 @@
     left: 8%;
 }
 
-.mainContainer{
+#mainContainer{
     /* background-color: antiquewhite;
     border: #0e2238 1px solid; */
     position: fixed;
@@ -42,22 +42,34 @@
     font-family: var(--font);
 }
 
-.types{
-    height: 8rem;
-    background-color: red;
-    width: 10rem;
-    padding: 2rem;
-    text-wrap: wrap;
-    border-radius: 10px;
-    color: white;
-    transition: all 300ms ease;
+
+
+.marks-detail {
+    color: white !important; /* White text */
+    background-color:#122539; /* Matches the primary color */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 1rem;
+    border-radius: 10px; /* Smooth edges */
+    gap: 0.5rem;
+    height: 6rem;
+    width: 8rem;
+    transition: all 300ms ease-in-out; /* Smooth hover effect */
+    clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 12%, 46% 12%, 46% 0); /* Folder-like shape */
 }
-.types:hover{
-    transform: scale(.97);
-    background-color: rgb(181, 5, 5);
+
+.marks-detail:hover {
+    background-color: #162a3c; /* Slightly darker shade of the primary color */
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
     cursor: pointer;
+}
+
+#mainContainer .marks-container a {
+    font-weight: bold;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8) !important; /* Slightly muted white */
+    text-decoration: none;
 }

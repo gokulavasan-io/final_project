@@ -75,8 +75,33 @@
 
 #top-bottom-table {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 0 auto;
+}
+#top-bottom-table td{
+    font-size: 90% !important;
+}
+#top-bottom-table .top5Cells {
+    background-color: green !important;
+    color: white !important;
+    text-align: center;
+    border: none !important;
+    font-family: var(--font);
+    font-size: 96% !important;
+    font-weight: bolder;
+    width:6rem !important ;
+}
+
+#top-bottom-table .bottom5Cells {
+    background-color: red !important;
+    font-weight: bolder;
+    color: white;
+    text-align: center;
+    border: none !important;
+    color: white !important;
+    font-family: var(--font);
+    font-size: 96% !important;
+    width:6rem !important ;
 }
 
 .topBottomContainer canvas {
@@ -89,7 +114,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 2.6rem;
+    gap: 3rem;
     width: 84%;
 }
 
@@ -190,31 +215,14 @@
 }
 
 
-.top5Cells {
-    background-color: green !important;
-    font-weight: bolder;
-    color: white !important;
-    text-align: center;
-    border: none !important;
-    font-family: var(--font);
-    font-size: 1.3rem;
-}
+
 
 .fonts {
     font-family: var(--font);
     color: black !important;
 }
 
-.bottom5Cells {
-    background-color: red !important;
-    font-weight: bolder;
-    color: white;
-    text-align: center;
-    border: none !important;
-    color: white !important;
-    font-family: var(--font);
-    font-size: 1.1rem;
-}
+
 
 
 .chart-section {

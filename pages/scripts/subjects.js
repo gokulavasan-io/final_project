@@ -85,7 +85,8 @@ function appendMonthToUI(monthName, container) {
     localStorage.setItem("month", div.textContent.trim());
     if (subject == "Attendance") {
       window.location.href = "../../pages/html/attendance.html";
-    } else {
+    }
+    else {
       window.location.href = "../../pages/html/monthlySubjectMarks.html";
     }
   });

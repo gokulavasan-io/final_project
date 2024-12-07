@@ -26,6 +26,20 @@ const subjects = [
   "PET",
   "Project",
 ];
+const orderedMonths = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 Chart.register(ChartDataLabels);
 
 let subject = "Academic Overall";
@@ -175,6 +189,9 @@ function populateMonthsDropdown(months, className) {
   dropdownMenu.innerHTML = "";
 
   if (months.length > 0) {
+    months.sort(
+      (a, b) => orderedMonths.indexOf(a) - orderedMonths.indexOf(b)
+    );
     months.forEach((month) => {
       const monthItem = document.createElement("a");
       monthItem.className = "dropdown-item";
@@ -240,11 +257,13 @@ async function fetchDataForMonth(className, month) {
       createChartsForAllSubjects(academicData)
       renderHandsontable(topBottomData);
     } else {
-      console.error("No data found for the selected month.");
+      if(className!=="All Classes"){
+        console.error("No data found for the selected month.");
       document.querySelector(".mainContainer").style.display="none";
       document.getElementById("noMonthMarks").style.display="flex";
       document.getElementById("monthName").innerText=selectedMonth;
       document.getElementById("classNameForNoMonth").innerText=className;
+      }
 
     }
   } catch (error) {
@@ -428,10 +447,10 @@ async function renderAcademicOverallTable(subjectData, subject) {
   document.querySelector(".charts").style.display="flex";
   document.querySelector("#academic-overall-table").style.display="block";
 
-
+  subjectData.sort((a, b) => b.Marks - a.Marks);
   subjectData.forEach((entry) => {
     const score = entry.Marks;
-    const nameScore = `${entry.Name} - ${score}`;
+    const nameScore = `${entry.Name} - ${Math.round(score * 10) / 10}`;
 
     if (score >= 80) {
       ranges["80-100"].push(nameScore);
@@ -662,7 +681,7 @@ async function renderHandsontable(topBottomData) {
     .map((_, rank) => {
       const row = [""];
       topBottomData.forEach((entry) => {
-        row.push(`${entry.top5[rank]?.name} - ${entry.top5[rank]?.marks || 0}`);
+        row.push(`${entry.top5[rank]?.name} - ${Math.round(entry.top5[rank]?.marks*10)/10 || 0}`);
       });
       return row;
     });
@@ -673,7 +692,7 @@ async function renderHandsontable(topBottomData) {
       const row = [""];
       topBottomData.forEach((entry) => {
         row.push(
-          `${entry.bottom5[rank]?.name} - ${entry.bottom5[rank]?.marks || 0}`
+          `${entry.bottom5[rank]?.name} - ${Math.round(entry.bottom5[rank]?.marks*10)/10 || 0}`
         );
       });
       return row;
@@ -684,7 +703,7 @@ async function renderHandsontable(topBottomData) {
   tableData.push([...Array(subjects.length + 1).fill("")]);
   tableData.push(...top5Data);
   tableData.push([""]);
-  tableData.push(...bottom5Data);
+  tableData.push(...bottom5Data.reverse());
 
   const container = document.getElementById("top-bottom-table");
 
@@ -709,7 +728,6 @@ async function renderHandsontable(topBottomData) {
           cellProperties.className = "top5Cells";
         if (row > 6 && col == 0 && row < 12 && col == 0)
           cellProperties.className = "bottom5Cells";
-        // if (row == 0) cellProperties.className = "htCenter classAverage";
         return cellProperties;
       },
     });
