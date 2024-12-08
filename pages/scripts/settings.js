@@ -29,6 +29,8 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const auth = getAuth(app);
 const db = getFirestore();
+let userAddedCount=0;
+let userDeletedCount=0;
 
 document.getElementById("logout").addEventListener("click", function () {
   document.getElementById("logout-warning").style.display = "block";
@@ -280,15 +282,20 @@ document
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjzpcE0fw9En2Z0l34Z0hzY35QhY4P6g2eqK1eGgk_up0tmsbI1YuSEAzk3SXVkLfj6gg&usqp=CAU",
         });
         membersList.innerHTML="";
-        fetchMembers();
+        membersList.innerHTML="";
+        userAddedCount=userAddedCount+1;
         document.getElementById("addMemberContainer").style.display = "none";
         document.getElementById("containerTitle").innerText = "Members";
+        if(userAddedCount>3){
+          location.reload();
+        }
+        fetchMembers();
         setTimeout(() => {
+          showSuccessMessage("Member added successfully");
           membersContainer.style.display = "block";
           newMemberForm.reset();
           document.getElementById("newMemberRole").innerText = "Select Role";
           document.getElementById("newMemberClass").innerText = "Select Class";
-          showSuccessMessage("Member added successfully");
         }, 1000);
       }
     } catch (error) {
@@ -419,7 +426,7 @@ async function fetchMembers() {
 
 function editMemberData(email, userName, role, section) {
   console.log(email, userName, role, section);
-
+  document.getElementById("deleteMember").style.display="block"
   document.getElementById("deleteMember").addEventListener("click", () => {
     const deleteWarningPopup = document.getElementById("delete-warning");
     deleteWarningPopup.style.display = "flex";
@@ -513,6 +520,7 @@ function editMemberData(email, userName, role, section) {
 
           if (email == localStorage.getItem("userEmail")) {
             getProfilePic();
+            localStorage.setItem("userRole",updatedRole);
           }
 
           showSuccessMessage("Member data updated successfully");
@@ -562,11 +570,16 @@ function editMemberData(email, userName, role, section) {
 }
 
 async function deleteDocument(email) {
+  userDeletedCount=userDeletedCount+1;
+  
   try {
     const documentRef = doc(db, "FSSA/users/teachers", email);
     await deleteDoc(documentRef);
     document.getElementById("loadingLine").style.display = "block";
     showSuccessMessage("Member deleted successfully");
+    if(userDeletedCount>3){
+      location.reload();
+    }
     membersList.innerHTML="";
     fetchMembers();
     setTimeout(() => {

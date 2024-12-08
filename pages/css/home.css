@@ -137,15 +137,6 @@
 }
 
 
-.buttonForMonthChange{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none !important;
-    background-color: transparent !important;
-    box-shadow: none !important; 
-    backdrop-filter:none !important;
-}
 
 /* Graph */
 

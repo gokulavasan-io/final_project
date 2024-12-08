@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .toUpperCase();
   }
 
-  if (section != "FSSA") {
+  if (section != "All") {
     document.getElementById("classNow").textContent = section.slice(-1);
   } else {
     document.getElementById("classNow").textContent = "All";
