@@ -429,8 +429,8 @@ async function renderAcademicOverallTable(subjectData, subject) {
   container.innerHTML = ""; // Clear existing table
 
   const ranges = {
-    "80-100": [],
-    "50-80": [],
+    "81-100": [],
+    "51-80": [],
     "0-50": [],
   };
 
@@ -453,24 +453,24 @@ async function renderAcademicOverallTable(subjectData, subject) {
     const score = entry.Marks;
     const nameScore = `${entry.Name} - ${Math.round(score * 10) / 10}`;
 
-    if (score >= 80) {
-      ranges["80-100"].push(nameScore);
-    } else if (score >= 50) {
-      ranges["50-80"].push(nameScore);
+    if (score > 80) {
+      ranges["81-100"].push(nameScore);
+    } else if (score > 50) {
+      ranges["51-80"].push(nameScore);
     } else if (score >= 0) {
       ranges["0-50"].push(nameScore);
     }
   });
 
   const maxRows = Math.max(
-    ranges["80-100"].length,
-    ranges["50-80"].length,
+    ranges["81-100"].length,
+    ranges["51-80"].length,
     ranges["0-50"].length
   );
 
   const tableData = Array.from({ length: maxRows }, (_, rowIndex) => ({
-    "80-100": ranges["80-100"][rowIndex] || "",
-    "50-80": ranges["50-80"][rowIndex] || "",
+    "81-100": ranges["81-100"][rowIndex] || "",
+    "51-80": ranges["51-80"][rowIndex] || "",
     "0-50": ranges["0-50"][rowIndex] || "",
   }));
 
@@ -487,10 +487,10 @@ async function renderAcademicOverallTable(subjectData, subject) {
 
   handsontableInstance = new Handsontable(tableContainer, {
     data: tableData,
-    colHeaders: ["80-100", "50-80", "0-50"],
+    colHeaders: ["81-100", "51-80", "0-50"],
     columns: [
-      { data: "80-100", type: "text", readOnly: true },
-      { data: "50-80", type: "text", readOnly: true },
+      { data: "81-100", type: "text", readOnly: true },
+      { data: "51-80", type: "text", readOnly: true },
       { data: "0-50", type: "text", readOnly: true },
     ],
     rowHeaders: true,
@@ -525,9 +525,9 @@ async function processAndRenderCharts(academicData, baseData, subject) {
     studentData.forEach((student) => {
       const groupValue = student[groupKey];
       const marksRange =
-        student.marks >= 80 ? "80-100" : student.marks >= 50 ? "50-80" : "0-50";
+        student.marks > 80 ? "81-100" : student.marks > 50 ? "51-80" : "0-50";
       if (!groups[groupValue]) {
-        groups[groupValue] = { "80-100": 0, "50-80": 0, "0-50": 0 };
+        groups[groupValue] = { "81-100": 0, "51-80": 0, "0-50": 0 };
       }
       groups[groupValue][marksRange]++;
     });
