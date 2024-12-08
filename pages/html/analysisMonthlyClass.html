@@ -28,6 +28,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            scrollbar-width: none;
 
         }
 
@@ -37,6 +38,9 @@
             --border-left: #3b7ddd;
         }
 
+        #classNow{
+            display: none;
+        }
 
         .mainContainer {
             width: 90%;
@@ -57,7 +61,7 @@
 
         .chart-container {
             min-width: 45%;
-            width: 150%;
+            width: 100%;
             height: 300px;
             margin: 20px 20px auto;
         }
@@ -97,15 +101,6 @@
             align-items: center;
 
         }
-
-        #loading {
-            position: absolute;
-            left: 52%;
-            top: 48%;
-            transform: translate(-50%, -50%);
-            font-size: 4rem;
-            color: var(--border-left);
-        }
     </style>
 
 </head>
@@ -118,7 +113,7 @@
     
     <div id="loading" >
         <div class="lineInLoading"></div>
-        <p id="progressMessage">Please wait....</p>
+        <p id="progressMessage">Please wait . . .</p>
     </div>
 
 
@@ -154,7 +149,7 @@
                 </div>
                 <div class="chart-container">
                     <div class="chart-title">AcademicOverall</div>
-                    <canvas id="AcademicOverallChart"></canvas>
+                    <canvas id="Academic OverallChart"></canvas>
                 </div>
 
             </div>
@@ -185,7 +180,7 @@
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
-        const categories = ["AcademicOverall", "Attendance", "English", "LifeSkills", "Tech", "ProblemSolving", "Project"];
+        const categories = ["Academic Overall", "Attendance", "English", "LifeSkills", "Tech", "ProblemSolving", "Project"];
         let months = [];
         let legendLabels = [];
 
@@ -272,7 +267,7 @@
                 borderWidth: 1,
                 borderDash: [5, 5]  // Dotted line for differentiation
             });
-            //document.getElementById("loading").style.display = "none";
+            document.getElementById("loading").style.display = "none";
             // Create a bar chart for the given category
             new Chart(ctx, {
                 type: 'bar',
@@ -354,7 +349,7 @@
 
 
         // Fetch data and render the charts when the page loads
-        window.onload = fetchDataAndRenderCharts;
+        window.onload = fetchDataAndRenderCharts();
     </script>
     <script type="module" src="../scripts/generalScript.js"></script>
     <!-- bootstrap link -->

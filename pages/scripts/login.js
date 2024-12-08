@@ -21,14 +21,7 @@ window.onload = function () {
       if (docSnap.exists()) {
         let userData=docSnap.data();
         localStorage.setItem("userName",userData.name);
-         localStorage.setItem("userRole",userData.role);
          localStorage.setItem("userEmail",userData.email);
-        if(userData.section!="ClassA"||userData.section!="ClassB"||userData.section!="ClassC"){
-          localStorage.setItem("section","ClassA")
-        }
-        else{
-          localStorage.setItem("section",userData.section)
-        }
         window.location.href = "../../pages/html/home.html";
       } else {
           hideLoading();
@@ -59,15 +52,7 @@ document.getElementById("login").addEventListener("click",async function (event)
     if (docSnap.exists()) {
         let userData=docSnap.data();
         localStorage.setItem("userName",userData.name);
-         localStorage.setItem("userRole",userData.role);
-         localStorage.setItem("userEmail",userData.email);
-        if(userData.section!="ClassA"||userData.section!="ClassB"||userData.section!="ClassC"){
-          localStorage.setItem("section","ClassA")
-        }
-        else{
-          localStorage.setItem("section",userData.section)
-        }
-
+        localStorage.setItem("userEmail",userData.email);
         showSuccessMessage();
         setTimeout(() => {
           window.location.href = "../../pages/html/home.html";
