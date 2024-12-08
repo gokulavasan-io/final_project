@@ -368,6 +368,12 @@ header .logo {
     font-family: 'Poppins', sans-serif;
 }
 
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+}
+
 #showClassesForLead {
     position: fixed;
     top: 50%;

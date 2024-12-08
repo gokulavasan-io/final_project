@@ -35,7 +35,7 @@
 
 .main-container {
     position: fixed;
-    top: 18%;
+    top: 21%;
     left: 7%;
     height: 80%;
     width: 90%;
@@ -276,12 +276,14 @@
     position: absolute;
     top: 2rem;
     right: 5rem;
+    display: none;
 }
 
 #deleteRemark{
     position: absolute;
     top: 2rem;
     right: 10.5rem;
+    display: none;
 }
 
 
@@ -322,6 +324,12 @@
 
 
 .handsontable td:first-of-type{
+    color: black !important;
+    font-family: var(--font);
+    font-size: .8rem;
+}
+
+#remarksTable td,#holidaysTable td{
     color: black !important;
     font-family: var(--font);
     font-size: .8rem;

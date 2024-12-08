@@ -13,10 +13,9 @@ import {
   collection,
   getDocs,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
-import Handsontable from "https://cdn.jsdelivr.net/npm/handsontable@11.0.0/+esm"; 
+import Handsontable from "https://cdn.jsdelivr.net/npm/handsontable@11.0.0/+esm";
 
-import firebaseConfig from "../../config.js"
-
+import firebaseConfig from "../../config.js";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -83,7 +82,7 @@ function initializeTable(students) {
     const date = new Date(currentYear, currentMonth, day);
     const isWeekend = date.getDay() === 0 || date.getDay() === 6; // Sunday or Saturday
     let isReadOnly = false;
-    if (students[0] && students[0][`day${day}`] === "Holiday"||isWeekend) {
+    if ((students[0] && students[0][`day${day}`] === "Holiday") || isWeekend) {
       isReadOnly = true;
     }
 
@@ -238,17 +237,15 @@ function calculateTotalScore(count) {
   totalScore += count["Present"];
 
   if (count["Late Arrival"] < 3) {
-    totalScore += count["Late Arrival"]; 
+    totalScore += count["Late Arrival"];
   } else {
-    totalScore+= Math.floor(count["Late Arrival"]%3)
-    totalScore +=Math.floor((count["Late Arrival"]) / 3) * 0.5;
+    totalScore  +=count["Late Arrival"] -  Math.floor(count["Late Arrival"] / 3) * 0.5;
   }
 
   if (count["Approved Permission"] < 3) {
-    totalScore += count["Approved Permission"]; 
+    totalScore += count["Approved Permission"];
   } else {
-    totalScore+= Math.floor(count["Approved Permission"]%3)
-    totalScore += Math.floor((count["Approved Permission"]) / 3) * 0.5;
+    totalScore +=count["Approved Permission"]-  Math.floor(count["Approved Permission"] / 3) * 0.5;
   }
 
   totalScore += count["Half Day Leave"] * 0.5;
@@ -473,8 +470,8 @@ function showDailyStatistics() {
   // Check if Handsontable (hot) is initialized
   if (!hot) {
     console.error("Handsontable is not initialized yet.");
-    alert(
-      "Please wait until the table is loaded before viewing daily statistics."
+    showErrorMessage(
+      "Please wait until the table is loaded before viewing daily statistics.",2000
     );
     return;
   }
@@ -640,19 +637,18 @@ async function saveStudentData() {
     });
 }
 
-
 async function saveStudentDataForResult() {
   const attendanceData = monthlyAttendanceData.getData(); // important
   const formattedData = {};
   attendanceData.forEach((row) => {
-    const studentName = row[0]; 
-    const studentPercentage = row[10]; 
-    if (studentName) { 
-      formattedData[studentName] = Number(studentPercentage|| 0) ; 
+    const studentName = row[0];
+    const studentPercentage = row[10];
+    if (studentName) {
+      formattedData[studentName] = Number(studentPercentage || 0);
     }
   });
 
-  const path = `/FSSA/${section}/${monthName}/Result/Attendance`; 
+  const path = `/FSSA/${section}/${monthName}/Result/Attendance`;
 
   // Save or update data in Firebase
   const attendanceDataRef = ref(firebase, path);
@@ -671,7 +667,6 @@ async function saveStudentDataForResult() {
     console.error("Error saving or updating data: ", error);
   }
 }
-
 
 async function markHoliday(columnIndex) {
   // Adjust for 1-based indexing
@@ -703,7 +698,9 @@ async function markHoliday(columnIndex) {
     document.getElementById("forHoliday").style.display = "none";
     reason = inputField.value.trim();
     if (!reason) {
-      alert("Please provide a reason for the holiday.");
+      showErrorMessage("Please provide a reason for the holiday.",2000);
+    document.getElementById("forHoliday").style.display = "flex";
+
       return;
     }
     inputField.value = "";
@@ -841,12 +838,14 @@ const holidayPopUpFull = document.getElementById("holidaysListPopup");
 const closePopupBtnForHoliday = document.getElementById(
   "closePopupBtnForHoliday"
 );
+let holidayReasonValid=true;
 
 document.getElementById("holidaysShow").addEventListener("click", () => {
   const container = document.getElementById("holidaysTable");
 
   holidayPopUpFull.style.display = "flex";
   closePopupBtnForHoliday.addEventListener("click", () => {
+    holidayReasonValid=true;
     holidayPopUpFull.style.display = "none";
   });
 
@@ -871,8 +870,9 @@ document.getElementById("holidaysShow").addEventListener("click", () => {
       const snapshot = await get(holidaysRef);
 
       if (snapshot.exists()) {
-        document.getElementById("holidaysTable").style.display="block";
-        document.getElementById("updateHolidayReason").style.display="block";
+        document.getElementById("holidaysTable").style.display = "block";
+        document.getElementById("updateHolidayReason").style.display = "block";
+        document.getElementById("emptyHoliday").style.display = "none";
 
         const rawData = snapshot.val();
 
@@ -892,10 +892,9 @@ document.getElementById("holidaysShow").addEventListener("click", () => {
         renderTable(holidays);
       } else {
         console.error("No data available.");
-        document.getElementById("holidaysTable").style.display="none";
-      document.getElementById("updateHolidayReason").style.display="none";
-      document.getElementById("emptyHoliday").style.display="flex";
-
+        document.getElementById("holidaysTable").style.display = "none";
+        document.getElementById("updateHolidayReason").style.display = "none";
+        document.getElementById("emptyHoliday").style.display = "flex";
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -910,7 +909,6 @@ document.getElementById("holidaysShow").addEventListener("click", () => {
 
     // Clear the container to remove any leftover DOM elements
     container.innerHTML = "";
-    const tooltip = document.getElementById("tooltip");
 
     // Create a new Handsontable instance
     holidaysTable = new Handsontable(container, {
@@ -932,18 +930,29 @@ document.getElementById("holidaysShow").addEventListener("click", () => {
   // Update Firebase with edited data
   async function updateHolidays() {
     const updatedData = holidaysTable.getData();
-
     // Construct updated Firebase data
     const newFirebaseData = {};
     updatedData.forEach((row) => {
       if (row[0]) {
+        if(!row[2]||row[2]==""){
+            holidayReasonValid=false;
+            showErrorMessage(`Please Enter a valid reason for ${row[0]}`,2000)
+        }
         newFirebaseData[row[0]] = row[2];
       }
     });
+    if(!holidayReasonValid){
+      return;
+    }
 
     try {
-      await update(holidaysRef, newFirebaseData);
-      alert("Holidays updated successfully!");
+      if(!holidayReasonValid){
+        return;
+      }
+      if(remarkValid){
+        await update(holidaysRef, newFirebaseData);
+        showSuccessMessage("Holidays updated successfully!");
+      }
     } catch (error) {
       console.error("Error updating data:", error);
     }
@@ -1040,6 +1049,9 @@ function addRemarkHandler(row, col, students, columns) {
       document.getElementById("newRemark").value = "";
       forRemarks.style.display = "none";
     }
+    else{
+      showErrorMessage("Please enter a remark.",2000)
+    }
   };
 }
 
@@ -1050,10 +1062,12 @@ remarksPopUpBtn.addEventListener("click", () => {
   document.getElementById("remarksListPopup").style.display = "flex";
   initializeHandsontable();
 });
+let remarkValid=true;
 
 document
   .getElementById("closePopupBtnForRemarks")
   .addEventListener("click", () => {
+    remarkValid=true;
     document.getElementById("remarksListPopup").style.display = "none";
     localStorage.removeItem("selectedRowIndex");
   });
@@ -1070,18 +1084,18 @@ async function fetchRemarks() {
     const snapshot = await get(dbRef);
 
     if (snapshot.exists()) {
-      document.querySelector(".remarksTableContainer").style.display="block";
-      document.getElementById("deleteRemark").style.display="block";
-      document.getElementById("updateRemark").style.display="block";
-      document.getElementById("emptyRemark").style.display="none";
+      document.querySelector(".remarksTableContainer").style.display = "block";
+      document.getElementById("deleteRemark").style.display = "block";
+      document.getElementById("updateRemark").style.display = "block";
+      document.getElementById("emptyRemark").style.display = "none";
 
       return parseFirebaseData(snapshot.val());
     } else {
       console.error("No data available.");
-      document.querySelector(".remarksTableContainer").style.display="none";
-      document.getElementById("emptyRemark").style.display="flex";
-      document.getElementById("deleteRemark").style.display="none";
-      document.getElementById("updateRemark").style.display="none";
+      document.querySelector(".remarksTableContainer").style.display = "none";
+      document.getElementById("emptyRemark").style.display = "flex";
+      document.getElementById("deleteRemark").style.display = "none";
+      document.getElementById("updateRemark").style.display = "none";
 
       return [];
     }
@@ -1179,36 +1193,47 @@ async function initializeHandsontable() {
 }
 
 async function handleUpdate(tableData) {
- 
-    const data = hotForRemarks.getData(); // Get the current table data
-    const firebaseUpdates = {};
+  const data = hotForRemarks.getData(); // Get the current table data
+  const firebaseUpdates = {};
 
-    data.forEach((row, index) => {
-      const path = tableData[index]?.FirebasePath;
-      const newRemark = row[3]; // The 'Remark' column
-      if (path) {
-        firebaseUpdates[path + "/remark"] = newRemark; // Prepare update object
-      }
-    });
-
-    try {
-      await update(ref(firebase), firebaseUpdates); // Update Firebase
-      showSuccessMessage("Remarks updated successfully!");
-      const updatedData = await fetchRemarks();
-      hotForRemarks.loadData(updatedData); // Reload Handsontable with updated data
-    } catch (error) {
-      console.error("Error updating Firebase:", error);
-      alert("Failed to update remarks.");
+  data.forEach((row, index) => {
+    const path = tableData[index]?.FirebasePath;
+    const newRemark = row[3]; // The 'Remark' column
+    if(!newRemark|| newRemark==""){
+      remarkValid=false;
     }
+    if (path) {
+      firebaseUpdates[path + "/remark"] = newRemark; // Prepare update object
+    }
+  });
+
+  if(!remarkValid){
+    showErrorMessage("Please Enter valid remark in empty cells. Remarks cannot be empty",2000);
+    return;
+  }
+
+
+  try {
+    if(!remarkValid){
+      return;
+    }
+    await update(ref(firebase), firebaseUpdates); // Update Firebase
+    if(remarkValid){
+      showSuccessMessage("Remarks updated successfully!");
+    }
+    const updatedData = await fetchRemarks();
+    hotForRemarks.loadData(updatedData); // Reload Handsontable with updated data
+  } catch (error) {
+    console.error("Error updating Firebase:", error);
+    alert("Failed to update remarks.");
+  }
 }
-
-
 
 // Delete handler
 async function handleDelete() {
   const rowIndex = parseInt(localStorage.getItem("selectedRowIndex"), 10);
   if (isNaN(rowIndex)) {
-    console.error("Invalid row index.");
+    showErrorMessage("Please select a student or remark to delete ",2000)
     return;
   }
 
@@ -1245,3 +1270,13 @@ async function handleDelete() {
   };
 }
 
+
+
+function showErrorMessage(str, time) {
+  const errorPopup = document.getElementById("error-message");
+  errorPopup.innerText = str;
+  errorPopup.style.display = "block";
+  setTimeout(() => {
+    errorPopup.style.display = "none";
+  }, time);
+}
