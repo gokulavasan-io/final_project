@@ -93,7 +93,13 @@ function initializeTable(students) {
       source: attendanceOptions,
       readOnly: isReadOnly,
       className: isWeekend ? "non-working" : "", // Apply 'non-working' class if weekend
+      validator: function (value, callback) {
+        const isValid = attendanceOptions.includes(value) || value === null || value === ""; // Allow null/empty for unedited cells
+        callback(isValid); // Pass the result to the callback
+      },
+      allowInvalid: false, // Prevent invalid values from being accepted
     });
+    
   }
 
   // Initialize Handsontable with updated configuration
