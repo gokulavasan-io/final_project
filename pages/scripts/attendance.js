@@ -675,6 +675,15 @@ async function saveStudentDataForResult() {
 }
 
 async function markHoliday(columnIndex) {
+
+  const firstRowValue = hot.getDataAtCell(0, columnIndex); // Get the value in the first row of the selected column
+
+  // Check if the value in the first row meets the condition
+  if (firstRowValue === "Holiday") {
+    showErrorMessage("This day is already marked as a holiday .",2000);
+    return; // Exit the function if the condition is not met
+  }
+
   // Adjust for 1-based indexing
   const date = new Date(currentYear, currentMonth, columnIndex);
   const dateStr = `${date.getDate()}/${currentMonth + 1}/${currentYear}`;
@@ -748,6 +757,17 @@ async function markHoliday(columnIndex) {
 }
 
 async function removeHolidayFromTable(columnIndex) {
+
+  const firstRowValue = hot.getDataAtCell(0, columnIndex); // Get the value in the first row of the selected column
+
+  // Check if the value in the first row meets the condition
+  if (firstRowValue !== "Holiday") {
+    showErrorMessage("This day is not a holiday .",2000);
+    return; // Exit the function if the condition is not met
+  }
+
+
+
   document.getElementById("loading").style.display = "flex";
 
   if (columnIndex > 0 && columnIndex <= daysInMonth) {
