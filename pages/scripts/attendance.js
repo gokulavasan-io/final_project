@@ -103,75 +103,113 @@ function initializeTable(students) {
     
   }
 
-  // Initialize Handsontable with updated configuration
-  hot = new Handsontable(container, {
-    data: students,
-    columns: columns,
-    rowHeaders: true,
-    colHeaders: columns.map((col) => col.title),
-    licenseKey: "non-commercial-and-evaluation",
-    fixedColumnsLeft: 1,
-    width: "100%",
-    height: "100%",
-    stretchH: "all",
-    overflow: "hidden",
-    autoColumnSize: true,
-    autoRowSize: true,
-    contextMenu: {
-      items: {
-        markAsHoliday: {
-          name: "Mark as Holiday",
-          callback: function (key, selection) {
-            const columnIndex = selection[0].start.col; // Get the column index of the selected cell
-            if(role=="Tech coach" || role== "ELS coach"){
-              showErrorMessage("You cannot mark holidays. Please reach out your admin!",2000)
-              return;
-            } 
-            markHoliday(columnIndex); // Mark this column as a holiday
-          },
-          disabled: function (key, selection) {
-            return false; // Always enable for this example
-          },
-        },
-        removeHoliday: {
-          name: "Remove from Holiday",
-          callback: async function (_, selection) {
-            if (
-              selection &&
-              selection[0] &&
-              typeof selection[0].start.col !== "undefined"
-            ) {
-              const col = selection[0].start.col; // Get the column index from the selected cell
-              if(role=="Tech coach" || role== "ELS coach"){
-                showErrorMessage("You cannot remove holidays. Please reach out your admin!",2000)
-                return;
-              } 
-              await removeHolidayFromTable(col); // Call the separate function to remove the holiday
-            }
-          },
-        },
 
-        addRemark: {
-          name: "Add a remark",
-          callback: function (key, selection) {
-            if (selection && selection[0]) {
-              const row = selection[0].start.row;
-              const col = selection[0].start.col;
-              addRemarkHandler(row, col, students, columns);
-            }
-          },
-          disabled: function (key, selection) {
-            return false; // Enable by default
+
+  if(role=="Tech coach" || role== "ELS coach"){
+    hot = new Handsontable(container, {
+      data: students,
+      columns: columns,
+      rowHeaders: true,
+      colHeaders: columns.map((col) => col.title),
+      licenseKey: "non-commercial-and-evaluation",
+      fixedColumnsLeft: 1,
+      width: "100%",
+      height: "100%",
+      stretchH: "all",
+      overflow: "hidden",
+      autoColumnSize: true,
+      autoRowSize: true,
+      contextMenu: {
+        items: {
+          addRemark: {
+            name: "Add a remark",
+            callback: function (key, selection) {
+              if (selection && selection[0]) {
+                const row = selection[0].start.row;
+                const col = selection[0].start.col;
+                addRemarkHandler(row, col, students, columns);
+              }
+            },
+            disabled: function (key, selection) {
+              return false; // Enable by default
+            },
           },
         },
       },
-    },
-    afterChange: function (changes, source) {
-      if (source === "edit" && changes) {
-        hot.render();
-      }
-    },
-  });
+      afterChange: function (changes, source) {
+        if (source === "edit" && changes) {
+          hot.render();
+        }
+      },
+    });
+
+  } 
+  else{
+    hot = new Handsontable(container, {
+      data: students,
+      columns: columns,
+      rowHeaders: true,
+      colHeaders: columns.map((col) => col.title),
+      licenseKey: "non-commercial-and-evaluation",
+      fixedColumnsLeft: 1,
+      width: "100%",
+      height: "100%",
+      stretchH: "all",
+      overflow: "hidden",
+      autoColumnSize: true,
+      autoRowSize: true,
+      contextMenu: {
+        items: {
+          markAsHoliday: {
+            name: "Mark as Holiday",
+            callback: function (key, selection) {
+              const columnIndex = selection[0].start.col; // Get the column index of the selected cell
+             
+              markHoliday(columnIndex); // Mark this column as a holiday
+            },
+            disabled: function (key, selection) {
+              return false; // Always enable for this example
+            },
+          },
+          removeHoliday: {
+            name: "Remove from Holiday",
+            callback: async function (_, selection) {
+              if (
+                selection &&
+                selection[0] &&
+                typeof selection[0].start.col !== "undefined"
+              ) {
+                const col = selection[0].start.col; // Get the column index from the selected cell
+                await removeHolidayFromTable(col); // Call the separate function to remove the holiday
+              }
+            },
+          },
+  
+          addRemark: {
+            name: "Add a remark",
+            callback: function (key, selection) {
+              if (selection && selection[0]) {
+                const row = selection[0].start.row;
+                const col = selection[0].start.col;
+                addRemarkHandler(row, col, students, columns);
+              }
+            },
+            disabled: function (key, selection) {
+              return false; // Enable by default
+            },
+          },
+        },
+      },
+      afterChange: function (changes, source) {
+        if (source === "edit" && changes) {
+          hot.render();
+        }
+      },
+    });
+
+  }
+
+ 
 
   // Set a height and width for the container to trigger scrolling
   container.style.height = "600px";
