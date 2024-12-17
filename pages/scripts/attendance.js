@@ -21,6 +21,7 @@ import firebaseConfig from "../../config.js";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const firebase = getDatabase();
+const role=localStorage.getItem("userRole")
 let hot;
 const container = document.getElementById("attendanceTable");
 const attendanceOptions = ["P", "A", "LA", "AP", "SL", "CL", "HL"];
@@ -122,6 +123,10 @@ function initializeTable(students) {
           name: "Mark as Holiday",
           callback: function (key, selection) {
             const columnIndex = selection[0].start.col; // Get the column index of the selected cell
+            if(role=="Tech coach" || role== "ELS coach"){
+              showErrorMessage("You cannot mark holidays. Please reach out your admin!",2000)
+              return;
+            } 
             markHoliday(columnIndex); // Mark this column as a holiday
           },
           disabled: function (key, selection) {
@@ -137,6 +142,10 @@ function initializeTable(students) {
               typeof selection[0].start.col !== "undefined"
             ) {
               const col = selection[0].start.col; // Get the column index from the selected cell
+              if(role=="Tech coach" || role== "ELS coach"){
+                showErrorMessage("You cannot remove holidays. Please reach out your admin!",2000)
+                return;
+              } 
               await removeHolidayFromTable(col); // Call the separate function to remove the holiday
             }
           },
@@ -756,7 +765,9 @@ async function markHoliday(columnIndex) {
   });
 }
 
+console.log(role);
 async function removeHolidayFromTable(columnIndex) {
+  
 
   const firstRowValue = hot.getDataAtCell(0, columnIndex); // Get the value in the first row of the selected column
 

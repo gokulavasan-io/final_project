@@ -32,6 +32,8 @@ window.onload = async () => {
       const userDoc = await getUserData(user.email);
       if (userDoc) {
         role = userDoc.role;
+        localStorage.setItem("userRole",userDoc.role);
+        
         section = userDoc.section === "FSSA" ? "All" : userDoc.section.split(" ").join("");
         if (section != "All") {
           document.getElementById("classNow").textContent = section.slice(-1);
