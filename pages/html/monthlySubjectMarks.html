@@ -33,16 +33,16 @@
     <div id="error-message" class="popup-message"></div>
 
 
- 
-    <div id="delete-warning">
-        <div>Are you sure want to delete this mark from this month ?</div>
+
+    <div id="archiveWarning">
+        <div>Are you sure want to remove this mark from this month ?</div>
         <div class="yes-no mt-4">
-            <button class="btn btn-outline-success" id="yesForRemoveMark">Yes</button>
-            <button class="btn btn-outline-danger" id="noForRemoveMark">No</button>
+            <button class="btn btn-success" id="yesForRemoveMark">Yes</button>
+            <button class="btn btn-danger" id="noForRemoveMark">No</button>
         </div>
     </div>
 
-    <div id="loading" >
+    <div id="loading">
         <div class="lineInLoading"></div>
         <p id="progressMessage">Please wait....</p>
     </div>
@@ -64,112 +64,114 @@
         </div>
     </div>
     <div class="buttons">
-        <button class="btn btn-outline-success" id="saveAverageData" style="display: none;">Save</button>
         <button class="btn btn-outline-primary" id="newTest">New Test</button>
+        <button class="btn btn-outline-success" id="saveAverageData" style="display: none;">Save</button>
+        <button class="btn btn-outline-danger" id="archived">Archived</button>
     </div>
     <div class="forChart flex-column align-items-center" style="display: none;">
-        <h6 >Average</h6>
+        <h6>Average</h6>
         <canvas id="myChart"></canvas>
     </div>
 
 
-   <div class="averageTableContainer " style="display: none;">
-    <h6 >Average</h6>
+    <div class="averageTableContainer " style="display: none;">
+        <h6>Average</h6>
 
-    <table class="table countTable table-bordered">
-        <thead class="tableHead">
-            <tr>
-                <th scope="col">Grade</th>
-                <th scope="col">Percentage</th>
-                <th scope="col">count</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="background-color: green !important ; color: white;">Green</td>
-                <td id="greenPercent">0%</td>
-                <td id="greenCount">0</td>
-            </tr>
-            <tr>
-                <td style="background-color: yellow !important ; color: rgb(0, 0, 0);">Yellow</td>
-                <td id="yellowPercent">0%</td>
-                <td id="yellowCount">0</td>
-            </tr>
-            <tr>
-                <td style="background-color: red !important ; color: white;">Red</td>
-                <td id="redPercent">0%</td>
-                <td id="redCount">0</td>
-            </tr>
-            <tr>
-                <td style="background-color: rgb(40, 40, 245) !important ; color: white;">Absentees</td>
-                <td id="absentPercent">0%</td>
-                <td id="absentCount">0</td>
-            </tr>
+        <table class="table countTable table-bordered">
+            <thead class="tableHead">
+                <tr>
+                    <th scope="col">Grade</th>
+                    <th scope="col">Percentage</th>
+                    <th scope="col">count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="background-color: green !important ; color: white;">Green</td>
+                    <td id="greenPercent">0%</td>
+                    <td id="greenCount">0</td>
+                </tr>
+                <tr>
+                    <td style="background-color: yellow !important ; color: rgb(0, 0, 0);">Yellow</td>
+                    <td id="yellowPercent">0%</td>
+                    <td id="yellowCount">0</td>
+                </tr>
+                <tr>
+                    <td style="background-color: red !important ; color: white;">Red</td>
+                    <td id="redPercent">0%</td>
+                    <td id="redCount">0</td>
+                </tr>
+                <tr>
+                    <td style="background-color: rgb(40, 40, 245) !important ; color: white;">Absentees</td>
+                    <td id="absentPercent">0%</td>
+                    <td id="absentCount">0</td>
+                </tr>
 
-        </tbody>
-    </table>
-   </div>
+            </tbody>
+        </table>
+    </div>
 
     <!-- for adding new mark -->
 
 
     <div id="forAddingNewMarkFull">
-        <div id="forAddingNewMark" >
-            
-             <span class="close-btn" id="closeBtnForNewMark">&times;</span>
+        <div id="forAddingNewMark">
+
+            <span class="close-btn" id="closeBtnForNewMark">&times;</span>
 
             <div id="newMark">New <span id="subjectNew"></span> Mark : <span id="monthNew"></span></div>
             <div id="handsontableForNew"></div>
-    
-        <div class="file-name">
-            <label for="datasetName" class="form-label">File Name:</label>
-            <input type="text" id="datasetName" class="form-control" placeholder="Test name" />
-            <label for="totalMarks" class="form-label mt-4">Total mark :</label>
-            <input type="number" id="totalMarks" class="form-control" placeholder="Enter total marks" />
-            <button class="btn btn-outline-danger mt-2" id="calculate">calculate</button>
-        </div>
-    
-        <div class="buttons">
-            <button class="btn btn-outline-success" id="saveToFirebase">Save </button>
-        </div>
-    
-        <div class="forChartNew">
-            <canvas id="myChartForNew"></canvas>
-        </div>
-    
-        <table class="table countTableforNew table-bordered">
-            <thead class="tableHead">
-              <tr>
-                <th scope="col">Grade</th>
-                <th scope="col">Percentage</th>
-                <th scope="col">count</th>
-              </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="background-color: green !important ; color: white;">Green</td>
-                    <td id="greenPercentNew">0%</td>
-                    <td id="greenCountNew">0</td>
-                  </tr>
-                  <tr>
-                    <td style="background-color: yellow !important ; color: rgb(0, 0, 0);">Yellow</td>
-                    <td id="yellowPercentNew">0%</td>
-                    <td id="yellowCountNew">0</td>
-                  </tr>
-                  <tr>
-                    <td style="background-color: red !important ; color: white;">Red</td>
-                    <td id="redPercentNew">0%</td>
-                    <td id="redCountNew">0</td>
-                  </tr>
-                  <tr>
-                    <td style="background-color: rgb(40, 40, 245) !important ; color: white;">Absentees</td>
-                    <td id="absentPercentNew">0%</td>
-                    <td id="absentCountNew">0</td>
-                  </tr>
-              
-            </tbody>
-          </table>
-    
+
+            <div class="file-name">
+                <label for="datasetName" class="form-label">File Name:</label>
+                <input type="text" id="datasetName" class="form-control" placeholder="Test name" />
+                <label for="totalMarks" class="form-label mt-4">Total mark :</label>
+                <input type="number" id="totalMarks" class="form-control" placeholder="Enter total marks" />
+                <button class="btn btn-outline-danger mt-2" id="calculate">calculate</button>
+            </div>
+
+            <div class="buttons d-flex flex-column gap-2">
+                <button class="btn btn-outline-success" id="saveToFirebase">Save </button>
+                <button class="btn btn-outline-danger" id="moveToArchiveForNew">Move to Archive </button>
+            </div>
+
+            <div class="forChartNew">
+                <canvas id="myChartForNew"></canvas>
+            </div>
+
+            <table class="table countTableforNew table-bordered">
+                <thead class="tableHead">
+                    <tr>
+                        <th scope="col">Grade</th>
+                        <th scope="col">Percentage</th>
+                        <th scope="col">count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="background-color: green !important ; color: white;">Green</td>
+                        <td id="greenPercentNew">0%</td>
+                        <td id="greenCountNew">0</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: yellow !important ; color: rgb(0, 0, 0);">Yellow</td>
+                        <td id="yellowPercentNew">0%</td>
+                        <td id="yellowCountNew">0</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: red !important ; color: white;">Red</td>
+                        <td id="redPercentNew">0%</td>
+                        <td id="redCountNew">0</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: rgb(40, 40, 245) !important ; color: white;">Absentees</td>
+                        <td id="absentPercentNew">0%</td>
+                        <td id="absentCountNew">0</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
         </div>
     </div>
 
@@ -177,74 +179,95 @@
 
     <div id="forSeeMarksFull">
         <div id="forSeeMarks">
-    <span class="close-btn" id="closeBtnForExist">&times;</span>
-            
-    <div id="handsontableForExist"></div>
+            <span class="close-btn" id="closeBtnForExist">&times;</span>
 
-    <div class="monthNameForExistingMark">Month : <span id="monthExist"></span></div>
-    <div class="file-name-for-See-Marks">
-        <div class="d-flex flex-column gap-1">
-            <p>File name : </p>
-            <input type="text" id="renameDatasetInputForSeeMarks" />
-            <button id="renameDataset" class="btn btn-outline-info text-center">Rename</button>
+            <div id="handsontableForExist"></div>
+
+            <div class="monthNameForExistingMark">Month : <span id="monthExist"></span></div>
+            <div class="file-name-for-See-Marks">
+                <div class="d-flex flex-column gap-1">
+                    <p>File name : </p>
+                    <input type="text" id="renameDatasetInputForSeeMarks" />
+                    <button id="renameDataset" class="btn btn-outline-info text-center">Rename</button>
+                </div>
+                <div class="d-flex flex-column gap-1">
+                    <p>Total marks: </p>
+                    <input type="text" id="totalMarksForSeeMarks" />
+                    <button id="updateTotalMarks" class="btn btn-outline-info ">Update Total Marks</button>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn btn-outline-success" id="updateDataForExists">Update</button>
+                <button class="btn btn-outline-danger" id="removeFromArchived">Remove from archived</button>
+
+            </div>
+            <div class="chartForExist">
+                <canvas id="chartForExist"></canvas>
+            </div>
+
+            <button class="btn btn-outline-danger" id="deleteFile">Delete file Permanently</button>
+            <table class="table countTableForExist table-bordered">
+                <thead class="tableHead">
+                    <tr>
+                        <th scope="col">Grade</th>
+                        <th scope="col">Percentage</th>
+                        <th scope="col">count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="background-color: green !important ; color: white;">Green</td>
+                        <td id="greenPercentExists">0%</td>
+                        <td id="greenCountExists">0</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: yellow !important ; color: rgb(0, 0, 0);">Yellow</td>
+                        <td id="yellowPercentExists">0%</td>
+                        <td id="yellowCountExists">0</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: red !important ; color: white;">Red</td>
+                        <td id="redPercentExists">0%</td>
+                        <td id="redCountExists">0</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: rgb(40, 40, 245) !important ; color: white;">Absentees</td>
+                        <td id="absentPercentExists">0%</td>
+                        <td id="absentCountExists">0</td>
+                    </tr>
+
+                </tbody>
+            </table>
         </div>
-        <div class="d-flex flex-column gap-1">
-            <p>Total marks: </p>
-            <input type="text" id="totalMarksForSeeMarks" />
-            <button id="updateTotalMarks" class="btn btn-outline-info ">Update Total Marks</button>
-        </div>
     </div>
-    <div class="buttons">
-        <button class="btn btn-outline-success" id="updateDataForExists">Update</button>
-        <button class="btn btn-outline-danger" id="removeFromMonth">Delete file</button>
 
-    </div>
-    <div class="chartForExist">
-        <canvas id="chartForExist"></canvas>
-    </div>
-    <table class="table countTableForExist table-bordered">
-        <thead class="tableHead">
-            <tr>
-                <th scope="col">Grade</th>
-                <th scope="col">Percentage</th>
-                <th scope="col">count</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="background-color: green !important ; color: white;">Green</td>
-                <td id="greenPercentExists">0%</td>
-                <td id="greenCountExists">0</td>
-            </tr>
-            <tr>
-                <td style="background-color: yellow !important ; color: rgb(0, 0, 0);">Yellow</td>
-                <td id="yellowPercentExists">0%</td>
-                <td id="yellowCountExists">0</td>
-            </tr>
-            <tr>
-                <td style="background-color: red !important ; color: white;">Red</td>
-                <td id="redPercentExists">0%</td>
-                <td id="redCountExists">0</td>
-            </tr>
-            <tr>
-                <td style="background-color: rgb(40, 40, 245) !important ; color: white;">Absentees</td>
-                <td id="absentPercentExists">0%</td>
-                <td id="absentCountExists">0</td>
-            </tr>
 
-        </tbody>
-    </table>
+
+    <!-- for seeing drafts marks -->
+
+    <div id="forSeeArchivedFull">
+        <div id="forSeeArchived">
+            <span class="close-btn" id="closeBtnForArchived">&times;</span>
+            <h4 class="text-center mt-3">Archived</h4>
+            <div id="archivedContainerForFiles"></div>
         </div>
     </div>
 
 
-    <!-- for adding existing marks -->
 
     <div id="forEmptyMonth">
         <img src="../../assets/images/monthlySubjects_img/img_emty-folder.png" class="img-fluid" alt="">
         <div>
             <p>There are no tests added yet.</p>
             <p>Add your first test by <span id="addNewTestByClick">clicking here</span></p>
+        </div>
+    </div>
+
+    <div id="deleteWarning">
+        <div>Are you sure want to delete this mark Permanently ?</div>
+        <div class="yes-no mt-4">
+            <button class="btn btn-success" id="yesDelete">Yes</button>
+            <button class="btn btn-danger" id="noDelete">No</button>
         </div>
     </div>
 

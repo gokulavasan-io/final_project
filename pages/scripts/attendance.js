@@ -21,6 +21,7 @@ import firebaseConfig from "../../config.js";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const firebase = getDatabase();
+const role = localStorage.getItem("userRole");
 let hot;
 const container = document.getElementById("attendanceTable");
 const attendanceOptions = ["P", "A", "LA", "AP", "SL", "CL", "HL"];
@@ -93,70 +94,118 @@ function initializeTable(students) {
       source: attendanceOptions,
       readOnly: isReadOnly,
       className: isWeekend ? "non-working" : "", // Apply 'non-working' class if weekend
+      validator: function (value, callback) {
+        const isValid =
+          attendanceOptions.includes(value) ||
+          value === null ||
+          value === "" ||
+          value === "Holiday"; // Allow null/empty for unedited cells
+        callback(isValid); // Pass the result to the callback
+      },
+      allowInvalid: false, // Prevent invalid values from being accepted
     });
   }
 
-  // Initialize Handsontable with updated configuration
-  hot = new Handsontable(container, {
-    data: students,
-    columns: columns,
-    rowHeaders: true,
-    colHeaders: columns.map((col) => col.title),
-    licenseKey: "non-commercial-and-evaluation",
-    fixedColumnsLeft: 1,
-    width: "100%",
-    height: "100%",
-    stretchH: "all",
-    overflow: "hidden",
-    autoColumnSize: true,
-    autoRowSize: true,
-    contextMenu: {
-      items: {
-        markAsHoliday: {
-          name: "Mark as Holiday",
-          callback: function (key, selection) {
-            const columnIndex = selection[0].start.col; // Get the column index of the selected cell
-            markHoliday(columnIndex); // Mark this column as a holiday
-          },
-          disabled: function (key, selection) {
-            return false; // Always enable for this example
-          },
-        },
-        removeHoliday: {
-          name: "Remove from Holiday",
-          callback: async function (_, selection) {
-            if (
-              selection &&
-              selection[0] &&
-              typeof selection[0].start.col !== "undefined"
-            ) {
-              const col = selection[0].start.col; // Get the column index from the selected cell
-              await removeHolidayFromTable(col); // Call the separate function to remove the holiday
-            }
-          },
-        },
-
-        addRemark: {
-          name: "Add a remark",
-          callback: function (key, selection) {
-            if (selection && selection[0]) {
-              const row = selection[0].start.row;
-              const col = selection[0].start.col;
-              addRemarkHandler(row, col, students, columns);
-            }
-          },
-          disabled: function (key, selection) {
-            return false; // Enable by default
+  if (role == "Tech coach" || role == "ELS coach") {
+    hot = new Handsontable(container, {
+      data: students,
+      columns: columns,
+      rowHeaders: true,
+      colHeaders: columns.map((col) => col.title),
+      licenseKey: "non-commercial-and-evaluation",
+      fixedColumnsLeft: 1,
+      width: "100%",
+      height: "100%",
+      stretchH: "all",
+      overflow: "hidden",
+      autoColumnSize: true,
+      autoRowSize: true,
+      contextMenu: {
+        items: {
+          addRemark: {
+            name: "Add a remark",
+            callback: function (key, selection) {
+              if (selection && selection[0]) {
+                const row = selection[0].start.row;
+                const col = selection[0].start.col;
+                addRemarkHandler(row, col, students, columns);
+              }
+            },
+            disabled: function (key, selection) {
+              return false; // Enable by default
+            },
           },
         },
       },
-    },
-    afterChange: function (changes, source) {
-      if (source === "edit" && changes) {
-        hot.render();
-      }
-    },
-  });
+      afterChange: function (changes, source) {
+        if (source === "edit" && changes) {
+          hot.render();
+        }
+      },
+    });
+  } else {
+    hot = new Handsontable(container, {
+      data: students,
+      columns: columns,
+      rowHeaders: true,
+      colHeaders: columns.map((col) => col.title),
+      licenseKey: "non-commercial-and-evaluation",
+      fixedColumnsLeft: 1,
+      width: "100%",
+      height: "100%",
+      stretchH: "all",
+      overflow: "hidden",
+      autoColumnSize: true,
+      autoRowSize: true,
+      contextMenu: {
+        items: {
+          markAsHoliday: {
+            name: "Mark as Holiday",
+            callback: function (key, selection) {
+              const columnIndex = selection[0].start.col; // Get the column index of the selected cell
+
+              markHoliday(columnIndex); // Mark this column as a holiday
+            },
+            disabled: function (key, selection) {
+              return false; // Always enable for this example
+            },
+          },
+          removeHoliday: {
+            name: "Remove from Holiday",
+            callback: async function (_, selection) {
+              if (
+                selection &&
+                selection[0] &&
+                typeof selection[0].start.col !== "undefined"
+              ) {
+                const col = selection[0].start.col; // Get the column index from the selected cell
+                await removeHolidayFromTable(col); // Call the separate function to remove the holiday
+              }
+            },
+          },
+
+          addRemark: {
+            name: "Add a remark",
+            callback: function (key, selection) {
+              if (selection && selection[0]) {
+                const row = selection[0].start.row;
+                const col = selection[0].start.col;
+                addRemarkHandler(row, col, students, columns);
+              }
+            },
+            disabled: function (key, selection) {
+              return false; // Enable by default
+            },
+          },
+        },
+      },
+      afterChange: function (changes, source) {
+        if (source === "edit" && changes) {
+          hot.render();
+        }
+      },
+    });
+  }
 
   // Set a height and width for the container to trigger scrolling
   container.style.height = "600px";
@@ -239,13 +288,16 @@ function calculateTotalScore(count) {
   if (count["Late Arrival"] < 3) {
     totalScore += count["Late Arrival"];
   } else {
-    totalScore  +=count["Late Arrival"] -  Math.floor(count["Late Arrival"] / 3) * 0.5;
+    totalScore +=
+      count["Late Arrival"] - Math.floor(count["Late Arrival"] / 3) * 0.5;
   }
 
   if (count["Approved Permission"] < 3) {
     totalScore += count["Approved Permission"];
   } else {
-    totalScore +=count["Approved Permission"]-  Math.floor(count["Approved Permission"] / 3) * 0.5;
+    totalScore +=
+      count["Approved Permission"] -
+      Math.floor(count["Approved Permission"] / 3) * 0.5;
   }
 
   totalScore += count["Half Day Leave"] * 0.5;
@@ -471,7 +523,8 @@ function showDailyStatistics() {
   if (!hot) {
     console.error("Handsontable is not initialized yet.");
     showErrorMessage(
-      "Please wait until the table is loaded before viewing daily statistics.",2000
+      "Please wait until the table is loaded before viewing daily statistics.",
+      2000
     );
     return;
   }
@@ -669,6 +722,14 @@ async function saveStudentDataForResult() {
 }
 
 async function markHoliday(columnIndex) {
+  const firstRowValue = hot.getDataAtCell(0, columnIndex); // Get the value in the first row of the selected column
+
+  // Check if the value in the first row meets the condition
+  if (firstRowValue === "Holiday") {
+    showErrorMessage("This day is already marked as a holiday .", 2000);
+    return; // Exit the function if the condition is not met
+  }
+
   // Adjust for 1-based indexing
   const date = new Date(currentYear, currentMonth, columnIndex);
   const dateStr = `${date.getDate()}/${currentMonth + 1}/${currentYear}`;
@@ -697,12 +758,12 @@ async function markHoliday(columnIndex) {
   newConfirmButton.addEventListener("click", async () => {
     document.getElementById("forHoliday").style.display = "none";
     reason = inputField.value.trim();
-    if (!reason) {
-      showErrorMessage("Please provide a reason for the holiday.",2000);
-    document.getElementById("forHoliday").style.display = "flex";
-
+    if (!reason || !/[a-zA-Z]/.test(reason)) {
+      showErrorMessage("Please provide a valid reason for the holiday.", 2000);
+      document.getElementById("forHoliday").style.display = "flex";
       return;
     }
+
     inputField.value = "";
 
     try {
@@ -741,7 +802,16 @@ async function markHoliday(columnIndex) {
   });
 }
 
+console.log(role);
 async function removeHolidayFromTable(columnIndex) {
+  const firstRowValue = hot.getDataAtCell(0, columnIndex); // Get the value in the first row of the selected column
+
+  // Check if the value in the first row meets the condition
+  if (firstRowValue !== "Holiday") {
+    showErrorMessage("This day is not a holiday .", 2000);
+    return; // Exit the function if the condition is not met
+  }
+
   document.getElementById("loading").style.display = "flex";
 
   if (columnIndex > 0 && columnIndex <= daysInMonth) {
@@ -838,14 +908,14 @@ const holidayPopUpFull = document.getElementById("holidaysListPopup");
 const closePopupBtnForHoliday = document.getElementById(
   "closePopupBtnForHoliday"
 );
-let holidayReasonValid=true;
+let holidayReasonValid = true;
 
 document.getElementById("holidaysShow").addEventListener("click", () => {
   const container = document.getElementById("holidaysTable");
 
   holidayPopUpFull.style.display = "flex";
   closePopupBtnForHoliday.addEventListener("click", () => {
-    holidayReasonValid=true;
+    holidayReasonValid = true;
     holidayPopUpFull.style.display = "none";
   });
 
@@ -934,22 +1004,24 @@ document.getElementById("holidaysShow").addEventListener("click", () => {
     const newFirebaseData = {};
     updatedData.forEach((row) => {
       if (row[0]) {
-        if(!row[2]||row[2]==""){
-            holidayReasonValid=false;
-            showErrorMessage(`Please Enter a valid reason for ${row[0]}`,2000)
+        if (!row[2] || row[2] == ""|| !/[a-zA-Z]/.test(row[2])) {
+          holidayReasonValid = false;
+          showErrorMessage(`Please Enter a valid reason for ${row[0]}`, 2000);
         }
         newFirebaseData[row[0]] = row[2];
       }
     });
-    if(!holidayReasonValid){
+    if (!holidayReasonValid) {
       return;
     }
 
+  
+
     try {
-      if(!holidayReasonValid){
+      if (!holidayReasonValid) {
         return;
       }
-      if(remarkValid){
+      if (remarkValid) {
         await update(holidaysRef, newFirebaseData);
         showSuccessMessage("Holidays updated successfully!");
       }
@@ -1048,9 +1120,8 @@ function addRemarkHandler(row, col, students, columns) {
       // Clear input and hide remark input area
       document.getElementById("newRemark").value = "";
       forRemarks.style.display = "none";
-    }
-    else{
-      showErrorMessage("Please enter a remark.",2000)
+    } else {
+      showErrorMessage("Please enter a remark.", 2000);
     }
   };
 }
@@ -1062,12 +1133,12 @@ remarksPopUpBtn.addEventListener("click", () => {
   document.getElementById("remarksListPopup").style.display = "flex";
   initializeHandsontable();
 });
-let remarkValid=true;
+let remarkValid = true;
 
 document
   .getElementById("closePopupBtnForRemarks")
   .addEventListener("click", () => {
-    remarkValid=true;
+    remarkValid = true;
     document.getElementById("remarksListPopup").style.display = "none";
     localStorage.removeItem("selectedRowIndex");
   });
@@ -1199,26 +1270,28 @@ async function handleUpdate(tableData) {
   data.forEach((row, index) => {
     const path = tableData[index]?.FirebasePath;
     const newRemark = row[3]; // The 'Remark' column
-    if(!newRemark|| newRemark==""){
-      remarkValid=false;
+    if (!newRemark || newRemark == ""|| !/[a-zA-Z]/.test(newRemark)) {
+      remarkValid = false;
     }
     if (path) {
       firebaseUpdates[path + "/remark"] = newRemark; // Prepare update object
     }
   });
 
-  if(!remarkValid){
-    showErrorMessage("Please Enter valid remark in empty cells. Remarks cannot be empty",2000);
+  if (!remarkValid) {
+    showErrorMessage(
+      "Please Enter valid remark in empty cells. Remarks cannot be empty",
+      2000
+    );
     return;
   }
 
-
   try {
-    if(!remarkValid){
+    if (!remarkValid) {
       return;
     }
     await update(ref(firebase), firebaseUpdates); // Update Firebase
-    if(remarkValid){
+    if (remarkValid) {
       showSuccessMessage("Remarks updated successfully!");
     }
     const updatedData = await fetchRemarks();
@@ -1233,7 +1306,7 @@ async function handleUpdate(tableData) {
 async function handleDelete() {
   const rowIndex = parseInt(localStorage.getItem("selectedRowIndex"), 10);
   if (isNaN(rowIndex)) {
-    showErrorMessage("Please select a student or remark to delete ",2000)
+    showErrorMessage("Please select a student or remark to delete ", 2000);
     return;
   }
 
@@ -1269,8 +1342,6 @@ async function handleDelete() {
     localStorage.removeItem("selectedRowIndex");
   };
 }
-
-
 
 function showErrorMessage(str, time) {
   const errorPopup = document.getElementById("error-message");
