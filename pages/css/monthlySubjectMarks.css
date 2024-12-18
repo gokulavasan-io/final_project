@@ -13,13 +13,13 @@
     --primary-color: #0e2238;
     --font-color: #fff;
     --border-left: #3b7ddd;
-    --font:poppins;
+    --font: poppins;
 }
 
 
 /* styles for the page */
 
-#forEmptyMonth{
+#forEmptyMonth {
     width: 30%;
     position: fixed;
     left: 52%;
@@ -27,20 +27,23 @@
     transform: translate(-50%, -50%);
     display: none;
     flex-direction: column;
-    align-items: center;gap: 2rem;
-}
-#forEmptyMonth img{
-    width: 40%;
-    
+    align-items: center;
+    gap: 2rem;
+    z-index: -100;
 }
 
-#forEmptyMonth p{
+#forEmptyMonth img {
+    width: 40%;
+
+}
+
+#forEmptyMonth p {
     margin-bottom: 0 !important;
     font-weight: bold;
 
 }
 
-#forEmptyMonth>div{
+#forEmptyMonth>div {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -48,23 +51,24 @@
     color: red;
 }
 
-#addNewTestByClick{
+#addNewTestByClick {
     color: #095ab0;
     font-weight: bolder;
     transition: 300ms all ease;
 }
 
-#addNewTestByClick:hover{
-    color:var(--primary-color);
+#addNewTestByClick:hover {
+    color: var(--primary-color);
     cursor: pointer;
 }
 
-.main-container{
+.main-container {
     position: fixed;
     top: 16%;
     left: 35%;
     height: 80%;
     width: 65%;
+    z-index: -1000;
 
 }
 
@@ -83,13 +87,14 @@
 
 }
 
-.page-name div{
+.page-name div {
     display: flex;
     gap: .3rem;
     font-weight: bolder;
-    align-items:center;
+    align-items: center;
 }
-.page-name div h5{
+
+.page-name div h5 {
     color: red;
 }
 
@@ -154,7 +159,7 @@
     font-family: var(--font) !important;
 }
 
-.averageTableContainer{
+.averageTableContainer {
     height: 10%;
     width: 10% !important;
     position: fixed;
@@ -163,11 +168,12 @@
     display: flex;
     flex-direction: column;
     gap: .5rem;
-    z-index: -100;
+    z-index: -1000 ;
     font-family: var(--font);
     font-weight: bold;
     align-items: center;
 }
+
 .countTable {
     border: 1px solid black;
 }
@@ -212,7 +218,7 @@ td {
     color: white;
 }
 
-#table td{
+#table td {
     color: black !important;
 }
 
@@ -237,7 +243,8 @@ td {
 
 }
 
-#forAddingNewMarkFull{
+#forAddingNewMarkFull,
+#forSeeArchivedFull {
     display: none;
     position: fixed;
     z-index: 1;
@@ -251,11 +258,18 @@ td {
     overflow: auto;
     /* Enable scroll if needed */
     padding-top: 60px;
+    font-family: var(--font);
+
 
 
 }
 
-#forAddingNewMark{
+#forSeeArchivedFull{
+    z-index: -10;
+}
+
+#forAddingNewMark,
+#forSeeArchived {
     width: 80%;
     height: 90%;
     position: absolute;
@@ -267,6 +281,10 @@ td {
     overflow: hidden;
 }
 
+#forSeeArchived {
+    height: 50%;
+    width: 60%;
+}
 
 
 .forChartNew {
@@ -277,7 +295,9 @@ td {
     width: 30%;
     font-family: var(--font);
 }
-.countTableforNew,.countTableForSeeMaks{
+
+.countTableforNew,
+.countTableForSeeMaks {
     height: 10% !important;
     width: 10% !important;
     position: absolute;
@@ -286,6 +306,7 @@ td {
     border: 1px solid black;
     border-radius: 10px !important;
 }
+
 /* ,#handsontableForSeeMarks */
 #handsontableForNew {
     position: absolute;
@@ -314,13 +335,19 @@ td {
     z-index: -100;
 }
 
+#deleteFile{
+    position: fixed;
+    bottom: 36%;
+    right: 3%;
+    font-family: var(--font);
+}
 
 
 
 .close-btn {
     color: #ff0000;
     float: right;
-    margin-right:10px ;
+    margin-right: 10px;
     font-size: 28px;
     font-weight: bold;
 }
@@ -340,7 +367,7 @@ td {
 /* for existing mark */
 
 
-.monthNameForExistingMark{
+.monthNameForExistingMark {
     position: absolute;
     top: 3%;
     left: 3%;
@@ -351,11 +378,12 @@ td {
     color: var(--primary-color);
 
 }
-.monthNameForExistingMark span{
+
+.monthNameForExistingMark span {
     color: red;
 }
 
-#forSeeMarksFull{
+#forSeeMarksFull {
     display: none;
     position: fixed;
     z-index: 1;
@@ -372,7 +400,7 @@ td {
 
 }
 
-#forSeeMarks{
+#forSeeMarks {
     width: 80%;
     height: 90%;
     position: relative;
@@ -384,13 +412,13 @@ td {
     border-radius: 10px;
 }
 
-#handsontableForExist{
+#handsontableForExist {
     position: absolute;
     top: 5%;
     left: 25%;
 }
 
-.file-name-for-See-Marks{
+.file-name-for-See-Marks {
     position: fixed;
     top: 10%;
     left: 3%;
@@ -408,7 +436,7 @@ td {
 }
 
 
-.countTableForExist{
+.countTableForExist {
     height: 10% !important;
     width: 10% !important;
     position: absolute;
@@ -418,7 +446,7 @@ td {
     border-radius: 10px !important;
 }
 
-.chartForExist{
+.chartForExist {
     position: absolute;
     bottom: 5%;
     left: 3%;
@@ -428,7 +456,7 @@ td {
     z-index: -100;
 }
 
-#newMark{
+#newMark {
     font-size: 1rem;
     font-family: var(--font);
     color: var(--primary-color);
@@ -438,21 +466,23 @@ td {
     top: 3%;
     left: 3%;
 }
-#subjectNew{
+
+#subjectNew {
     color: red;
 }
-#monthNew{
+
+#monthNew {
     color: green;
 }
 
-#forSeeMarks .buttons{
+#forSeeMarks .buttons {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     z-index: 100;
 }
 
-#delete-warning{
+#archiveWarning,#deleteWarning {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -468,13 +498,13 @@ td {
 
 }
 
-.yes-no{
+.yes-no {
     display: flex;
     justify-content: space-around;
     color: var(--font-color);
 }
 
-.yes-no button{
+.yes-no button {
     font-weight: bolder;
 }
 
@@ -490,13 +520,14 @@ td {
 }
 
 .selected {
-    background-color: #d3e9ff; /* Light blue background to indicate selection */
+    background-color: #d3e9ff;
+    /* Light blue background to indicate selection */
     border: 2px solid #007bff;
     color: var(--primary-color);
 }
 
 
-.marks-detail{
+.marks-detail {
     color: var(--font-color);
     background-color: rgb(3, 177, 3);
     display: flex;
@@ -510,10 +541,58 @@ td {
     height: 6rem;
     min-width: 8rem;
     max-width: min-content;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;}
-.marks-detail:hover{
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+}
+
+.marks-detail:hover {
     background-color: rgb(8, 114, 2);
     transform: scale(.97);
     cursor: pointer;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+}
+
+/* Archived files */
+
+
+#forSeeArchived h4{
+    color: var(--border-left);
+}
+
+#archivedContainerForFiles{
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    flex-wrap: wrap;
+}
+.archivedFile {
+    background: #ffffff;
+    border: 1px solid #56a6fba1;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: auto;
+    cursor: pointer;
+    transition: all 300ms ease;
+}
+
+.archivedFile:hover{
+    transform: scale(.95);
+
+}
+.archivedFile:active{
+    transform: scale(1.05);
+
+}
+
+.noFilesInArchive{
+    position: fixed;
+    top: 50%;
+    left: 42%;
+    transform: translate((-50%,-50%));
+    color: red;
 }

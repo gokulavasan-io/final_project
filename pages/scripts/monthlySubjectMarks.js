@@ -16,9 +16,7 @@ import {
   getDocs,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
-import firebaseConfig from "../../config.js"
-
-
+import firebaseConfig from "../../config.js";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -33,7 +31,7 @@ let subject = localStorage.getItem("subject");
 const section = localStorage.getItem("section");
 
 // Fetch dataset names and marks, then display in Handsontable
-async function fetchDataAndDisplay() {
+async function fetchDataAndDisplayForAllMarks() {
   document.getElementById("subjectOfTheTable").innerText = `${subject}-`;
   document.getElementById("monOfTheSubject").innerText = month;
   const datasetPath = `/FSSA/${section}/${month}/${subject}`;
@@ -46,7 +44,6 @@ async function fetchDataAndDisplay() {
 
   if (datasetSnapshot.exists()) {
     const datasets = datasetSnapshot.val();
-    document.getElementById("loading").style.display = "none";
 
     if (!datasets || typeof datasets !== "object") {
       console.error("Datasets are empty or not in the expected format");
@@ -58,8 +55,8 @@ async function fetchDataAndDisplay() {
     document.getElementById("forEmptyMonth").style.display = "none";
     document.getElementById("saveAverageData").style.display = "inline-block";
     document.getElementById("showColors").style.display = "block";
-    document.querySelector(".forChart").style.display="flex";
-    document.querySelector(".averageTableContainer").style.display="flex";
+    document.querySelector(".forChart").style.display = "flex";
+    document.querySelector(".averageTableContainer").style.display = "flex";
 
     const sortedDatasets = Object.entries(datasets)
       .map(([datasetName, datasetDetails]) => ({
@@ -71,20 +68,35 @@ async function fetchDataAndDisplay() {
         const timestampB = new Date(b.timestamp || 0).getTime();
         return timestampA - timestampB; // Sort in ascending order
       });
+    document.getElementById("loading").style.display = "none";
+    if (sortedDatasets.length == 1 && sortedDatasets[0].name == "archived") {
+      document.getElementById("saveAverageData").style.display = "none";
+      document.getElementById("showColors").style.display = "none";
+      document.querySelector(".forChart").style.display = "none";
+      document.querySelector(".averageTableContainer").style.display = "none";
+      tableContainer.style.display = "none";
+      document.getElementById("forEmptyMonth").style.display = "flex";
+      return;
+    }
+    tableContainer.style.display = "block";
 
     for (const dataset of sortedDatasets) {
-      const datasetName = dataset.name;
-      const students = dataset.students || {};
-      columnHeaders.push(datasetName);
+      if (dataset.name == "archived") {
+        continue;
+      } else {
+        const datasetName = dataset.name;
+        const students = dataset.students || {};
+        columnHeaders.push(datasetName);
 
-      for (const [studentName, studentDetails] of Object.entries(students)) {
-        if (!studentData[studentName]) {
-          studentData[studentName] = { Name: studentName, marks: [] };
+        for (const [studentName, studentDetails] of Object.entries(students)) {
+          if (!studentData[studentName]) {
+            studentData[studentName] = { Name: studentName, marks: [] };
+          }
+
+          const averageMark = studentDetails?.averageMark || 0;
+          studentData[studentName][datasetName] = averageMark;
+          studentData[studentName].marks.push(averageMark);
         }
-
-        const averageMark = studentDetails?.averageMark || 0;
-        studentData[studentName][datasetName] = averageMark;
-        studentData[studentName].marks.push(averageMark);
       }
     }
 
@@ -120,7 +132,7 @@ async function fetchDataAndDisplay() {
       afterOnCellMouseDown: function (event, coords) {
         // Check if the clicked cell is in the header row (row index -1)
         if (coords.row === -1 && coords.col > 1) {
-          fetchAndDisplayData(columnHeaders[coords.col]);
+          fetchAndDisplayData(columnHeaders[coords.col], false);
         }
       },
       afterChange: function (changes, source) {
@@ -258,7 +270,7 @@ async function fetchDataAndDisplay() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  fetchDataAndDisplay();
+  fetchDataAndDisplayForAllMarks();
 });
 
 async function updateCountTable(scoreRanges) {
@@ -300,8 +312,8 @@ function getFirstTwoColumnsData() {
 }
 
 async function saveFirstTwoColumnsData() {
-  if(subject=="AttendanceMarks"){
-    subject="Attendance"
+  if (subject == "AttendanceMarks") {
+    subject = "Attendance";
   }
   const datasetPath = `/FSSA/${section}/${month}/Result/${subject}`;
   const rawData = getFirstTwoColumnsData(); // Get the formatted data directly
@@ -331,9 +343,9 @@ document
   .getElementById("saveAverageData")
   .addEventListener("click", saveFirstTwoColumnsData);
 
-  window.addEventListener("beforeunload", () => {
-    saveFirstTwoColumnsData(); 
-  });
+window.addEventListener("beforeunload", () => {
+  saveFirstTwoColumnsData();
+});
 
 // for generation table///////////////////////////////////
 
@@ -341,7 +353,9 @@ document
   document.getElementById(id).addEventListener("click", showNewMarkContainer);
 });
 
-let hot; // Global variable for Handsontable instance
+// for adding new marks
+
+let hotForNew;
 let newMarkFile;
 function showNewMarkContainer() {
   document.getElementById("subjectNew").innerText = subject;
@@ -355,28 +369,28 @@ function showNewMarkContainer() {
     return;
   }
 
-  // Check if hot is initialized or destroyed
-  if (!hot || hot.isDestroyed) {
+  // Check if hotForNew is initialized or destroyed
+  if (!hotForNew || hotForNew.isDestroyed) {
     showNewMarkTable();
     newMarkFile = true;
   } else {
-    hot.render(); // Re-render the table if already initialized
+    hotForNew.render(); // Re-render the table if already initialized
   }
 }
 
 document.getElementById("closeBtnForNewMark").addEventListener("click", () => {
   document.getElementById("forAddingNewMarkFull").style.display = "none";
 
-  if (hot) {
-    hot.destroy(); // Destroy the instance when closing the container
-    hot = null; // Clear the reference to avoid accessing destroyed instance
+  if (hotForNew) {
+    hotForNew.destroy(); // Destroy the instance when closing the container
+    hotForNew = null; // Clear the reference to avoid accessing destroyed instance
   }
   newMarkFile = false;
   document.getElementById("totalMarks").value = null;
   document.getElementById("datasetName").value = null;
   document.getElementById("saveToFirebase").innerText = "Save";
-  document.getElementById("datasetName").readOnly=false;
-  fetchDataAndDisplay();
+  document.getElementById("datasetName").readOnly = false;
+  fetchDataAndDisplayForAllMarks();
 });
 
 async function showNewMarkTable() {
@@ -396,12 +410,15 @@ async function showNewMarkTable() {
           Students = studentNames;
         } else {
           console.error("No student names found for the selected class.");
-          showErrorMessage("No student names found for the selected class.",3000);
+          showErrorMessage(
+            "No student names found for the selected class.",
+            3000
+          );
           return [];
         }
       } else {
         console.log("No such document!");
-        showErrorMessage("No such document for the selected class.",3000);
+        showErrorMessage("No such document for the selected class.", 3000);
         return [];
       }
     } catch (error) {
@@ -424,7 +441,7 @@ async function showNewMarkTable() {
   let totalMarks = parseInt(totalMarksInput.value);
 
   // Initialize Handsontable
-  hot = new Handsontable(container, {
+  hotForNew = new Handsontable(container, {
     data: data,
     colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
     columns: [
@@ -448,36 +465,36 @@ async function showNewMarkTable() {
         changes.forEach(([row, prop]) => {
           if (prop === 1) {
             // Only trigger when "Marks" column is edited
-            const marks = hot.getDataAtCell(row, 1);
+            const marks = hotForNew.getDataAtCell(row, 1);
             if (marks > totalMarks) {
-              hot.setCellMeta(row, 1, "className", "error");
+              hotForNew.setCellMeta(row, 1, "className", "error");
             }
 
             // Check if the input is "A" or "a" for absent
             if (marks === "A" || marks === "a") {
-              hot.setDataAtCell(row, 2, "Absent"); // Display "Absent" in the average column
-              hot.setCellMeta(row, 2, "className", "absent"); // Optional: Apply a style for "Absent"
+              hotForNew.setDataAtCell(row, 2, "Absent"); // Display "Absent" in the average column
+              hotForNew.setCellMeta(row, 2, "className", "absent"); // Optional: Apply a style for "Absent"
             } else {
               const marksNumeric = parseFloat(marks);
               if (!isNaN(marksNumeric) && marksNumeric <= totalMarks) {
-                hot.setCellMeta(row, 1, "className", "");
+                hotForNew.setCellMeta(row, 1, "className", "");
                 const average = (marksNumeric / totalMarks) * 100;
-                hot.setDataAtCell(row, 2, average.toFixed(2));
+                hotForNew.setDataAtCell(row, 2, average.toFixed(2));
 
                 // Set the cell color based on the average value
                 if (average <= 50) {
-                  hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
+                  hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < 50
                 } else if (average > 50 && average < 81) {
-                  hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
+                  hotForNew.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
                 } else {
-                  hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
+                  hotForNew.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
                 }
               } else {
-                hot.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
+                hotForNew.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
               }
             }
           }
-          hot.render();
+          hotForNew.render();
         });
       }
     },
@@ -489,31 +506,31 @@ async function showNewMarkTable() {
       totalMarks = customTotalMarks;
       updateTableAverages(); // Update averages based on the new totalMarks
     } else {
-      showErrorMessage("Please enter a valid total marks value.",3000);
+      showErrorMessage("Please enter a valid total marks value.", 3000);
     }
   });
 
   // Function to update the averages in the table when totalMarks changes or marks are updated
   function updateTableAverages() {
-    for (let row = 0; row < hot.countRows(); row++) {
-      const marks = hot.getDataAtCell(row, 1);
+    for (let row = 0; row < hotForNew.countRows(); row++) {
+      const marks = hotForNew.getDataAtCell(row, 1);
       if (!isNaN(marks) && marks <= totalMarks) {
         const average = (marks / totalMarks) * 100;
-        hot.setDataAtCell(row, 2, average.toFixed(2));
+        hotForNew.setDataAtCell(row, 2, average.toFixed(2));
 
         // Set the cell color based on the average value
         if (average == "Absent") {
-          hot.setCellMeta(row, 2, "className", "absent");
+          hotForNew.setCellMeta(row, 2, "className", "absent");
         } else if (average <= 50 && !isNaN(average)) {
-          hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
+          hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < 50
         } else if (average > 50 && average < 81 && !isNaN(average)) {
-          hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
+          hotForNew.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
         } else if (!isNaN(average)) {
-          hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
+          hotForNew.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
         }
       }
     }
-    hot.render(); // Re-render the table to apply styles
+    hotForNew.render(); // Re-render the table to apply styles
   }
 
   async function saveDataToFirebase(customName) {
@@ -521,13 +538,12 @@ async function showNewMarkTable() {
 
     try {
       const snapshot = await get(ref(db, dataPath));
-      const tableData = hot.getData(); // Table data as an array of arrays [[name, marks, avg, remark], ...]
+      const tableData = hotForNew.getData();
 
-      // Transform the tableData into the desired structure
       const transformedStudents = {};
       tableData.forEach(([name, marks, avg, remark]) => {
         if (name) {
-          // Ensure name is not empty or undefined
+          // Ensure valid data
           transformedStudents[name] = {
             mark: !isNaN(marks) ? Number(marks) : 0,
             averageMark: !isNaN(avg) ? Number(avg) : 0,
@@ -537,7 +553,9 @@ async function showNewMarkTable() {
       });
 
       const saveData = {
-        totalMarks: parseFloat(totalMarksInput.value),
+        totalMarks: !isNaN(totalMarksInput.value)
+          ? parseFloat(totalMarksInput.value)
+          : 0,
         students: transformedStudents,
         timestamp: new Date().toISOString(),
       };
@@ -545,25 +563,60 @@ async function showNewMarkTable() {
       if (snapshot.exists()) {
         if (newMarkFile) {
           showErrorMessage(
-            "A file already exists with the same name. Please choose a different name.",3000
+            "A file already exists with the same name. Please choose a different name.",
+            3000
           );
         } else {
           await update(ref(db, dataPath), saveData);
           showSuccessMessage("Data updated successfully.");
         }
       } else {
-        // Save new file
         await set(ref(db, dataPath), saveData);
         newMarkFile = false;
         showSuccessMessage("Data saved successfully.");
         document.getElementById("saveToFirebase").innerText = "Update";
-        document.getElementById("datasetName").readOnly=true;
+        document.getElementById("datasetName").readOnly = true;
       }
     } catch (error) {
       console.error("Error saving or updating data:", error);
-      showErrorMessage("Error saving or updating data. Please try again.",3000);
+      showErrorMessage(
+        "Error saving or updating data. Please try again.",
+        3000
+      );
     }
   }
+
+  document
+    .getElementById("moveToArchiveForNew")
+    .addEventListener("click", function () {
+      const customName = capitalizeFirstLetter(
+        document.getElementById("datasetName").value.trim().split("/").join("-")
+      );
+
+      if (customName === "") {
+        showErrorMessage("Please enter a valid dataset name.", 3000);
+        return;
+      }
+
+      if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
+        showErrorMessage("Please enter a valid Mark to find Total", 4000);
+        return;
+      }
+
+      const totalMarks = parseInt(totalMarksInput.value);
+      if (validateMarksExceeding(totalMarks)) {
+        showErrorMessage(
+          "One or more marks exceed the total marks. Please correct them before archiving.",
+          4000
+        );
+        return;
+      }
+
+      archiveDataToFirebase(
+        customName,
+        parseFloat(totalMarksInput.value)
+      ); // Archive data manually
+    });
 
   // Manual save button
   document
@@ -574,17 +627,18 @@ async function showNewMarkTable() {
       );
 
       if (customName === "") {
-        showErrorMessage("Please enter a valid dataset name.",3000);
+        showErrorMessage("Please enter a valid dataset name.", 3000);
         return; // Exit if the dataset name is empty
       }
       if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
-        showErrorMessage("Please enter a valid Mark to find Total",4000);
+        showErrorMessage("Please enter a valid Mark to find Total", 4000);
         return; // Exit if the dataset name is empty
       }
       const totalMarks = parseInt(totalMarksInput.value);
       if (validateMarksExceeding(totalMarks)) {
         showErrorMessage(
-          "One or more marks exceed the total marks. Please correct them before saving.",4000
+          "One or more marks exceed the total marks. Please correct them before saving.",
+          4000
         );
         return;
       }
@@ -594,9 +648,9 @@ async function showNewMarkTable() {
 }
 
 function validateMarksExceeding(totalMarks) {
-  const rowCount = hot.countRows();
+  const rowCount = hotForNew.countRows();
   for (let row = 0; row < rowCount; row++) {
-    const marks = hot.getDataAtCell(row, 1);
+    const marks = hotForNew.getDataAtCell(row, 1);
     if (!isNaN(marks) && marks > totalMarks) {
       return true;
     }
@@ -608,16 +662,16 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-let analysisChart; // Variable to hold the chart instance
+let analysisChart;
 
 async function createChart() {
-  if (!hot) {
+  if (!hotForNew) {
     console.log("Handsontable instance not initialized.");
     return;
   }
   const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
-  for (let row = 0; row < hot.countRows(); row++) {
-    const mark = hot.getDataAtCell(row, 2);
+  for (let row = 0; row < hotForNew.countRows(); row++) {
+    const mark = hotForNew.getDataAtCell(row, 2);
     if (mark === "Absent") scoreRanges["Absent"]++;
     if (mark >= 81 && !isNaN(mark)) scoreRanges["81-100"]++;
     else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
@@ -672,11 +726,22 @@ let analysisChartForExists;
 document.getElementById("monthExist").innerText = month;
 let datasetName;
 
-function fetchAndDisplayData(datasetNameFromTable) {
+function fetchAndDisplayData(datasetNameFromTable, isArchived) {
   datasetName = datasetNameFromTable;
-
+  let dataPath;
   existContainer.style.display = "block";
-  const dataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
+
+  const archiveBtn = document.getElementById("removeFromArchived");
+  const deleteBtn = document.getElementById("deleteFile");
+  if (isArchived) {
+    archiveBtn.innerText = "Remove from archive";
+    dataPath = `FSSA/${section}/${month}/${subject}/archived/${datasetName}`;
+    deleteBtn.style.display = "block";
+  } else {
+    archiveBtn.innerText = "Move to archive";
+    dataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
+    deleteBtn.style.display = "none";
+  }
   const dbRef = ref(db);
   const renameDatasetInput = document.getElementById(
     "renameDatasetInputForSeeMarks"
@@ -684,6 +749,50 @@ function fetchAndDisplayData(datasetNameFromTable) {
   const totalMarksInput = document.getElementById("totalMarksForSeeMarks");
 
   if (renameDatasetInput) renameDatasetInput.placeholder = datasetName;
+
+  const archiveWarningDiv = document.getElementById("archiveWarning");
+  archiveBtn.addEventListener("click", () => {
+    if (isArchived) {
+      archiveWarningDiv.querySelector("div").innerText =
+        "Are you sure want to remove this file from archive?";
+    } else {
+      archiveWarningDiv.querySelector("div").innerText =
+        "Are you sure want to add this file to archive?";
+    }
+    archiveWarningDiv.style.display = "block";
+  });
+
+  document
+    .getElementById("yesForRemoveMark")
+    .addEventListener("click", function () {
+      removeFileFromArchivedOrAdd(
+        isArchived ? true : false,
+        datasetNameFromTable
+      );
+      fetchDataAndDisplayForAllMarks();
+      archiveWarningDiv.style.display = "none";
+    });
+
+  document
+    .getElementById("noForRemoveMark")
+    .addEventListener("click", function () {
+      archiveWarningDiv.style.display = "none";
+    });
+
+  const deleteWarningDiv = document.getElementById("deleteWarning");
+  deleteBtn.addEventListener("click", () => {
+    deleteWarningDiv.style.display = "flex";
+  });
+
+  document.getElementById("yesDelete").addEventListener("click", function () {
+    deleteFilePermanently(datasetNameFromTable);
+    fetchDataAndDisplayForAllMarks();
+    deleteWarningDiv.style.display = "none";
+  });
+
+  document.getElementById("noDelete").addEventListener("click", function () {
+    deleteWarningDiv.style.display = "none";
+  });
 
   // Fetch the dataset by name
   get(child(dbRef, dataPath))
@@ -731,7 +840,10 @@ function fetchAndDisplayData(datasetNameFromTable) {
                   if (!isNaN(marks)) {
                     if (marks > totalMarks) {
                       hotForExists.setCellMeta(row, 1, "className", "error");
-                      showErrorMessage("Marks cannot exceed total marks.",2000);
+                      showErrorMessage(
+                        "Marks cannot exceed total marks.",
+                        2000
+                      );
                     } else {
                       hotForExists.setCellMeta(row, 1, "className", null);
                       const percentage = (marks / totalMarks) * 100;
@@ -742,7 +854,10 @@ function fetchAndDisplayData(datasetNameFromTable) {
                     hotForExists.setDataAtCell(row, 2, "Absent");
                     hotForExists.setCellMeta(row, 2, "className", "absent");
                   } else {
-                    showErrorMessage("Invalid input. Enter a number or 'A' for absent.",3000);
+                    showErrorMessage(
+                      "Invalid input. Enter a number or 'A' for absent.",
+                      3000
+                    );
                     hotForExists.setDataAtCell(row, 1, oldValue);
                   }
                 }
@@ -765,6 +880,20 @@ function fetchAndDisplayData(datasetNameFromTable) {
         });
 
         hotForExists.render();
+
+        document
+          .getElementById("closeBtnForExist")
+          .addEventListener("click", () => {
+            if (isEdited) {
+              renameDataset();
+              updateDataInFirebase(datasetName);
+            }
+            if (isArchived) {
+              displayArchivedFiles();
+            }
+            existContainer.style.display = "none";
+            fetchDataAndDisplayForAllMarks();
+          });
       } else {
         alert("No data found for the selected dataset.");
       }
@@ -879,7 +1008,7 @@ if (updateTotalMarksButton) {
     if (!isNaN(totalMarks) && totalMarks > 0) {
       recalculateAverages(totalMarks); // Recalculate based on new total marks
     } else {
-      showErrorMessage("Please enter a valid number for total marks.",3000);
+      showErrorMessage("Please enter a valid number for total marks.", 3000);
     }
   });
 }
@@ -973,7 +1102,6 @@ async function renameDataset() {
 
         // Set data to the new path
         await set(ref(db, newDataPath), oldData);
-        await removeFromMonth(section, subject, month, datasetName);
 
         // Delete old dataset
         await set(ref(db, oldDataPath), null);
@@ -992,7 +1120,10 @@ async function renameDataset() {
       alert("Failed to rename the dataset.");
     }
   } else {
-    showErrorMessage("Please enter a new name different from the current one.",3000);
+    showErrorMessage(
+      "Please enter a new name different from the current one.",
+      3000
+    );
   }
 }
 
@@ -1013,20 +1144,6 @@ function showSuccessMessage(message) {
   }
 }
 
-async function removeFromMonth(section, subject, month, dataSetName) {
-  const datasetRef = ref(
-    db,
-    `/FSSA/${section}/${month}/${subject}/${dataSetName}`
-  );
-  try {
-    await remove(datasetRef);
-    console.log(`Successfully deleted: ${dataSetName}`);
-    location.reload();
-  } catch (error) {
-    console.error("Failed to delete dataset:", dataSetName, error);
-  }
-}
-
 async function updateCountTableExists(scoreRanges) {
   let totalStudents = scoreRanges.reduce((a, b) => a + b);
   let percentage = (n) => {
@@ -1040,36 +1157,6 @@ async function updateCountTableExists(scoreRanges) {
   });
 }
 
-document.getElementById("closeBtnForExist").addEventListener("click", () => {
-  if (isEdited) {
-    renameDataset();
-    updateDataInFirebase(datasetName);
-  }
-  existContainer.style.display = "none";
-  fetchDataAndDisplay();
-});
-
-document
-  .getElementById("removeFromMonth")
-  .addEventListener("click", function () {
-    document.getElementById("delete-warning").style.display = "block";
-  });
-
-document
-  .getElementById("yesForRemoveMark")
-  .addEventListener("click", function () {
-    removeFromMonth(section, subject, month, datasetName);
-    showSuccessMessage("successfully removed from the month");
-    fetchDataAndDisplay();
-    document.getElementById("delete-warning").style.display = "none";
-  });
-
-document
-  .getElementById("noForRemoveMark")
-  .addEventListener("click", function () {
-    document.getElementById("delete-warning").style.display = "none";
-  });
-
 function showErrorMessage(str, time) {
   const errorPopup = document.getElementById("error-message");
   errorPopup.innerText = str;
@@ -1077,4 +1164,157 @@ function showErrorMessage(str, time) {
   setTimeout(() => {
     errorPopup.style.display = "none";
   }, time);
+}
+
+//  Archived
+
+let archivedContainer = document.getElementById("forSeeArchivedFull");
+document.getElementById("archived").addEventListener("click", () => {
+  archivedContainer.style.display = "flex";
+  displayArchivedFiles();
+});
+document.getElementById("closeBtnForArchived").addEventListener("click", () => {
+  archivedContainer.style.display = "none";
+});
+
+async function archiveDataToFirebase( fileName, totalMarks) {
+  const archivePath = `FSSA/${section}/${month}/${subject}/archived/${fileName}`;
+
+  try {
+    let tableData = hotForNew.getData();
+
+    // Transform the tableData into the desired structure
+    const transformedStudents = {};
+    tableData.forEach(([name, marks, avg, remark]) => {
+      if (name) {
+        transformedStudents[name] = {
+          mark: !isNaN(marks) ? Number(marks) : 0,
+          averageMark: !isNaN(avg) ? Number(avg) : 0,
+          remark: remark || "",
+        };
+      }
+    });
+
+    const saveData = {
+      totalMarks: totalMarks,
+      students: transformedStudents,
+      timestamp: new Date().toISOString(),
+    };
+
+    await set(ref(db, archivePath), saveData);
+    console.log("yes");
+
+    showSuccessMessage("Marks archived successfully.");
+  } catch (error) {
+    console.error("Error archiving data:", error);
+    showErrorMessage("Error archiving data. Please try again.", 3000);
+  }
+}
+
+const archivedContainerForFiles = document.getElementById(
+  "archivedContainerForFiles"
+);
+
+async function displayArchivedFiles() {
+  archivedContainerForFiles.innerHTML = "";
+  const archivePath = `FSSA/${section}/${month}/${subject}/archived`;
+
+  try {
+    const snapshot = await get(ref(db, archivePath));
+    if (snapshot.exists()) {
+      const archivedData = snapshot.val();
+      archivedContainerForFiles.innerHTML = "";
+
+      Object.keys(archivedData).forEach((file) => {
+        const timestamp = archivedData[file].timestamp;
+        const date = new Date(timestamp);
+        const formattedDate = `${date.getDate().toString().padStart(2, "0")}/${(
+          date.getMonth() + 1
+        )
+          .toString()
+          .padStart(2, "0")}/${date.getFullYear().toString().slice(-2)}`;
+
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+
+        const ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12 || 12;
+        const formattedTime = `${hours
+          .toString()
+          .padStart(2, "0")}:${minutes} ${ampm}`;
+
+        const div = document.createElement("div");
+        div.classList.add("archivedFile");
+        div.innerHTML = `
+              <p >File name : <b>${file}</b></p>
+              <p class="file-time">Archived On: ${formattedDate}, ${formattedTime}</p>
+        `;
+        archivedContainerForFiles.appendChild(div);
+        div.addEventListener("click", () => {
+          fetchAndDisplayData(file, true);
+        });
+      });
+    } else {
+      console.log("No archived data found.");
+      const div = document.createElement("div");
+      div.classList.add("noFilesInArchive");
+      div.innerHTML = `
+              <p>No Files Found</p>
+        `;
+      archivedContainerForFiles.appendChild(div);
+    }
+  } catch (error) {
+    console.error("Error fetching archived data:", error);
+  }
+}
+
+async function removeFileFromArchivedOrAdd(isArchived, datasetName) {
+  let oldDataPath;
+  let newDataPath;
+
+  if (isArchived) {
+    oldDataPath = `FSSA/${section}/${month}/${subject}/archived/${datasetName}`;
+    newDataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
+  } else {
+    newDataPath = `FSSA/${section}/${month}/${subject}/archived/${datasetName}`;
+    oldDataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
+  }
+
+  const dbRef = ref(db);
+
+  try {
+    const oldDataSnapshot = await get(child(dbRef, oldDataPath));
+    if (oldDataSnapshot.exists()) {
+      const oldData = oldDataSnapshot.val();
+
+      await set(ref(db, newDataPath), oldData);
+
+      await set(ref(db, oldDataPath), null);
+
+      if (isArchived) {
+        showSuccessMessage("Mark removed from archived successfully!");
+      } else {
+        showSuccessMessage("Mark added to archive successfully!");
+      }
+    }
+  } catch (error) {
+    console.error("Error renaming dataset:", error);
+    showErrorMessage("Failed to rename the dataset.", 2000);
+  }
+}
+
+async function deleteFilePermanently(dataSetName) {
+  const datasetRef = ref(
+    db,
+    `/FSSA/${section}/${month}/${subject}/archived/${dataSetName}`
+  );
+  try {
+    await remove(datasetRef);
+    console.log(`Successfully deleted: ${dataSetName}`);
+    showSuccessMessage("Successfully deleted this mark");
+    existContainer.style.display = "none";
+    fetchDataAndDisplayForAllMarks();
+  } catch (error) {
+    console.error("Failed to delete dataset:", dataSetName, error);
+  }
 }
