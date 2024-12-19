@@ -17,6 +17,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 import firebaseConfig from "../../config.js";
+import * as constValues from "../scripts/constValues.js"
 
 
 // Initialize Firebase
@@ -182,7 +183,7 @@ async function fetchDataAndDisplayForAllMarks() {
     pieChart = new Chart(ctx, {
       type: "pie",
       data: {
-        labels: ["81-100", "51-80", "0-50"],
+        labels: [constValues.greenCategory, constValues.yellowCategory, constValues.redCategory],
         datasets: [
           {
             data: [avgData.green, avgData.yellow, avgData.red],
@@ -483,9 +484,9 @@ async function showNewMarkTable() {
                 hotForNew.setDataAtCell(row, 2, average.toFixed(2));
 
                 // Set the cell color based on the average value
-                if (average <= 50) {
-                  hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < 50
-                } else if (average > 50 && average < 81) {
+                if (average <= constValues.redEndValue) {
+                  hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < constValues.redEndValue
+                } else if (average > constValues.redEndValue && average < constValues.greenStartValue) {
                   hotForNew.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
                 } else {
                   hotForNew.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
@@ -522,9 +523,9 @@ async function showNewMarkTable() {
         // Set the cell color based on the average value
         if (average == "Absent") {
           hotForNew.setCellMeta(row, 2, "className", "absent");
-        } else if (average <= 50 && !isNaN(average)) {
-          hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < 50
-        } else if (average > 50 && average < 81 && !isNaN(average)) {
+        } else if (average <= constValues.redEndValue && !isNaN(average)) {
+          hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < constValues.redEndValue
+        } else if (average > constValues.redEndValue && average < constValues.greenStartValue && !isNaN(average)) {
           hotForNew.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
         } else if (!isNaN(average)) {
           hotForNew.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
@@ -670,13 +671,13 @@ async function createChart() {
     console.log("Handsontable instance not initialized.");
     return;
   }
-  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
+  const scoreRanges = { [constValues.redCategory]: 0, [constValues.yellowCategory]: 0,[constValues.greenCategory]: 0, Absent: 0 };
   for (let row = 0; row < hotForNew.countRows(); row++) {
     const mark = hotForNew.getDataAtCell(row, 2);
     if (mark === "Absent") scoreRanges["Absent"]++;
-    if (mark >= 81 && !isNaN(mark)) scoreRanges["81-100"]++;
-    else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
-    else if (!isNaN(mark)) scoreRanges["0-50"]++;
+    if (mark >= 81 && !isNaN(mark)) scoreRanges[constValues.greenCategory]++;
+    else if (mark >= 51 && !isNaN(mark)) scoreRanges[constValues.yellowCategory]++;
+    else if (!isNaN(mark)) scoreRanges[constValues.redCategory]++;
   }
   updateCountTableForNew(Object.values(scoreRanges));
   // Destroy previous chart if it exists
@@ -687,7 +688,7 @@ async function createChart() {
   analysisChart = new Chart(ctx, {
     type: "pie",
     data: {
-      labels: ["0-50", "51-80", "81-100", "Absent"],
+      labels: [constValues.redCategory,constValues.yellowCategory, constValues.greenCategory, "Absent"],
       datasets: [
         {
           data: Object.values(scoreRanges),
@@ -908,9 +909,9 @@ function fetchAndDisplayData(datasetNameFromTable, isArchived) {
 function updateCellColor(row, average) {
   if (average === "Absent") {
     hotForExists.setCellMeta(row, 2, "className", "absent");
-  } else if (average >= 0 && average < 51) {
+  } else if (average >= constValues.redStartValue && average < constValues.yellowStartValue) {
     hotForExists.setCellMeta(row, 2, "className", "red");
-  } else if (average > 50 && average < 81) {
+  } else if (average > constValues.redEndValue && average < constValues.greenStartValue) {
     hotForExists.setCellMeta(row, 2, "className", "yellow");
   } else if (!isNaN(average)) {
     hotForExists.setCellMeta(row, 2, "className", "green");
@@ -1047,13 +1048,13 @@ async function createChartForExist() {
     console.log("Handsontable instance not initialized.");
     return;
   }
-  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
+  const scoreRanges = {[constValues.redCategory]: 0,[constValues.yellowCategory]: 0, [constValues.greenCategory]: 0, Absent: 0 };
   for (let row = 0; row < hotForExists.countRows(); row++) {
     const mark = hotForExists.getDataAtCell(row, 2);
     if (mark === "Absent") scoreRanges["Absent"]++;
-    if (mark >= 81 && !isNaN(mark)) scoreRanges["81-100"]++;
-    else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
-    else if (!isNaN(mark)) scoreRanges["0-50"]++;
+    if (mark >= 81 && !isNaN(mark)) scoreRanges[constValues.greenCategory]++;
+    else if (mark >= 51 && !isNaN(mark)) scoreRanges[constValues.yellowCategory]++;
+    else if (!isNaN(mark)) scoreRanges[constValues.redCategory]++;
   }
   updateCountTableExists(Object.values(scoreRanges));
   // Destroy previous chart if it exists
@@ -1064,7 +1065,7 @@ async function createChartForExist() {
   analysisChartForExists = new Chart(ctx, {
     type: "pie",
     data: {
-      labels: ["0-50", "51-80", "81-100", "Absent"],
+      labels: [constValues.redCategory, constValues.yellowCategory, constValues.greenCategory, "Absent"],
       datasets: [
         {
           data: Object.values(scoreRanges),

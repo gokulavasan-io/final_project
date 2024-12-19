@@ -26,6 +26,7 @@ const next = document.getElementById("next");
 const downloadAll = document.getElementById("downloadAll");
 const card = document.getElementById("report-card");
 const remarks = document.getElementById("remark");
+import * as constValues from "../scripts/constValues.js"
 
 // // .................... variables end ............ //
 
@@ -167,9 +168,9 @@ function color_change(sub) {
 
 // determine which color to change for scores
 function scores_color(score) {
-  if (score > 80 && score <= 100) {
+  if (score > constValues.yellowEndValue && score <= constValues.greenEndValue) {
     return "#7ed957";
-  } else if (score > 50 && score <= 80) {
+  } else if (score > constValues.redEndValue && score <= constValues.yellowEndValue) {
     return "#ffde59";
   } else {
     return "#ff5757";

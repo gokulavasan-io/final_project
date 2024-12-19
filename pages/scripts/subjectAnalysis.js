@@ -11,6 +11,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 import firebaseConfig from "../../config.js";
+import * as constValues from "../scripts/constValues.js"
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -429,9 +430,9 @@ async function renderAcademicOverallTable(subjectData, subject) {
   container.innerHTML = ""; // Clear existing table
 
   const ranges = {
-    "81-100": [],
-    "51-80": [],
-    "0-50": [],
+    [constValues.greenCategory]: [],
+    [constValues.yellowCategory]: [],
+    [constValues.redCategory]: [],
   };
 
   let isDataNotOk = subjectData.some((item) => item.Marks === undefined);
@@ -453,25 +454,25 @@ async function renderAcademicOverallTable(subjectData, subject) {
     const score = entry.Marks;
     const nameScore = `${entry.Name} - ${Math.round(score * 10) / 10}`;
 
-    if (score > 80) {
-      ranges["81-100"].push(nameScore);
-    } else if (score > 50) {
-      ranges["51-80"].push(nameScore);
-    } else if (score >= 0) {
-      ranges["0-50"].push(nameScore);
+    if (score >constValues.yellowEndValue) {
+      ranges[constValues.greenCategory].push(nameScore);
+    } else if (score > constValues.redEndValue) {
+      ranges[constValues.yellowCategory].push(nameScore);
+    } else if (score >= constValues.redStartValue) {
+      ranges[constValues.redCategory].push(nameScore);
     }
   });
 
   const maxRows = Math.max(
-    ranges["81-100"].length,
-    ranges["51-80"].length,
-    ranges["0-50"].length
+    ranges[constValues.greenCategory].length,
+    ranges[constValues.yellowCategory].length,
+    ranges[constValues.redCategory].length
   );
 
   const tableData = Array.from({ length: maxRows }, (_, rowIndex) => ({
-    "81-100": ranges["81-100"][rowIndex] || "",
-    "51-80": ranges["51-80"][rowIndex] || "",
-    "0-50": ranges["0-50"][rowIndex] || "",
+    [constValues.greenCategory]: ranges[constValues.greenCategory][rowIndex] || "",
+    [constValues.yellowCategory]: ranges[constValues.yellowCategory][rowIndex] || "",
+    [constValues.redCategory]: ranges[constValues.redCategory][rowIndex] || "",
   }));
 
   // Create a title for the subject
@@ -487,11 +488,11 @@ async function renderAcademicOverallTable(subjectData, subject) {
 
   handsontableInstance = new Handsontable(tableContainer, {
     data: tableData,
-    colHeaders: ["81-100", "51-80", "0-50"],
+    colHeaders: [constValues.greenCategory, constValues.yellowCategory, constValues.redCategory],
     columns: [
-      { data: "81-100", type: "text", readOnly: true },
-      { data: "51-80", type: "text", readOnly: true },
-      { data: "0-50", type: "text", readOnly: true },
+      { data: constValues.greenCategory, type: "text", readOnly: true },
+      { data: constValues.yellowCategory, type: "text", readOnly: true },
+      { data: constValues.redCategory, type: "text", readOnly: true },
     ],
     rowHeaders: true,
     stretchH: "all",
@@ -525,9 +526,9 @@ async function processAndRenderCharts(academicData, baseData, subject) {
     studentData.forEach((student) => {
       const groupValue = student[groupKey];
       const marksRange =
-        student.marks > 80 ? "81-100" : student.marks > 50 ? "51-80" : "0-50";
+        student.marks > constValues.yellowEndValue ? constValues.greenCategory : student.marks > constValues.redEndValue ? constValues.yellowCategory : [constValues.redCategory];
       if (!groups[groupValue]) {
-        groups[groupValue] = { "81-100": 0, "51-80": 0, "0-50": 0 };
+        groups[groupValue] = { [constValues.greenCategory]: 0, [constValues.yellowCategory]: 0, [constValues.redCategory]: 0 };
       }
       groups[groupValue][marksRange]++;
     });
@@ -716,7 +717,7 @@ async function renderHandsontable(topBottomData) {
 }
 
 function processScores(data) {
-  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0 };
+  const scoreRanges = { [constValues.redCategory]: 0, [constValues.yellowCategory]: 0, [constValues.greenCategory]: 0 };
   const processedData = {};
 
   // Exclude non-student keys like "Class Average"
@@ -732,18 +733,18 @@ function processScores(data) {
   students.forEach((student) => {
     Object.entries(data[student]).forEach(([subject, score]) => {
       if (processedData[subject]) {
-        if (score <= 50) processedData[subject]["0-50"]++;
-        else if (score <= 80) processedData[subject]["51-80"]++;
-        else if (score <= 100) processedData[subject]["81-100"]++;
+        if (score <= constValues.redEndValue) processedData[subject][constValues.redCategory]++;
+        else if (score <= constValues.yellowEndValue) processedData[subject][constValues.yellowCategory]++;
+        else if (score <= constValues.greenEndValue) processedData[subject][constValues.greenCategory]++;
       }
     });
   });
 
   if (!Object.keys(students[0]).includes("PET")) {
-    processedData["PET"]["0-50"] = students.length;
+    processedData["PET"][constValues.redCategory] = students.length;
   }
   if (!Object.keys(students[0]).includes("Project")) {
-    processedData["Project"]["0-50"] = students.length;
+    processedData["Project"][constValues.redCategory] = students.length;
   }
 
   return processedData;
@@ -769,15 +770,15 @@ function createCharts(processedData) {
     const chartData = Object.values(processedData[subject]);
     const total = chartData.reduce((sum, val) => sum + val, 0);
 
-    const labels = ["0-50", "51-80", "81-100"].filter(
+    const labels = [constValues.redCategory, constValues.yellowCategory, constValues.greenCategory].filter(
       (_, idx) => chartData[idx] > 0
     );
     const dataValues = chartData.filter((value) => value > 0);
 
     const colorMap = {
-      "0-50": "#f44336", // Red
-      "51-80": "#FFC107", // Yellow
-      "81-100": "#4caf50", // Green
+      [constValues.redCategory]: "#f44336", // Red
+      [constValues.yellowCategory]: "#FFC107", // Yellow
+      [constValues.greenCategory]: "#4caf50", // Green
     };
     const backgroundColors = labels.map((label) => colorMap[label]);
 
