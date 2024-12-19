@@ -1263,13 +1263,17 @@ async function initializeHandsontable() {
 async function handleUpdate(tableData) {
   const data = hotForRemarks.getData(); // Get the current table data
   const firebaseUpdates = {};
+  let remarkValid = true; // Initialize the validation flag
 
   data.forEach((row, index) => {
     const path = tableData[index]?.FirebasePath;
     const newRemark = row[3]; // The 'Remark' column
-    if (!newRemark || newRemark == ""|| !/[a-zA-Z]/.test(newRemark)) {
+
+    // Validate: ensure remark is not empty and contains at least one alphabet
+    if (!newRemark || newRemark.trim() === "" || !/^(?=.*[a-zA-Z]).+$/.test(newRemark)) {
       remarkValid = false;
     }
+
     if (path) {
       firebaseUpdates[path + "/remark"] = newRemark; // Prepare update object
     }
@@ -1277,20 +1281,16 @@ async function handleUpdate(tableData) {
 
   if (!remarkValid) {
     showErrorMessage(
-      "Please Enter valid remark in empty cells. Remarks cannot be empty",
+      "Please enter a valid remark in empty cells. Remarks cannot be empty or purely numeric.",
       2000
     );
     return;
   }
 
   try {
-    if (!remarkValid) {
-      return;
-    }
     await update(ref(firebase), firebaseUpdates); // Update Firebase
-    if (remarkValid) {
-      showSuccessMessage("Remarks updated successfully!");
-    }
+    showSuccessMessage("Remarks updated successfully!");
+
     const updatedData = await fetchRemarks();
     hotForRemarks.loadData(updatedData); // Reload Handsontable with updated data
   } catch (error) {
@@ -1298,6 +1298,7 @@ async function handleUpdate(tableData) {
     alert("Failed to update remarks.");
   }
 }
+
 
 // Delete handler
 async function handleDelete() {
