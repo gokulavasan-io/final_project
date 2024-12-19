@@ -997,38 +997,35 @@ document.getElementById("holidaysShow").addEventListener("click", () => {
     });
   }
 
-  // Update Firebase with edited data
   async function updateHolidays() {
     const updatedData = holidaysTable.getData();
-    // Construct updated Firebase data
+    let holidayReasonValid = true; // Initialize validity flag
     const newFirebaseData = {};
+  
     updatedData.forEach((row) => {
-      if (row[0]) {
-        if (!row[2] || row[2] == ""|| !/[a-zA-Z]/.test(row[2])) {
+      if (row[0]) { // Validate only if a date is provided
+        // Check for at least one letter and valid characters
+        if (!row[2] || row[2].trim() === "" || !/[a-zA-Z]/.test(row[2])) {
           holidayReasonValid = false;
-          showErrorMessage(`Please Enter a valid reason for ${row[0]}`, 2000);
+          showErrorMessage(`Please enter a valid reason for ${row[0]} (must include at least one letter)`, 2000);
         }
         newFirebaseData[row[0]] = row[2];
       }
     });
-    if (!holidayReasonValid) {
-      return;
-    }
-
   
-
+    if (!holidayReasonValid) {
+      return; // Stop if validation fails
+    }
+  
     try {
-      if (!holidayReasonValid) {
-        return;
-      }
-      if (remarkValid) {
-        await update(holidaysRef, newFirebaseData);
-        showSuccessMessage("Holidays updated successfully!");
-      }
+      await update(holidaysRef, newFirebaseData);
+      showSuccessMessage("Holidays updated successfully!");
     } catch (error) {
       console.error("Error updating data:", error);
     }
   }
+  
+  
 
   document
     .getElementById("updateHolidayReason")
