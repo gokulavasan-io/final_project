@@ -18,6 +18,7 @@ import {
 
 import firebaseConfig from "../../config.js";
 
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);

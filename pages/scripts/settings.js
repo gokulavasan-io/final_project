@@ -23,6 +23,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 import firebaseConfig from "../../config.js";
+import * as constValues from "../scripts/constValues.js"
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -44,10 +45,10 @@ document.getElementById("yes").addEventListener("click", function () {
 
       // Redirect to index.html and disable back navigation
       setTimeout(() => {
-        window.location.replace("../../index.html");
-        history.pushState(null, null, "../../index.html");
+        window.location.replace(constValues.indexPath);
+        history.pushState(null, null, constValues.indexPath);
         window.addEventListener("popstate", function (event) {
-          history.pushState(null, null, "../../index.html");
+          history.pushState(null, null, constValues.indexPath);
         });
       }, 500);
     })
