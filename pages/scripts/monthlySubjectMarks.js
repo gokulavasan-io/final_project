@@ -17,8 +17,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 import firebaseConfig from "../../config.js";
-import * as constValues from "../scripts/constValues.js"
-
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -33,7 +31,7 @@ let subject = localStorage.getItem("subject");
 const section = localStorage.getItem("section");
 
 // Fetch dataset names and marks, then display in Handsontable
-async function fetchDataAndDisplayForAllMarks() {
+async function fetchDataAndDisplay() {
   document.getElementById("subjectOfTheTable").innerText = `${subject}-`;
   document.getElementById("monOfTheSubject").innerText = month;
   const datasetPath = `/FSSA/${section}/${month}/${subject}`;
@@ -46,6 +44,7 @@ async function fetchDataAndDisplayForAllMarks() {
 
   if (datasetSnapshot.exists()) {
     const datasets = datasetSnapshot.val();
+    document.getElementById("loading").style.display = "none";
 
     if (!datasets || typeof datasets !== "object") {
       console.error("Datasets are empty or not in the expected format");
@@ -69,36 +68,21 @@ async function fetchDataAndDisplayForAllMarks() {
         const timestampA = new Date(a.timestamp || 0).getTime();
         const timestampB = new Date(b.timestamp || 0).getTime();
         return timestampA - timestampB; // Sort in ascending order
-      });
-    document.getElementById("loading").style.display = "none";
-    if (sortedDatasets.length == 1 && sortedDatasets[0].name == "archived") {
-      document.getElementById("saveAverageData").style.display = "none";
-      document.getElementById("showColors").style.display = "none";
-      document.querySelector(".forChart").style.display = "none";
-      document.querySelector(".averageTableContainer").style.display = "none";
-      tableContainer.style.display = "none";
-      document.getElementById("forEmptyMonth").style.display = "flex";
-      return;
-    }
-    tableContainer.style.display = "block";
+      }).filter(file=>!file.isArchive);
 
     for (const dataset of sortedDatasets) {
-      if (dataset.name == "archived") {
-        continue;
-      } else {
-        const datasetName = dataset.name;
-        const students = dataset.students || {};
-        columnHeaders.push(datasetName);
+      const datasetName = dataset.name;
+      const students = dataset.students || {};
+      columnHeaders.push(datasetName);
 
-        for (const [studentName, studentDetails] of Object.entries(students)) {
-          if (!studentData[studentName]) {
-            studentData[studentName] = { Name: studentName, marks: [] };
-          }
-
-          const averageMark = studentDetails?.averageMark || 0;
-          studentData[studentName][datasetName] = averageMark;
-          studentData[studentName].marks.push(averageMark);
+      for (const [studentName, studentDetails] of Object.entries(students)) {
+        if (!studentData[studentName]) {
+          studentData[studentName] = { Name: studentName, marks: [] };
         }
+
+        const averageMark = studentDetails?.averageMark || 0;
+        studentData[studentName][datasetName] = averageMark;
+        studentData[studentName].marks.push(averageMark);
       }
     }
 
@@ -134,7 +118,7 @@ async function fetchDataAndDisplayForAllMarks() {
       afterOnCellMouseDown: function (event, coords) {
         // Check if the clicked cell is in the header row (row index -1)
         if (coords.row === -1 && coords.col > 1) {
-          fetchAndDisplayData(columnHeaders[coords.col], false);
+          fetchAndDisplayData(columnHeaders[coords.col],false);
         }
       },
       afterChange: function (changes, source) {
@@ -183,7 +167,7 @@ async function fetchDataAndDisplayForAllMarks() {
     pieChart = new Chart(ctx, {
       type: "pie",
       data: {
-        labels: [constValues.greenCategory, constValues.yellowCategory, constValues.redCategory],
+        labels: ["81-100", "51-80", "0-50"],
         datasets: [
           {
             data: [avgData.green, avgData.yellow, avgData.red],
@@ -272,7 +256,7 @@ async function fetchDataAndDisplayForAllMarks() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  fetchDataAndDisplayForAllMarks();
+  fetchDataAndDisplay();
 });
 
 async function updateCountTable(scoreRanges) {
@@ -355,9 +339,7 @@ window.addEventListener("beforeunload", () => {
   document.getElementById(id).addEventListener("click", showNewMarkContainer);
 });
 
-// for adding new marks
-
-let hotForNew;
+let hot; // Global variable for Handsontable instance
 let newMarkFile;
 function showNewMarkContainer() {
   document.getElementById("subjectNew").innerText = subject;
@@ -371,28 +353,28 @@ function showNewMarkContainer() {
     return;
   }
 
-  // Check if hotForNew is initialized or destroyed
-  if (!hotForNew || hotForNew.isDestroyed) {
+  // Check if hot is initialized or destroyed
+  if (!hot || hot.isDestroyed) {
     showNewMarkTable();
     newMarkFile = true;
   } else {
-    hotForNew.render(); // Re-render the table if already initialized
+    hot.render(); // Re-render the table if already initialized
   }
 }
 
 document.getElementById("closeBtnForNewMark").addEventListener("click", () => {
   document.getElementById("forAddingNewMarkFull").style.display = "none";
 
-  if (hotForNew) {
-    hotForNew.destroy(); // Destroy the instance when closing the container
-    hotForNew = null; // Clear the reference to avoid accessing destroyed instance
+  if (hot) {
+    hot.destroy(); // Destroy the instance when closing the container
+    hot = null; // Clear the reference to avoid accessing destroyed instance
   }
   newMarkFile = false;
   document.getElementById("totalMarks").value = null;
   document.getElementById("datasetName").value = null;
   document.getElementById("saveToFirebase").innerText = "Save";
   document.getElementById("datasetName").readOnly = false;
-  fetchDataAndDisplayForAllMarks();
+  fetchDataAndDisplay();
 });
 
 async function showNewMarkTable() {
@@ -443,7 +425,7 @@ async function showNewMarkTable() {
   let totalMarks = parseInt(totalMarksInput.value);
 
   // Initialize Handsontable
-  hotForNew = new Handsontable(container, {
+  hot = new Handsontable(container, {
     data: data,
     colHeaders: ["Student Name", "Marks", "Percentage", "Remarks"],
     columns: [
@@ -467,36 +449,36 @@ async function showNewMarkTable() {
         changes.forEach(([row, prop]) => {
           if (prop === 1) {
             // Only trigger when "Marks" column is edited
-            const marks = hotForNew.getDataAtCell(row, 1);
+            const marks = hot.getDataAtCell(row, 1);
             if (marks > totalMarks) {
-              hotForNew.setCellMeta(row, 1, "className", "error");
+              hot.setCellMeta(row, 1, "className", "error");
             }
 
             // Check if the input is "A" or "a" for absent
             if (marks === "A" || marks === "a") {
-              hotForNew.setDataAtCell(row, 2, "Absent"); // Display "Absent" in the average column
-              hotForNew.setCellMeta(row, 2, "className", "absent"); // Optional: Apply a style for "Absent"
+              hot.setDataAtCell(row, 2, "Absent"); // Display "Absent" in the average column
+              hot.setCellMeta(row, 2, "className", "absent"); // Optional: Apply a style for "Absent"
             } else {
               const marksNumeric = parseFloat(marks);
               if (!isNaN(marksNumeric) && marksNumeric <= totalMarks) {
-                hotForNew.setCellMeta(row, 1, "className", "");
+                hot.setCellMeta(row, 1, "className", "");
                 const average = (marksNumeric / totalMarks) * 100;
-                hotForNew.setDataAtCell(row, 2, average.toFixed(2));
+                hot.setDataAtCell(row, 2, average.toFixed(2));
 
                 // Set the cell color based on the average value
-                if (average <= constValues.redEndValue) {
-                  hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < constValues.redEndValue
-                } else if (average > constValues.redEndValue && average < constValues.greenStartValue) {
-                  hotForNew.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
+                if (average <= 50) {
+                  hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
+                } else if (average > 50 && average < 81) {
+                  hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
                 } else {
-                  hotForNew.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
+                  hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
                 }
               } else {
-                hotForNew.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
+                hot.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
               }
             }
           }
-          hotForNew.render();
+          hot.render();
         });
       }
     },
@@ -514,38 +496,39 @@ async function showNewMarkTable() {
 
   // Function to update the averages in the table when totalMarks changes or marks are updated
   function updateTableAverages() {
-    for (let row = 0; row < hotForNew.countRows(); row++) {
-      const marks = hotForNew.getDataAtCell(row, 1);
+    for (let row = 0; row < hot.countRows(); row++) {
+      const marks = hot.getDataAtCell(row, 1);
       if (!isNaN(marks) && marks <= totalMarks) {
         const average = (marks / totalMarks) * 100;
-        hotForNew.setDataAtCell(row, 2, average.toFixed(2));
+        hot.setDataAtCell(row, 2, average.toFixed(2));
 
         // Set the cell color based on the average value
         if (average == "Absent") {
-          hotForNew.setCellMeta(row, 2, "className", "absent");
-        } else if (average <= constValues.redEndValue && !isNaN(average)) {
-          hotForNew.setCellMeta(row, 2, "className", "red"); // Class for average < constValues.redEndValue
-        } else if (average > constValues.redEndValue && average < constValues.greenStartValue && !isNaN(average)) {
-          hotForNew.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
+          hot.setCellMeta(row, 2, "className", "absent");
+        } else if (average <= 50 && !isNaN(average)) {
+          hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
+        } else if (average > 50 && average < 81 && !isNaN(average)) {
+          hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
         } else if (!isNaN(average)) {
-          hotForNew.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
+          hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
         }
       }
     }
-    hotForNew.render(); // Re-render the table to apply styles
+    hot.render(); // Re-render the table to apply styles
   }
 
-  async function saveDataToFirebase(customName) {
+  async function saveDataToFirebase(customName,isArchive) {
     const dataPath = `FSSA/${section}/${month}/${subject}/${customName}`;
 
     try {
       const snapshot = await get(ref(db, dataPath));
-      const tableData = hotForNew.getData();
+      const tableData = hot.getData(); // Table data as an array of arrays [[name, marks, avg, remark], ...]
 
+      // Transform the tableData into the desired structure
       const transformedStudents = {};
       tableData.forEach(([name, marks, avg, remark]) => {
         if (name) {
-          // Ensure valid data
+          // Ensure name is not empty or undefined
           transformedStudents[name] = {
             mark: !isNaN(marks) ? Number(marks) : 0,
             averageMark: !isNaN(avg) ? Number(avg) : 0,
@@ -555,11 +538,10 @@ async function showNewMarkTable() {
       });
 
       const saveData = {
-        totalMarks: !isNaN(totalMarksInput.value)
-          ? parseFloat(totalMarksInput.value)
-          : 0,
+        totalMarks: parseFloat(totalMarksInput.value),
         students: transformedStudents,
         timestamp: new Date().toISOString(),
+        isArchive:isArchive
       };
 
       if (snapshot.exists()) {
@@ -573,11 +555,19 @@ async function showNewMarkTable() {
           showSuccessMessage("Data updated successfully.");
         }
       } else {
+        // Save new file
         await set(ref(db, dataPath), saveData);
         newMarkFile = false;
         showSuccessMessage("Data saved successfully.");
         document.getElementById("saveToFirebase").innerText = "Update";
         document.getElementById("datasetName").readOnly = true;
+        if (isArchive){
+            document.getElementById("saveToFirebase").style.display="block"
+             document.getElementById("moveToArchiveForNew").style.display="none"
+        }
+        else{
+          document.getElementById("moveToArchiveForNew").style.display="none"
+        }
       }
     } catch (error) {
       console.error("Error saving or updating data:", error);
@@ -588,53 +578,35 @@ async function showNewMarkTable() {
     }
   }
 
-  document
-    .getElementById("moveToArchiveForNew")
+  // Manual save button
+  document.getElementById("saveToFirebase")
     .addEventListener("click", function () {
       const customName = capitalizeFirstLetter(
         document.getElementById("datasetName").value.trim().split("/").join("-")
       );
-
-      if (customName === "") {
-        showErrorMessage("Please enter a valid dataset name.", 3000);
-        return;
-      }
-
-      if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
-        showErrorMessage("Please enter a valid Mark to find Total", 4000);
-        return;
-      }
-
-      const totalMarks = parseInt(totalMarksInput.value);
-      if (validateMarksExceeding(totalMarks)) {
-        showErrorMessage(
-          "One or more marks exceed the total marks. Please correct them before archiving.",
-          4000
-        );
-        return;
-      }
-
-      archiveDataToFirebase(
-        customName,
-        parseFloat(totalMarksInput.value)
-      ); // Archive data manually
+      if(!validateNameAndTotalMarks(customName)) return;
+      saveDataToFirebase(customName,false); 
     });
 
-  // Manual save button
-  document
-    .getElementById("saveToFirebase")
+    document.getElementById("moveToArchiveForNew")
     .addEventListener("click", function () {
       const customName = capitalizeFirstLetter(
         document.getElementById("datasetName").value.trim().split("/").join("-")
       );
+    if (!validateNameAndTotalMarks(customName)) return;
+    saveDataToFirebase(customName,true); 
+    });
 
+
+    function validateNameAndTotalMarks(customName) {
+      
       if (customName === "") {
         showErrorMessage("Please enter a valid dataset name.", 3000);
-        return; // Exit if the dataset name is empty
+        return false; // Exit if the dataset name is empty
       }
       if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
         showErrorMessage("Please enter a valid Mark to find Total", 4000);
-        return; // Exit if the dataset name is empty
+        return false; // Exit if the dataset name is empty
       }
       const totalMarks = parseInt(totalMarksInput.value);
       if (validateMarksExceeding(totalMarks)) {
@@ -642,17 +614,18 @@ async function showNewMarkTable() {
           "One or more marks exceed the total marks. Please correct them before saving.",
           4000
         );
-        return;
+        return false;
       }
-
-      saveDataToFirebase(customName); // Save data manually
-    });
+      return true
+    }
 }
 
+
+
 function validateMarksExceeding(totalMarks) {
-  const rowCount = hotForNew.countRows();
+  const rowCount = hot.countRows();
   for (let row = 0; row < rowCount; row++) {
-    const marks = hotForNew.getDataAtCell(row, 1);
+    const marks = hot.getDataAtCell(row, 1);
     if (!isNaN(marks) && marks > totalMarks) {
       return true;
     }
@@ -664,20 +637,20 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-let analysisChart;
+let analysisChart; // Variable to hold the chart instance
 
 async function createChart() {
-  if (!hotForNew) {
+  if (!hot) {
     console.log("Handsontable instance not initialized.");
     return;
   }
-  const scoreRanges = { [constValues.redCategory]: 0, [constValues.yellowCategory]: 0,[constValues.greenCategory]: 0, Absent: 0 };
-  for (let row = 0; row < hotForNew.countRows(); row++) {
-    const mark = hotForNew.getDataAtCell(row, 2);
+  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
+  for (let row = 0; row < hot.countRows(); row++) {
+    const mark = hot.getDataAtCell(row, 2);
     if (mark === "Absent") scoreRanges["Absent"]++;
-    if (mark >= 81 && !isNaN(mark)) scoreRanges[constValues.greenCategory]++;
-    else if (mark >= 51 && !isNaN(mark)) scoreRanges[constValues.yellowCategory]++;
-    else if (!isNaN(mark)) scoreRanges[constValues.redCategory]++;
+    if (mark >= 81 && !isNaN(mark)) scoreRanges["81-100"]++;
+    else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
+    else if (!isNaN(mark)) scoreRanges["0-50"]++;
   }
   updateCountTableForNew(Object.values(scoreRanges));
   // Destroy previous chart if it exists
@@ -688,7 +661,7 @@ async function createChart() {
   analysisChart = new Chart(ctx, {
     type: "pie",
     data: {
-      labels: [constValues.redCategory,constValues.yellowCategory, constValues.greenCategory, "Absent"],
+      labels: ["0-50", "51-80", "81-100", "Absent"],
       datasets: [
         {
           data: Object.values(scoreRanges),
@@ -728,22 +701,11 @@ let analysisChartForExists;
 document.getElementById("monthExist").innerText = month;
 let datasetName;
 
-function fetchAndDisplayData(datasetNameFromTable, isArchived) {
+function fetchAndDisplayData(datasetNameFromTable,isArchive) {
   datasetName = datasetNameFromTable;
-  let dataPath;
-  existContainer.style.display = "block";
 
-  const archiveBtn = document.getElementById("removeFromArchived");
-  const deleteBtn = document.getElementById("deleteFile");
-  if (isArchived) {
-    archiveBtn.innerText = "Remove from archive";
-    dataPath = `FSSA/${section}/${month}/${subject}/archived/${datasetName}`;
-    deleteBtn.style.display = "block";
-  } else {
-    archiveBtn.innerText = "Move to archive";
-    dataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
-    deleteBtn.style.display = "none";
-  }
+  existContainer.style.display = "block";
+  const dataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
   const dbRef = ref(db);
   const renameDatasetInput = document.getElementById(
     "renameDatasetInputForSeeMarks"
@@ -751,50 +713,6 @@ function fetchAndDisplayData(datasetNameFromTable, isArchived) {
   const totalMarksInput = document.getElementById("totalMarksForSeeMarks");
 
   if (renameDatasetInput) renameDatasetInput.placeholder = datasetName;
-
-  const archiveWarningDiv = document.getElementById("archiveWarning");
-  archiveBtn.addEventListener("click", () => {
-    if (isArchived) {
-      archiveWarningDiv.querySelector("div").innerText =
-        "Are you sure want to remove this file from archive?";
-    } else {
-      archiveWarningDiv.querySelector("div").innerText =
-        "Are you sure want to add this file to archive?";
-    }
-    archiveWarningDiv.style.display = "block";
-  });
-
-  document
-    .getElementById("yesForRemoveMark")
-    .addEventListener("click", function () {
-      removeFileFromArchivedOrAdd(
-        isArchived ? true : false,
-        datasetNameFromTable
-      );
-      fetchDataAndDisplayForAllMarks();
-      archiveWarningDiv.style.display = "none";
-    });
-
-  document
-    .getElementById("noForRemoveMark")
-    .addEventListener("click", function () {
-      archiveWarningDiv.style.display = "none";
-    });
-
-  const deleteWarningDiv = document.getElementById("deleteWarning");
-  deleteBtn.addEventListener("click", () => {
-    deleteWarningDiv.style.display = "flex";
-  });
-
-  document.getElementById("yesDelete").addEventListener("click", function () {
-    deleteFilePermanently(datasetNameFromTable);
-    fetchDataAndDisplayForAllMarks();
-    deleteWarningDiv.style.display = "none";
-  });
-
-  document.getElementById("noDelete").addEventListener("click", function () {
-    deleteWarningDiv.style.display = "none";
-  });
 
   // Fetch the dataset by name
   get(child(dbRef, dataPath))
@@ -882,20 +800,6 @@ function fetchAndDisplayData(datasetNameFromTable, isArchived) {
         });
 
         hotForExists.render();
-
-        document
-          .getElementById("closeBtnForExist")
-          .addEventListener("click", () => {
-            if (isEdited) {
-              renameDataset();
-              updateDataInFirebase(datasetName);
-            }
-            if (isArchived) {
-              displayArchivedFiles();
-            }
-            existContainer.style.display = "none";
-            fetchDataAndDisplayForAllMarks();
-          });
       } else {
         alert("No data found for the selected dataset.");
       }
@@ -909,9 +813,9 @@ function fetchAndDisplayData(datasetNameFromTable, isArchived) {
 function updateCellColor(row, average) {
   if (average === "Absent") {
     hotForExists.setCellMeta(row, 2, "className", "absent");
-  } else if (average >= constValues.redStartValue && average < constValues.yellowStartValue) {
+  } else if (average >= 0 && average < 51) {
     hotForExists.setCellMeta(row, 2, "className", "red");
-  } else if (average > constValues.redEndValue && average < constValues.greenStartValue) {
+  } else if (average > 50 && average < 81) {
     hotForExists.setCellMeta(row, 2, "className", "yellow");
   } else if (!isNaN(average)) {
     hotForExists.setCellMeta(row, 2, "className", "green");
@@ -1048,13 +952,13 @@ async function createChartForExist() {
     console.log("Handsontable instance not initialized.");
     return;
   }
-  const scoreRanges = {[constValues.redCategory]: 0,[constValues.yellowCategory]: 0, [constValues.greenCategory]: 0, Absent: 0 };
+  const scoreRanges = { "0-50": 0, "51-80": 0, "81-100": 0, Absent: 0 };
   for (let row = 0; row < hotForExists.countRows(); row++) {
     const mark = hotForExists.getDataAtCell(row, 2);
     if (mark === "Absent") scoreRanges["Absent"]++;
-    if (mark >= 81 && !isNaN(mark)) scoreRanges[constValues.greenCategory]++;
-    else if (mark >= 51 && !isNaN(mark)) scoreRanges[constValues.yellowCategory]++;
-    else if (!isNaN(mark)) scoreRanges[constValues.redCategory]++;
+    if (mark >= 81 && !isNaN(mark)) scoreRanges["81-100"]++;
+    else if (mark >= 51 && !isNaN(mark)) scoreRanges["51-80"]++;
+    else if (!isNaN(mark)) scoreRanges["0-50"]++;
   }
   updateCountTableExists(Object.values(scoreRanges));
   // Destroy previous chart if it exists
@@ -1065,7 +969,7 @@ async function createChartForExist() {
   analysisChartForExists = new Chart(ctx, {
     type: "pie",
     data: {
-      labels: [constValues.redCategory, constValues.yellowCategory, constValues.greenCategory, "Absent"],
+      labels: ["0-50", "51-80", "81-100", "Absent"],
       datasets: [
         {
           data: Object.values(scoreRanges),
@@ -1104,6 +1008,7 @@ async function renameDataset() {
 
         // Set data to the new path
         await set(ref(db, newDataPath), oldData);
+        await removeFromMonth(section, subject, month, datasetName);
 
         // Delete old dataset
         await set(ref(db, oldDataPath), null);
@@ -1146,6 +1051,20 @@ function showSuccessMessage(message) {
   }
 }
 
+async function removeFromMonth(section, subject, month, dataSetName) {
+  const datasetRef = ref(
+    db,
+    `/FSSA/${section}/${month}/${subject}/${dataSetName}`
+  );
+  try {
+    await remove(datasetRef);
+    console.log(`Successfully deleted: ${dataSetName}`);
+    location.reload();
+  } catch (error) {
+    console.error("Failed to delete dataset:", dataSetName, error);
+  }
+}
+
 async function updateCountTableExists(scoreRanges) {
   let totalStudents = scoreRanges.reduce((a, b) => a + b);
   let percentage = (n) => {
@@ -1159,6 +1078,36 @@ async function updateCountTableExists(scoreRanges) {
   });
 }
 
+document.getElementById("closeBtnForExist").addEventListener("click", () => {
+  if (isEdited) {
+    renameDataset();
+    updateDataInFirebase(datasetName);
+  }
+  existContainer.style.display = "none";
+  fetchDataAndDisplay();
+});
+
+// document
+//   .getElementById("removeFromMonth")
+//   .addEventListener("click", function () {
+//     document.getElementById("delete-warning").style.display = "block";
+//   });
+
+// document
+//   .getElementById("yesForRemoveMark")
+//   .addEventListener("click", function () {
+//     removeFromMonth(section, subject, month, datasetName);
+//     showSuccessMessage("successfully removed from the month");
+//     fetchDataAndDisplay();
+//     document.getElementById("delete-warning").style.display = "none";
+//   });
+
+// document
+//   .getElementById("noForRemoveMark")
+//   .addEventListener("click", function () {
+//     document.getElementById("delete-warning").style.display = "none";
+//   });
+
 function showErrorMessage(str, time) {
   const errorPopup = document.getElementById("error-message");
   errorPopup.innerText = str;
@@ -1168,155 +1117,78 @@ function showErrorMessage(str, time) {
   }, time);
 }
 
-//  Archived
+const archivedFilesContainer=document.getElementById("archivedContainerForFiles");
 
-let archivedContainer = document.getElementById("forSeeArchivedFull");
-document.getElementById("archived").addEventListener("click", () => {
-  archivedContainer.style.display = "flex";
-  displayArchivedFiles();
-});
-document.getElementById("closeBtnForArchived").addEventListener("click", () => {
-  archivedContainer.style.display = "none";
-});
+async function fetchArchiveFiles() {
+  const datasetPath = `/FSSA/${section}/${month}/${subject}`;
 
-async function archiveDataToFirebase( fileName, totalMarks) {
-  const archivePath = `FSSA/${section}/${month}/${subject}/archived/${fileName}`;
+  const datasetSnapshot = await get(child(ref(db), datasetPath));
+  let archivedFiles;
+  if (datasetSnapshot.exists()) {
+    const datasets = datasetSnapshot.val();
 
-  try {
-    let tableData = hotForNew.getData();
+    archivedFiles = Object.entries(datasets)
+      .map(([datasetName, datasetDetails]) => ({
+        name: datasetName,
+        ...datasetDetails,
+      }))
+      .sort((a, b) => {
+        const timestampA = new Date(a.timestamp || 0).getTime();
+        const timestampB = new Date(b.timestamp || 0).getTime();
+        return timestampA - timestampB; 
+      }).filter(file=>file.isArchive);
 
-    // Transform the tableData into the desired structure
-    const transformedStudents = {};
-    tableData.forEach(([name, marks, avg, remark]) => {
-      if (name) {
-        transformedStudents[name] = {
-          mark: !isNaN(marks) ? Number(marks) : 0,
-          averageMark: !isNaN(avg) ? Number(avg) : 0,
-          remark: remark || "",
-        };
-      }
-    });
 
-    const saveData = {
-      totalMarks: totalMarks,
-      students: transformedStudents,
-      timestamp: new Date().toISOString(),
-    };
-
-    await set(ref(db, archivePath), saveData);
-    console.log("yes");
-
-    showSuccessMessage("Marks archived successfully.");
-  } catch (error) {
-    console.error("Error archiving data:", error);
-    showErrorMessage("Error archiving data. Please try again.", 3000);
-  }
-}
-
-const archivedContainerForFiles = document.getElementById(
-  "archivedContainerForFiles"
-);
-
-async function displayArchivedFiles() {
-  archivedContainerForFiles.innerHTML = "";
-  const archivePath = `FSSA/${section}/${month}/${subject}/archived`;
-
-  try {
-    const snapshot = await get(ref(db, archivePath));
-    if (snapshot.exists()) {
-      const archivedData = snapshot.val();
-      archivedContainerForFiles.innerHTML = "";
-
-      Object.keys(archivedData).forEach((file) => {
-        const timestamp = archivedData[file].timestamp;
-        const date = new Date(timestamp);
-        const formattedDate = `${date.getDate().toString().padStart(2, "0")}/${(
-          date.getMonth() + 1
-        )
-          .toString()
-          .padStart(2, "0")}/${date.getFullYear().toString().slice(-2)}`;
-
-        let hours = date.getHours();
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-
-        const ampm = hours >= 12 ? "PM" : "AM";
-        hours = hours % 12 || 12;
-        const formattedTime = `${hours
-          .toString()
-          .padStart(2, "0")}:${minutes} ${ampm}`;
-
-        const div = document.createElement("div");
-        div.classList.add("archivedFile");
-        div.innerHTML = `
-              <p >File name : <b>${file}</b></p>
-              <p class="file-time">Archived On: ${formattedDate}, ${formattedTime}</p>
-        `;
-        archivedContainerForFiles.appendChild(div);
-        div.addEventListener("click", () => {
-          fetchAndDisplayData(file, true);
-        });
-      });
-    } else {
-      console.log("No archived data found.");
+    archivedFiles.forEach(file=>{
+      
+      
+      const timestamp = file.timestamp;
+      const date = new Date(timestamp);
+      const formattedDate = `${date.getDate().toString().padStart(2, "0")}/${(
+        date.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}/${date.getFullYear().toString().slice(-2)}`;
+      let hours = date.getHours();
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
+      const formattedTime = `${hours
+        .toString()
+        .padStart(2, "0")}:${minutes} ${ampm}`;
       const div = document.createElement("div");
-      div.classList.add("noFilesInArchive");
+      div.classList.add("archivedFile");
       div.innerHTML = `
-              <p>No Files Found</p>
-        `;
+            <p >File name : <b>${file.name}</b></p>
+            <p class="file-time">Archived On: ${formattedDate}, ${formattedTime}</p>
+      `;
       archivedContainerForFiles.appendChild(div);
-    }
-  } catch (error) {
-    console.error("Error fetching archived data:", error);
-  }
-}
-
-async function removeFileFromArchivedOrAdd(isArchived, datasetName) {
-  let oldDataPath;
-  let newDataPath;
-
-  if (isArchived) {
-    oldDataPath = `FSSA/${section}/${month}/${subject}/archived/${datasetName}`;
-    newDataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
+      div.addEventListener("click", () => {
+        fetchAndDisplayData(file.name,true);
+      });
+    });
   } else {
-    newDataPath = `FSSA/${section}/${month}/${subject}/archived/${datasetName}`;
-    oldDataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
+    console.log("No archived data found.");
+    const div = document.createElement("div");
+    div.classList.add("noFilesInArchive");
+    div.innerHTML = `
+            <p>No Files Found</p>
+      `;
+    archivedContainerForFiles.appendChild(div);
   }
-
-  const dbRef = ref(db);
-
-  try {
-    const oldDataSnapshot = await get(child(dbRef, oldDataPath));
-    if (oldDataSnapshot.exists()) {
-      const oldData = oldDataSnapshot.val();
-
-      await set(ref(db, newDataPath), oldData);
-
-      await set(ref(db, oldDataPath), null);
-
-      if (isArchived) {
-        showSuccessMessage("Mark removed from archived successfully!");
-      } else {
-        showSuccessMessage("Mark added to archive successfully!");
-      }
-    }
-  } catch (error) {
-    console.error("Error renaming dataset:", error);
-    showErrorMessage("Failed to rename the dataset.", 2000);
-  }
+    
 }
 
-async function deleteFilePermanently(dataSetName) {
-  const datasetRef = ref(
-    db,
-    `/FSSA/${section}/${month}/${subject}/archived/${dataSetName}`
-  );
-  try {
-    await remove(datasetRef);
-    console.log(`Successfully deleted: ${dataSetName}`);
-    showSuccessMessage("Successfully deleted this mark");
-    existContainer.style.display = "none";
-    fetchDataAndDisplayForAllMarks();
-  } catch (error) {
-    console.error("Failed to delete dataset:", dataSetName, error);
-  }
-}
+
+
+
+document.getElementById("showArchived").addEventListener("click",()=>{
+  archivedFilesContainer.innerHTML="";
+  document.getElementById("forSeeArchivedFull").style.display="flex"
+  fetchArchiveFiles();
+})
+
+document.getElementById("closeBtnForArchived").addEventListener("click",()=>{
+  document.getElementById("forSeeArchivedFull").style.display="none"
+  archivedFilesContainer.innerHTML="";
+})
