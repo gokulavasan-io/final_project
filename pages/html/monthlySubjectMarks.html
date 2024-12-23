@@ -35,10 +35,10 @@
 
 
     <div id="archiveWarning">
-        <div>Are you sure want to remove this mark from this month ?</div>
+        <div>Are you sure want to remove this mark from Archived ?</div>
         <div class="yes-no mt-4">
-            <button class="btn btn-success" id="yesForRemoveMark">Yes</button>
-            <button class="btn btn-danger" id="noForRemoveMark">No</button>
+            <button class="btn btn-success" id="yesForAddOrRemoveArchive">Yes</button>
+            <button class="btn btn-danger" id="noForAddOrRemoveArchive">No</button>
         </div>
     </div>
 
@@ -188,7 +188,7 @@
                 <div class="d-flex flex-column gap-1">
                     <p>File name : </p>
                     <input type="text" id="renameDatasetInputForSeeMarks" />
-                    <button id="renameDataset" class="btn btn-outline-info text-center">Rename</button>
+                    <button id="renameDataset" class="btn btn-outline-info text-center" style="display: none;">Rename</button>
                 </div>
                 <div class="d-flex flex-column gap-1">
                     <p>Total marks: </p>
@@ -205,7 +205,7 @@
                 <canvas id="chartForExist"></canvas>
             </div>
 
-            <button class="btn btn-outline-danger" id="deleteFile">Delete file Permanently</button>
+            <!-- <button class="btn btn-outline-danger" id="deleteFile">Delete file Permanently</button> -->
             <table class="table countTableForExist table-bordered">
                 <thead class="tableHead">
                     <tr>

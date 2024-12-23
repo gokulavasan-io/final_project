@@ -68,7 +68,26 @@ async function fetchDataAndDisplay() {
         const timestampA = new Date(a.timestamp || 0).getTime();
         const timestampB = new Date(b.timestamp || 0).getTime();
         return timestampA - timestampB; // Sort in ascending order
-      }).filter(file=>!file.isArchive);
+      })
+      .filter((file) => !file.isArchive);
+
+    if(sortedDatasets.length==0){
+        document.getElementById("table").style.visibility="hidden"
+        document.getElementById("forEmptyMonth").style.display = "flex";
+        document.getElementById("saveAverageData").style.display = "none";
+        document.getElementById("showColors").style.display = "none";
+        document.querySelector(".forChart").style.display = "none";
+        document.querySelector(".averageTableContainer").style.display = "none";
+        return;
+    }
+    document.getElementById("table").style.visibility="visible"
+    document.getElementById("forEmptyMonth").style.display = "none";
+    document.getElementById("saveAverageData").style.display = "inline-block";
+    document.getElementById("showColors").style.display = "block";
+    document.querySelector(".forChart").style.display = "flex";
+    document.querySelector(".averageTableContainer").style.display = "flex";
+
+
 
     for (const dataset of sortedDatasets) {
       const datasetName = dataset.name;
@@ -118,7 +137,7 @@ async function fetchDataAndDisplay() {
       afterOnCellMouseDown: function (event, coords) {
         // Check if the clicked cell is in the header row (row index -1)
         if (coords.row === -1 && coords.col > 1) {
-          fetchAndDisplayData(columnHeaders[coords.col],false);
+          fetchAndDisplayData(columnHeaders[coords.col], false);
         }
       },
       afterChange: function (changes, source) {
@@ -517,7 +536,7 @@ async function showNewMarkTable() {
     hot.render(); // Re-render the table to apply styles
   }
 
-  async function saveDataToFirebase(customName,isArchive) {
+  async function saveDataToFirebase(customName, isArchive) {
     const dataPath = `FSSA/${section}/${month}/${subject}/${customName}`;
 
     try {
@@ -541,7 +560,7 @@ async function showNewMarkTable() {
         totalMarks: parseFloat(totalMarksInput.value),
         students: transformedStudents,
         timestamp: new Date().toISOString(),
-        isArchive:isArchive
+        isArchive: isArchive,
       };
 
       if (snapshot.exists()) {
@@ -561,12 +580,11 @@ async function showNewMarkTable() {
         showSuccessMessage("Data saved successfully.");
         document.getElementById("saveToFirebase").innerText = "Update";
         document.getElementById("datasetName").readOnly = true;
-        if (isArchive){
-            document.getElementById("saveToFirebase").style.display="block"
-             document.getElementById("moveToArchiveForNew").style.display="none"
-        }
-        else{
-          document.getElementById("moveToArchiveForNew").style.display="none"
+        if (isArchive) {
+          document.getElementById("saveToFirebase").style.display = "block";
+          document.getElementById("moveToArchiveForNew").style.display = "none";
+        } else {
+          document.getElementById("moveToArchiveForNew").style.display = "none";
         }
       }
     } catch (error) {
@@ -579,48 +597,46 @@ async function showNewMarkTable() {
   }
 
   // Manual save button
-  document.getElementById("saveToFirebase")
+  document
+    .getElementById("saveToFirebase")
     .addEventListener("click", function () {
       const customName = capitalizeFirstLetter(
         document.getElementById("datasetName").value.trim().split("/").join("-")
       );
-      if(!validateNameAndTotalMarks(customName)) return;
-      saveDataToFirebase(customName,false); 
+      if (!validateNameAndTotalMarks(customName)) return;
+      saveDataToFirebase(customName, false);
     });
 
-    document.getElementById("moveToArchiveForNew")
+  document
+    .getElementById("moveToArchiveForNew")
     .addEventListener("click", function () {
       const customName = capitalizeFirstLetter(
         document.getElementById("datasetName").value.trim().split("/").join("-")
       );
-    if (!validateNameAndTotalMarks(customName)) return;
-    saveDataToFirebase(customName,true); 
+      if (!validateNameAndTotalMarks(customName)) return;
+      saveDataToFirebase(customName, true);
     });
 
-
-    function validateNameAndTotalMarks(customName) {
-      
-      if (customName === "") {
-        showErrorMessage("Please enter a valid dataset name.", 3000);
-        return false; // Exit if the dataset name is empty
-      }
-      if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
-        showErrorMessage("Please enter a valid Mark to find Total", 4000);
-        return false; // Exit if the dataset name is empty
-      }
-      const totalMarks = parseInt(totalMarksInput.value);
-      if (validateMarksExceeding(totalMarks)) {
-        showErrorMessage(
-          "One or more marks exceed the total marks. Please correct them before saving.",
-          4000
-        );
-        return false;
-      }
-      return true
+  function validateNameAndTotalMarks(customName) {
+    if (customName === "") {
+      showErrorMessage("Please enter a valid dataset name.", 3000);
+      return false; // Exit if the dataset name is empty
     }
+    if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
+      showErrorMessage("Please enter a valid Mark to find Total", 4000);
+      return false; // Exit if the dataset name is empty
+    }
+    const totalMarks = parseInt(totalMarksInput.value);
+    if (validateMarksExceeding(totalMarks)) {
+      showErrorMessage(
+        "One or more marks exceed the total marks. Please correct them before saving.",
+        4000
+      );
+      return false;
+    }
+    return true;
+  }
 }
-
-
 
 function validateMarksExceeding(totalMarks) {
   const rowCount = hot.countRows();
@@ -701,12 +717,40 @@ let analysisChartForExists;
 document.getElementById("monthExist").innerText = month;
 let datasetName;
 
-function fetchAndDisplayData(datasetNameFromTable,isArchive) {
+function fetchAndDisplayData(datasetNameFromTable, isArchive) {
   datasetName = datasetNameFromTable;
 
   existContainer.style.display = "block";
   const dataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
   const dbRef = ref(db);
+
+  if (isArchive) {
+    document.getElementById("addOrRemoveArchived").innerText =
+      "Remove from archive";
+  } else {
+    document.getElementById("addOrRemoveArchived").innerText = "Add to archive";
+  }
+
+  document
+    .getElementById("addOrRemoveArchived")
+    .addEventListener("click", () => {
+      document.getElementById("archiveWarning").style.display="flex";
+
+      document.getElementById("yesForAddOrRemoveArchive").addEventListener("click",()=>{
+        addOrRemoveFromArchived(datasetName, isArchive);
+        document.getElementById("archiveWarning").style.display="none";
+
+
+      })
+      document.getElementById("noForAddOrRemoveArchive").addEventListener("click",()=>{
+        document
+        .getElementById("addOrRemoveArchived")
+        .addEventListener("click", () => {
+          document.getElementById("archiveWarning").style.display="none";
+      })
+    })
+
+    });
   const renameDatasetInput = document.getElementById(
     "renameDatasetInputForSeeMarks"
   );
@@ -1077,6 +1121,9 @@ async function updateCountTableExists(scoreRanges) {
     )}%`;
   });
 }
+const archivedFilesContainer = document.getElementById(
+  "archivedContainerForFiles"
+);
 
 document.getElementById("closeBtnForExist").addEventListener("click", () => {
   if (isEdited) {
@@ -1085,6 +1132,8 @@ document.getElementById("closeBtnForExist").addEventListener("click", () => {
   }
   existContainer.style.display = "none";
   fetchDataAndDisplay();
+  archivedFilesContainer.innerHTML=""
+  fetchArchiveFiles();
 });
 
 // document
@@ -1117,7 +1166,7 @@ function showErrorMessage(str, time) {
   }, time);
 }
 
-const archivedFilesContainer=document.getElementById("archivedContainerForFiles");
+
 
 async function fetchArchiveFiles() {
   const datasetPath = `/FSSA/${section}/${month}/${subject}`;
@@ -1135,13 +1184,11 @@ async function fetchArchiveFiles() {
       .sort((a, b) => {
         const timestampA = new Date(a.timestamp || 0).getTime();
         const timestampB = new Date(b.timestamp || 0).getTime();
-        return timestampA - timestampB; 
-      }).filter(file=>file.isArchive);
+        return timestampA - timestampB;
+      })
+      .filter((file) => file.isArchive);
 
-
-    archivedFiles.forEach(file=>{
-      
-      
+    archivedFiles.forEach((file) => {
       const timestamp = file.timestamp;
       const date = new Date(timestamp);
       const formattedDate = `${date.getDate().toString().padStart(2, "0")}/${(
@@ -1164,7 +1211,7 @@ async function fetchArchiveFiles() {
       `;
       archivedContainerForFiles.appendChild(div);
       div.addEventListener("click", () => {
-        fetchAndDisplayData(file.name,true);
+        fetchAndDisplayData(file.name, true);
       });
     });
   } else {
@@ -1176,19 +1223,42 @@ async function fetchArchiveFiles() {
       `;
     archivedContainerForFiles.appendChild(div);
   }
-    
 }
 
-
-
-
-document.getElementById("showArchived").addEventListener("click",()=>{
-  archivedFilesContainer.innerHTML="";
-  document.getElementById("forSeeArchivedFull").style.display="flex"
+document.getElementById("showArchived").addEventListener("click", () => {
+  archivedFilesContainer.innerHTML = "";
+  document.getElementById("forSeeArchivedFull").style.display = "flex";
   fetchArchiveFiles();
-})
+});
 
-document.getElementById("closeBtnForArchived").addEventListener("click",()=>{
-  document.getElementById("forSeeArchivedFull").style.display="none"
-  archivedFilesContainer.innerHTML="";
-})
+document.getElementById("closeBtnForArchived").addEventListener("click", () => {
+  document.getElementById("forSeeArchivedFull").style.display = "none";
+  archivedFilesContainer.innerHTML = "";
+});
+
+
+
+function addOrRemoveFromArchived(datasetName, isArchive) {
+  const dataPath = `FSSA/${section}/${month}/${subject}/${datasetName}`;
+  const datasetRef = ref(db, dataPath);
+
+  // Determine the new archive state
+  const newIsArchive = !isArchive;
+
+  // Update the archive state in Firebase
+  update(datasetRef, { isArchive: newIsArchive })
+    .then(() => {
+      const message = newIsArchive
+        ? "Dataset successfully added to the archive."
+        : "Dataset successfully removed from the archive.";
+      showSuccessMessage(message);
+
+      fetchAndDisplayData(datasetName, newIsArchive);
+
+
+    })
+    .catch((error) => {
+      console.error("Error updating archive state:", error);
+      showErrorMessage("Failed to update archive state. Please try again.");
+    });
+}
