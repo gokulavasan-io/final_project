@@ -10,6 +10,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
 import firebaseConfig from "../../config.js"
+import * as constValues from "../scripts/constValues.js"
 
 
 
@@ -84,10 +85,10 @@ function appendMonthToUI(monthName, container) {
     event.stopPropagation();
     localStorage.setItem("month", div.textContent.trim());
     if (subject == "Attendance") {
-      window.location.href = "../../pages/html/attendance.html";
+      window.location.href = constValues.attendancePath;
     }
     else {
-      window.location.href = "../../pages/html/monthlySubjectMarks.html";
+      window.location.href = constValues.monthlySubjectMarksPath;
     }
   });
   container.appendChild(div);

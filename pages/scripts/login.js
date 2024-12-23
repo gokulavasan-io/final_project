@@ -4,6 +4,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
 import firebaseConfig from "../../config.js"
+import * as constValues from "../scripts/constValues.js"
 
 
 
@@ -22,7 +23,7 @@ window.onload = function () {
         let userData=docSnap.data();
         localStorage.setItem("userName",userData.name);
          localStorage.setItem("userEmail",userData.email);
-        window.location.href = "../../pages/html/home.html";
+        window.location.href = constValues.homePath;
       } else {
           hideLoading();
           showErrorMessage("You are not approved to access this site.",5000);
@@ -55,7 +56,7 @@ document.getElementById("login").addEventListener("click",async function (event)
         localStorage.setItem("userEmail",userData.email);
         showSuccessMessage();
         setTimeout(() => {
-          window.location.href = "../../pages/html/home.html";
+          window.location.href = constValues.homePath;
         }, 2000);
       } else {
         showErrorMessage("You are not approved to access this site.",5000);

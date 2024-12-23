@@ -11,6 +11,9 @@ import {
 
 import firebaseConfig from "../../config.js";
 
+
+import * as constValues from "../scripts/constValues.js"
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
@@ -95,7 +98,7 @@ function appendMonthToUI(monthName, container, showCheckbox) {
       div.style.backgroundColor = checkbox.checked ? "#e73232" : "";
     } else {
       localStorage.setItem("month", checkbox.value);
-      window.location.href = "../../pages/html/monthlyResult.html";
+      window.location.href =constValues.monthlyResultPath;
     }
   });
   container.appendChild(div);

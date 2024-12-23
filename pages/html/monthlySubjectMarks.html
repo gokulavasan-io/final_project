@@ -35,10 +35,10 @@
 
 
     <div id="archiveWarning">
-        <div>Are you sure want to remove this mark from this month ?</div>
+        <div>Are you sure want to remove this mark from Archived ?</div>
         <div class="yes-no mt-4">
-            <button class="btn btn-success" id="yesForRemoveMark">Yes</button>
-            <button class="btn btn-danger" id="noForRemoveMark">No</button>
+            <button class="btn btn-success" id="yesForAddOrRemoveArchive">Yes</button>
+            <button class="btn btn-danger" id="noForAddOrRemoveArchive">No</button>
         </div>
     </div>
 
@@ -66,7 +66,7 @@
     <div class="buttons">
         <button class="btn btn-outline-primary" id="newTest">New Test</button>
         <button class="btn btn-outline-success" id="saveAverageData" style="display: none;">Save</button>
-        <button class="btn btn-outline-danger" id="archived">Archived</button>
+        <button class="btn btn-outline-danger" id="showArchived">Archived</button>
     </div>
     <div class="forChart flex-column align-items-center" style="display: none;">
         <h6>Average</h6>
@@ -188,7 +188,7 @@
                 <div class="d-flex flex-column gap-1">
                     <p>File name : </p>
                     <input type="text" id="renameDatasetInputForSeeMarks" />
-                    <button id="renameDataset" class="btn btn-outline-info text-center">Rename</button>
+                    <button id="renameDataset" class="btn btn-outline-info text-center" style="display: none;">Rename</button>
                 </div>
                 <div class="d-flex flex-column gap-1">
                     <p>Total marks: </p>
@@ -198,14 +198,14 @@
             </div>
             <div class="buttons">
                 <button class="btn btn-outline-success" id="updateDataForExists">Update</button>
-                <button class="btn btn-outline-danger" id="removeFromArchived">Remove from archived</button>
+                <button class="btn btn-outline-danger" id="addOrRemoveArchived">Remove from archived</button>
 
             </div>
             <div class="chartForExist">
                 <canvas id="chartForExist"></canvas>
             </div>
 
-            <button class="btn btn-outline-danger" id="deleteFile">Delete file Permanently</button>
+            <!-- <button class="btn btn-outline-danger" id="deleteFile">Delete file Permanently</button> -->
             <table class="table countTableForExist table-bordered">
                 <thead class="tableHead">
                     <tr>

@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebas
 import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
 import firebaseConfig from "../../config.js"
+import * as constValues from "../scripts/constValues.js"
 
 
 
@@ -297,6 +298,6 @@ function showSuccessMessage(message) {
 
 
 document.getElementById("seeMarks").addEventListener("click",()=>{
-    window.location.href="../../pages/html/reportCardDownload.html"
+    window.location.href=constValues.reportCardDownloadPath
 
 })

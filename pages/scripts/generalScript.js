@@ -11,7 +11,7 @@ import {
   getDoc,
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
+import * as constValues from "../scripts/constValues.js"
 import firebaseConfig from "../../config.js";
 
 const app = initializeApp(firebaseConfig);
@@ -22,7 +22,7 @@ const userName = localStorage.getItem("userName");
 const section = localStorage.getItem("section");
 
 document.addEventListener("DOMContentLoaded", () => {
-  fetch("../html/asideBar.html")
+  fetch(constValues.asideBarPath)
     .then((response) => response.text())
     .then((data) => {
       document.getElementById("sidebar").innerHTML = data;
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
       subjectsAside.forEach((x) => {
         x.addEventListener("click", () => {
           localStorage.setItem("subject", x.textContent.split(" ").join(""));
-          window.location.href = "../../pages/html/subjects.html";
+          window.location.href =constValues.subjectsPath;
         });
       });
 
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (attendance) {
         attendance.addEventListener("click", () => {
           localStorage.setItem("subject", "Attendance");
-          window.location.href = "../../pages/html/subjects.html";
+          window.location.href =constValues.subjectsPath;
         });
       }
 
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const analysisNav = document.getElementById("analysisNav");
       if (analysisNav) {
         analysisNav.addEventListener("click", () => {
-          window.location.href = "analysisHome.html";
+          window.location.href = constValues.analysisHomePath;
         });
       }
     });
@@ -88,24 +88,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-window.onload = function () {
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      const docRef = doc(db, "FSSA/users/teachers", user.email);
-      const docSnap = await getDoc(docRef);
-      if (!docSnap.exists()) {
-        await signOut(auth);
-        console.log("Unauthorized user. Signing out...");
-        window.location.href = "../../index.html";
-      } else {
-        console.log("User is logged in and authorized!");
-      }
-    } else {
-      console.log("No user is logged in.");
-      window.location.href = "../../index.html";
-    }
-  });
-};
+// window.onload = function () {
+//   onAuthStateChanged(auth, async (user) => {
+//     if (user) {
+//       const docRef = doc(db, "FSSA/users/teachers", user.email);
+//       const docSnap = await getDoc(docRef);
+//       if (!docSnap.exists()) {
+//         await signOut(auth);
+//         console.log("Unauthorized user. Signing out...");
+//         window.location.href = constValues.indexPath;
+//       } else {
+//         console.log("User is logged in and authorized!");
+//       }
+//     } else {
+//       console.log("No user is logged in.");
+//       window.location.href = constValues.indexPath;
+//     }
+//   });
+// };
 
 // favIcon
 const favIcon = document.createElement("link");
