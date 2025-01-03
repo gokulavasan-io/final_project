@@ -19,6 +19,40 @@
 
 /* styles for the page */
 
+td {
+    text-align: center;
+    font-weight: bolder;
+    font-family: var(--font);
+}
+
+.handsontable td {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: center !important;
+}
+
+.handsontable thead th .relative {
+    background-color: var(--border-left);
+    color: #fff;
+}
+
+.ht_clone_top thead th {
+    background-color: var(--border-left);
+    color: #fff;
+    font-weight: bold;
+}
+
+.ht_master:not(.innerBorderLeft):not(.emptyColumns)~.handsontable tbody tr th {
+    background-color: rgb(124, 170, 235);
+    color: white;
+}
+
+#table td {
+    color: black ;
+}
+
+
 #forEmptyMonth {
     width: 30%;
     position: fixed;
@@ -189,38 +223,6 @@ th {
     font-family: var(--font);
 }
 
-td {
-    text-align: center;
-    font-weight: bolder;
-    font-family: var(--font);
-}
-
-.handsontable td {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    text-align: center !important;
-}
-
-.handsontable thead th .relative {
-    background-color: var(--border-left);
-    color: #fff;
-}
-
-.ht_clone_top thead th {
-    background-color: var(--border-left);
-    color: #fff;
-    font-weight: bold;
-}
-
-.ht_master:not(.innerBorderLeft):not(.emptyColumns)~.handsontable tbody tr th {
-    background-color: rgb(124, 170, 235);
-    color: white;
-}
-
-#table td {
-    color: black !important;
-}
 
 
 
