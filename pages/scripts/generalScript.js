@@ -11,7 +11,7 @@ import {
   getDoc,
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-import * as constValues from "../scripts/constValues.js"
+import * as constValues from "../scripts/constValues.js";
 import firebaseConfig from "../../config.js";
 
 const app = initializeApp(firebaseConfig);
@@ -20,6 +20,7 @@ const db = getFirestore();
 
 const userName = localStorage.getItem("userName");
 const section = localStorage.getItem("section");
+
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch(constValues.asideBarPath)
@@ -38,6 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const subjectsAside = document.querySelectorAll(".subjectsAside a");
       subjectsAside.forEach((x) => {
         x.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           localStorage.setItem("subject", x.textContent.split(" ").join(""));
           window.location.href =constValues.subjectsPath;
         });
@@ -46,6 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const attendance = document.getElementById("attendance");
       if (attendance) {
         attendance.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           localStorage.setItem("subject", "Attendance");
           window.location.href =constValues.subjectsPath;
         });
@@ -54,6 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const backButton = document.getElementById("backButton");
       if (backButton) {
         backButton.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           window.history.back();
         });
       }
@@ -61,9 +74,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const analysisNav = document.getElementById("analysisNav");
       if (analysisNav) {
         analysisNav.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           window.location.href = constValues.analysisHomePath;
         });
       }
+      const monthlyReport = document.getElementById("monthlyReport");
+      if (monthlyReport) {
+        monthlyReport.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
+          window.location.href = constValues.monthlyHomePath;
+        });
+      }
+
     });
 
   document.querySelector("header").innerHTML = `<div class="logo">Toodle</div>
@@ -144,3 +172,13 @@ function updateNetworkStatus() {
 window.addEventListener("online", updateNetworkStatus);
 window.addEventListener("offline", updateNetworkStatus);
 updateNetworkStatus();
+
+
+function showErrorMessage(str, time) {
+  const errorPopup = document.getElementById("error-message");
+  errorPopup.innerText = str;
+  errorPopup.style.display = "block";
+  setTimeout(() => {
+    errorPopup.style.display = "none";
+  }, time);
+}
