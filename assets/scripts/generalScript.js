@@ -11,7 +11,7 @@ import {
   getDoc,
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-import * as constValues from "../scripts/constValues.js";
+import * as constValues from "./constValues.js";
 import firebaseConfig from "../../config.js";
 
 const app = initializeApp(firebaseConfig);

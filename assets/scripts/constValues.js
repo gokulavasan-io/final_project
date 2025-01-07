@@ -28,5 +28,3 @@ export const reportCardDownloadPath="../../pages/html/reportCardDownload.html"
 export const settingsPath="../../pages/html/settings.html"
 export const subjectAnalysisPath="../../pages/html/subjectAnalysis.html"
 export const subjectsPath="../../pages/html/subjects.html"
-
-
