@@ -133,15 +133,15 @@ function displayStudentData(student) {
                     datasets: [{
                         label: subject,
                         data,
-                        backgroundColor: labels.map((_, index) =>
-                            `hsl(${(index * (360 / totalColors))}, 70%, 70%)`
+                        backgroundColor: [...labels, 'Overall'].map((_, index) => 
+                            `hsl(${(index * (360 / ([...labels, 'Overall'].length)))}, 70%, 70%)`
                         ),
-                        borderColor: labels.map((_, index) =>
-                            `hsl(${(index * (360 / totalColors))}, 70%, 50%)`
+                        borderColor: [...labels, 'Overall'].map((_, index) => 
+                            `hsl(${(index * (360 / ([...labels, 'Overall'].length)))}, 70%, 50%)`
                         ),
                         borderWidth: 1,
                     }],
-                },
+                },                
                 options: {
                     responsive: true,
                     plugins: {

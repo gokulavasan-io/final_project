@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Report Card Download</title>
 
-    <link rel="stylesheet" href="../../assets/css/generalStyles.css">
-    <link rel="stylesheet" href="../../assets/css/reportCardDownload.css">
+    <link rel="stylesheet" href="../assets/css/generalStyles.css">
+    <link rel="stylesheet" href="../assets/css/reportCardDownload.css">
     <!-- Bootstrap links -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -28,8 +28,8 @@
 
     <header class="w-100 position-fixed top-0"></header>
 
-    
-    <div id="loading" >
+
+    <div id="loading">
         <div class="lineInLoading"></div>
         <p id="progressMessage">Please wait....</p>
     </div>
@@ -40,7 +40,7 @@
     <div class="mainContainer">
         <div class="report-card" id="report-card">
             <div class="logo">
-                <img src="../../assets/images/reportCard_img/fssa_logo.jpg" class="img-fluid  text-center" alt="" />
+                <img src="../assets/images/reportCard_img/fssa_logo.jpg" class="img-fluid  text-center" alt="" />
             </div>
 
             <div class="title-report">
@@ -55,7 +55,7 @@
                 <div class="name-cont">
                     <label for="teachers-name">Teacher's name</label>
                     <p><span id="teachers-name" style="text-wrap: nowrap;">
-                        xxxxxxx</span></p>
+                            xxxxxxx</span></p>
                 </div>
                 <div class="sec-mon-year">
                     <div>
@@ -80,7 +80,7 @@
             <div class="scores-container ">
                 <div class="heading">
                     <div>
-                    <h4 style="font-size: 100%;"><span id="student-name1" >xxxxxxxxx</span>'s &nbsp; Score</h4>
+                        <h4 style="font-size: 100%;"><span id="student-name1">xxxxxxxxx</span>'s &nbsp; Score</h4>
                     </div>
                     <h4>Class Avg</h4>
                 </div>
@@ -88,7 +88,7 @@
                     <div class="personal-score">
                         <div class="labels">
                             <label for="">English</label>
-                            <label for="" >Life Skills</label>
+                            <label for="">Life Skills</label>
                             <label for="">Tech</label>
                             <label for="" style="font-size: .96rem;">Problem Solving</label>
                             <label id="projectLable">Project</label>
@@ -96,15 +96,15 @@
                             <label for="">Overall</label>
                         </div>
                         <div class="scores">
-                                <p><span id="rpenglish">0</span><span>%</span></p>
-                                <p><span id="rplifeSkills">0</span><span>%</span></p>
-                                <p><span id="rptech">0</span><span>%</span></p>
-                                <p><span id="rpproblemSolving">0</span><span>%</span></p>
-                                <p><span id="rpProject">0</span><span>%</span></p>
-                                <p><span id="rpPET">0</span><span>%</span></p>
-                                <p><span id="rpoverall">0</span><span>%</span></p>
+                            <p><span id="rpenglish">0</span><span>%</span></p>
+                            <p><span id="rplifeSkills">0</span><span>%</span></p>
+                            <p><span id="rptech">0</span><span>%</span></p>
+                            <p><span id="rpproblemSolving">0</span><span>%</span></p>
+                            <p><span id="rpProject">0</span><span>%</span></p>
+                            <p><span id="rpPET">0</span><span>%</span></p>
+                            <p><span id="rpoverall">0</span><span>%</span></p>
                         </div>
-                        
+
                     </div>
                     <div class="class-scores">
                         <p><span id="classEng">0</span><span>%</span></p>
@@ -115,14 +115,14 @@
                         <p><span id="classPET">0</span><span>%</span></p>
                         <p class="over"><span id="classOverall">0</span><span>%</span></p>
                     </div>
-                    
+
                 </div>
 
                 <div class="line"></div>
 
                 <div class="bottomContainer">
                     <div class="left-side">
-                        <div class="scores-bottom"> 
+                        <div class="scores-bottom">
                             <div>
                                 <label for="">Attendance</label>
                                 <label for="">Behavior</label>
@@ -132,14 +132,14 @@
                                 <p class="behave"><span id="rpbehavior">0</span><span>%</span></p>
                             </div>
                         </div>
-        
+
                         <div class="gradeWarning">
                             <p>*1st Warning - Talk with Student</p>
                             <p>2nd Warning - Talk with Parents</p>
                             <p>3rd Warning - <b>Leave from the academy</b></p>
                         </div>
                     </div>
-    
+
                     <div class="scores-details">
                         <div>
                             <p class="green"></p>
@@ -160,9 +160,9 @@
                     <p id="remark"></p>
                 </div>
             </div>
-            
+
             <div class="footer-img">
-                <img src="../../assets/images/reportCard_img/footer.jpg" alt="" />
+                <img src="../assets/images/reportCard_img/footer.jpg" alt="" />
             </div>
         </div>
     </div>
@@ -172,12 +172,12 @@
         <button id="next" class="btn btn-outline-primary">Next</button>
         <button id="downloadAll" class="btn btn-outline-success">Download All</button>
     </div>
-    
+
     <div class="container mt-5 searchContainer">
         <div>
             <label for="">Search for student</label>
             <input type="text" id="searchBox" placeholder="Search student..." class="form-control mb-3">
-            <div id="suggestions" class="list-group"></div> 
+            <div id="suggestions" class="list-group"></div>
         </div>
     </div>
 
@@ -189,8 +189,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <script type="module" src="../../assets/scripts/reportCardDownload.js"></script>
-    <script type="module" src="../../assets/scripts/generalScript.js"></script>
+    <script type="module" src="../assets/scripts/reportCardDownload.js"></script>
+    <script type="module" src="../assets/scripts/generalScript.js"></script>
 
     <!-- bootstrap link -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

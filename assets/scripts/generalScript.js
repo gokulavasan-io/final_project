@@ -139,13 +139,13 @@ window.onload = function () {
 const favIcon = document.createElement("link");
 favIcon.rel = "icon";
 favIcon.type = "image/x-icon";
-favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
+favIcon.href = "../images/login_img/ic_fw.png";
 document.head.appendChild(favIcon);
 
 const loadingContainer = document.getElementById("loading");
 const noNetworkDiv = document.createElement("div");
 noNetworkDiv.innerHTML = ` <div id="noNetworkMsg">
-            <img src="../../assets/images/monthlySubjects_img/img_no_network.png" alt="">
+            <img src="../images/monthlySubjects_img/img_no_network.png" alt="">
             <div><p >No Network</p>
             <p>Please check your Internet Connection</p>
             </div>
