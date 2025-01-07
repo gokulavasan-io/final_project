@@ -94,7 +94,7 @@ function showErrorMessage(str,time) {
 const loading = document.getElementById("loading");
 const noNetworkDiv = document.createElement("div");
 noNetworkDiv.innerHTML = ` <div id="noNetworkMsg">
-            <img src="../../assets/images/monthlySubjects_img/img_no_network.png" alt="">
+            <img src="../images/monthlySubjects_img/img_no_network.png" alt="">
             <div><p >No Network</p>
             <p>Please check your Internet Connection</p>
             </div>

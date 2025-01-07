@@ -14,6 +14,8 @@ import {
   getAuth,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js";
+import * as constValues from "../scripts/constValues.js"
+
 
 // Firebase Initialization
 const app = initializeApp(firebaseConfig);
@@ -25,6 +27,7 @@ let section;
 let role;
 const classes = ["ClassA", "ClassB", "ClassC"];
 const chartInstances = {}; 
+const userName = localStorage.getItem("userName");
 
 window.onload = async () => {
   onAuthStateChanged(auth, async (user) => {
@@ -40,7 +43,7 @@ window.onload = async () => {
         } else {
           document.getElementById("classNow").textContent = "All";
         }
-        localStorage.setItem("section", section=="All"?"ClassA":section);
+        localStorage.setItem("section", section=="All"?"All":section);
         initializeManagementSide();
       }
     }
@@ -73,7 +76,7 @@ async function initializeManagementSide() {
     button.addEventListener("click", () => {
       let className=button.textContent;
       const selectedClass = className=="All"?"All":"Class" + className;
-      localStorage.setItem("section", selectedClass=="All"?"ClassA":selectedClass);
+      localStorage.setItem("section", selectedClass=="All"?"All":selectedClass);
       section = selectedClass;
       document.getElementById("showClassesForLead").style.display = "none";
       if (className != "All") {
@@ -326,4 +329,111 @@ function calculateAverage(dataArray) {
   const validData = dataArray.filter((val) => val !== null);
   const sum = validData.reduce((acc, val) => acc + val, 0);
   return validData.length ? Math.round((sum / validData.length)*10/10) : 0;
+}
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetch(constValues.asideBarPath)
+    .then((response) => response.text())
+    .then((data) => {
+      document.getElementById("sidebar").innerHTML = data;
+
+      // Ensure these elements exist after loading the sidebar content
+      const hamBurger = document.querySelector(".toggle-btn");
+      if (hamBurger) {
+        hamBurger.addEventListener("click", function () {
+          document.querySelector("#sidebar").classList.toggle("expand");
+        });
+      }
+
+      const subjectsAside = document.querySelectorAll(".subjectsAside a");
+      subjectsAside.forEach((x) => {
+        x.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
+          localStorage.setItem("subject", x.textContent.split(" ").join(""));
+          window.location.href =constValues.subjectsPath;
+        });
+      });
+
+      const attendance = document.getElementById("attendance");
+      if (attendance) {
+        attendance.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
+          localStorage.setItem("subject", "Attendance");
+          window.location.href =constValues.subjectsPath;
+        });
+      }
+
+      const backButton = document.getElementById("backButton");
+      if (backButton) {
+        backButton.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
+          window.history.back();
+        });
+      }
+
+      const analysisNav = document.getElementById("analysisNav");
+      if (analysisNav) {
+        analysisNav.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
+          window.location.href = constValues.analysisHomePath;
+        });
+      }
+      const monthlyReport = document.getElementById("monthlyReport");
+      if (monthlyReport) {
+        monthlyReport.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
+          window.location.href = constValues.monthlyHomePath;
+        });
+      }
+
+    });
+
+  document.querySelector("header").innerHTML = `<div class="logo">Toodle</div>
+<div class="d-flex gap-2 align-items-center">
+    <button class="btn btn-outline-light " id="changeClass" style="display: none;">Choose Class</button>
+    <div id="classNow">X</div>
+</div>
+<div class="user">
+    <div class="userLogo"><span href="" id="user"><i class="lni lni-user"></i></span></div>
+</div>`;
+
+  if (userName) {
+    document.getElementById("user").innerText = userName
+      .slice(0, 1)
+      .toUpperCase();
+  }
+
+  if (section != "All") {
+    document.getElementById("classNow").textContent = section.slice(-1);
+  } else {
+    document.getElementById("classNow").textContent = "All";
+  }
+});
+
+
+
+function showErrorMessage(str, time) {
+  const errorPopup = document.getElementById("error-message");
+  errorPopup.innerText = str;
+  errorPopup.style.display = "block";
+  setTimeout(() => {
+    errorPopup.style.display = "none";
+  }, time);
 }

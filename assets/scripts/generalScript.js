@@ -11,7 +11,7 @@ import {
   getDoc,
   doc,
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-import * as constValues from "../scripts/constValues.js"
+import * as constValues from "./constValues.js";
 import firebaseConfig from "../../config.js";
 
 const app = initializeApp(firebaseConfig);
@@ -20,6 +20,7 @@ const db = getFirestore();
 
 const userName = localStorage.getItem("userName");
 const section = localStorage.getItem("section");
+
 
 document.addEventListener("DOMContentLoaded", () => {
   fetch(constValues.asideBarPath)
@@ -38,6 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const subjectsAside = document.querySelectorAll(".subjectsAside a");
       subjectsAside.forEach((x) => {
         x.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           localStorage.setItem("subject", x.textContent.split(" ").join(""));
           window.location.href =constValues.subjectsPath;
         });
@@ -46,6 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const attendance = document.getElementById("attendance");
       if (attendance) {
         attendance.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           localStorage.setItem("subject", "Attendance");
           window.location.href =constValues.subjectsPath;
         });
@@ -54,6 +63,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const backButton = document.getElementById("backButton");
       if (backButton) {
         backButton.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           window.history.back();
         });
       }
@@ -61,9 +74,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const analysisNav = document.getElementById("analysisNav");
       if (analysisNav) {
         analysisNav.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
           window.location.href = constValues.analysisHomePath;
         });
       }
+      const monthlyReport = document.getElementById("monthlyReport");
+      if (monthlyReport) {
+        monthlyReport.addEventListener("click", () => {
+          if (section=="All"||!section) {
+            showErrorMessage("Please choose a section",2000)
+            return
+          }
+          window.location.href = constValues.monthlyHomePath;
+        });
+      }
+
     });
 
   document.querySelector("header").innerHTML = `<div class="logo">Toodle</div>
@@ -111,13 +139,13 @@ window.onload = function () {
 const favIcon = document.createElement("link");
 favIcon.rel = "icon";
 favIcon.type = "image/x-icon";
-favIcon.href = "../../assets/images/reportCard_img/ic_fw.png";
+favIcon.href = "../images/login_img/ic_fw.png";
 document.head.appendChild(favIcon);
 
 const loadingContainer = document.getElementById("loading");
 const noNetworkDiv = document.createElement("div");
 noNetworkDiv.innerHTML = ` <div id="noNetworkMsg">
-            <img src="../../assets/images/monthlySubjects_img/img_no_network.png" alt="">
+            <img src="../images/monthlySubjects_img/img_no_network.png" alt="">
             <div><p >No Network</p>
             <p>Please check your Internet Connection</p>
             </div>
@@ -144,3 +172,13 @@ function updateNetworkStatus() {
 window.addEventListener("online", updateNetworkStatus);
 window.addEventListener("offline", updateNetworkStatus);
 updateNetworkStatus();
+
+
+function showErrorMessage(str, time) {
+  const errorPopup = document.getElementById("error-message");
+  errorPopup.innerText = str;
+  errorPopup.style.display = "block";
+  setTimeout(() => {
+    errorPopup.style.display = "none";
+  }, time);
+}

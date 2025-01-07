@@ -163,28 +163,41 @@ document.getElementById("new").addEventListener("click", function (e) {
   document.getElementById("forNewMonth").style.display = "flex";
 });
 
-// Confirm button functionality
 document.getElementById("confirm").addEventListener("click", function () {
   const monthInput = capitalizeFirstLetter(
     document.getElementById("newMonth").value.trim()
   );
   if (monthInput) {
     const monthRef = ref(database, `/FSSA/${section}/${monthInput}`);
-    set(monthRef, true)
-      .then(() => {
-        showSuccessMessage("added new month !!!");
-        const container = document.querySelector(".marks-container");
-        appendMonthToUI(monthInput, container, false);
-        document.getElementById("newMonth").value = "";
-        document.getElementById("forNewMonth").style.display = "none";
+
+    // Check if the month already exists
+    get(monthRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          showErrorMessage("Month already exists!",3000);
+        } else {
+          // Add the new month since it doesn't exist
+          set(monthRef, true)
+            .then(() => {
+              showSuccessMessage("Added new month !!!");
+              const container = document.querySelector(".marks-container");
+              appendMonthToUI(monthInput, container, false);
+              document.getElementById("newMonth").value = "";
+              document.getElementById("forNewMonth").style.display = "none";
+            })
+            .catch((error) => {
+              console.error("Error adding month:", error);
+            });
+        }
       })
       .catch((error) => {
-        console.error("Error adding month:", error);
+        console.error("Error checking month existence:", error);
       });
   } else {
     alert("Please enter a valid month name.");
   }
 });
+
 
 // Cancel button functionality
 document.getElementById("cancel").addEventListener("click", function () {
@@ -233,3 +246,13 @@ function capitalizeFirstLetter(val) {
 
 
 
+
+// Function to display error message
+function showErrorMessage(str,time) {
+  const errorPopup = document.getElementById("error-message");
+  errorPopup.innerText=str;
+  errorPopup.style.display = "block";
+  setTimeout(() => {
+    errorPopup.style.display = "none";
+  }, time);
+}

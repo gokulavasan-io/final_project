@@ -27,33 +27,26 @@ const container = document.getElementById("attendanceTable");
 const attendanceOptions = ["P", "A", "LA", "AP", "SL", "CL", "HL"];
 let columns = [{ data: "name", type: "text", readOnly: true, title: "Name" }];
 
-const monthName = localStorage.getItem("month"); // Month name from localStorage
+const monthName = localStorage.getItem("month"); 
 document.getElementById("monthName").innerText = monthName;
 const section = localStorage.getItem("section");
 const currentYear = new Date().getFullYear();
-const currentMonth = new Date(Date.parse(monthName + " 1, 2024")).getMonth(); // Get month index
-const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // Days in the current month
+const currentMonth = new Date(Date.parse(monthName + " 1, 2024")).getMonth();
+const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
 async function fetchStudentNames() {
   try {
-    const docRef = collection(db, `FSSA/studentsBaseData/${section}`); // Use 'db' instead of 'firestore'
+    const docRef = collection(db, `FSSA/studentsBaseData/${section}`); 
     const docSnap = await getDocs(docRef);
 
     if (!docSnap.empty) {
-      const studentNames = docSnap.docs.map((doc) => doc.id); // Get student names
+      const studentNames = docSnap.docs.map((doc) => doc.id);
       if (Array.isArray(studentNames) && studentNames.length > 0) {
         return studentNames.map((name) => {
-          // For each student, create an object with a 'name' and placeholders for each day
           const student = { name };
-          const totalDays = new Date(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            0
-          ).getDate();
 
-          // Add placeholder for each day
-          for (let day = 1; day <= totalDays; day++) {
-            student[`day${day}`] = ""; // Empty or default value for each day
+          for (let day = 1; day <= daysInMonth; day++) {
+            student[`day${day}`] = "";
           }
 
           return student;
@@ -76,7 +69,6 @@ async function fetchStudentNames() {
 }
 
 function initializeTable(students) {
-  // Only include the 'name' column and one column for each day
   columns = [{ data: "name", type: "text", readOnly: true, title: "Name" }];
 
   for (let day = 1; day <= daysInMonth; day++) {
@@ -93,13 +85,13 @@ function initializeTable(students) {
       title: ` ${day}/${currentMonth + 1}`,
       source: attendanceOptions,
       readOnly: isReadOnly,
-      className: isWeekend ? "non-working" : "", // Apply 'non-working' class if weekend
+      className: isWeekend ? "non-working" : "",
       validator: function (value, callback) {
         const isValid =
           attendanceOptions.includes(value) ||
           value === null ||
           value === "" ||
-          value === "Holiday"; // Allow null/empty for unedited cells
+          value === "Holiday"; 
         callback(isValid); // Pass the result to the callback
       },
       allowInvalid: false, // Prevent invalid values from being accepted
