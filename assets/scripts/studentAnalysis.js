@@ -134,7 +134,7 @@ function displayStudentData(student) {
                         label: subject,
                         data,
                         backgroundColor: [...labels, 'Overall'].map((_, index) => 
-                            `hsl(${(index * (360 / ([...labels, 'Overall'].length)))}, 70%, 70%)`
+                            `hsl(${(index * (360 / ([...labels, 'Overall'].length)))}, 70%, 70%,0.5)`
                         ),
                         borderColor: [...labels, 'Overall'].map((_, index) => 
                             `hsl(${(index * (360 / ([...labels, 'Overall'].length)))}, 70%, 50%)`
