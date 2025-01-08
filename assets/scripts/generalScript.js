@@ -139,7 +139,7 @@ window.onload = function () {
 const favIcon = document.createElement("link");
 favIcon.rel = "icon";
 favIcon.type = "image/x-icon";
-favIcon.href = "../images/login_img/ic_fw.png";
+favIcon.href = "https://companieslogo.com/img/orig/FRSH-03da94b4.png?t=1720244491";
 document.head.appendChild(favIcon);
 
 const loadingContainer = document.getElementById("loading");
