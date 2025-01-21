@@ -167,6 +167,11 @@ document.getElementById("confirm").addEventListener("click", function () {
   const monthInput = capitalizeFirstLetter(
     document.getElementById("newMonth").value.trim()
   );
+  if(monthInput==""||!orderedMonths.includes(monthInput)){
+    showErrorMessage("Please enter a valid month",3000);
+    return;
+  }
+
   if (monthInput) {
     const monthRef = ref(database, `/FSSA/${section}/${monthInput}`);
 

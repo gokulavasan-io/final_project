@@ -17,6 +17,18 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+
+        #info{
+            color: red;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            font-family: poppins;
+            font-weight: bold;
+            visibility: hidden;
+        }
+
         #classNow {
             display: none;
         }
@@ -113,7 +125,7 @@
     <div class="mainContainer">
         <div id="charts"></div>
     </div>
-
+    <div id="info">Please search for a student</div>
 
     <script type="module" src="../assets/scripts/studentAnalysis.js"></script>
     <script type="module" src="../assets/scripts/generalScript.js"></script>

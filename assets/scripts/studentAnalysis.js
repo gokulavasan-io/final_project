@@ -45,6 +45,7 @@ fetchFinalResults()
     .then((data) => {
         studentSectionMap = data;
         document.getElementById("loading").style.display='none'
+        document.getElementById('info').style.visibility='visible'
 
         console.log("Data Loaded:", data);
     })
@@ -78,6 +79,8 @@ document.getElementById("searchBox").addEventListener("input", () => {
             document.getElementById("searchBox").value = student;
             suggestionsBox.innerHTML = "";
             displayStudentData(student);
+        document.getElementById('info').style.visibility='hidden'
+
         });
 
         suggestionsBox.appendChild(suggestionItem);
