@@ -29,6 +29,13 @@ let colors = ["red", "yellow", "green", "absent"];
 let month = localStorage.getItem("month");
 let subject = localStorage.getItem("subject");
 const section = localStorage.getItem("section");
+const validateFilename = (filename) => {
+  if (filename.trim() === "") {
+    return false; // Reject empty or whitespace-only strings
+  }
+  const regex = /^(?=.*[a-zA-Z])[\w\s\-.]{1,254}$/;
+  return regex.test(filename);
+};
 
 // Fetch dataset names and marks, then display in Handsontable
 async function fetchDataAndDisplay() {
@@ -618,10 +625,11 @@ async function showNewMarkTable() {
     });
 
   function validateNameAndTotalMarks(customName) {
-    if (customName === "") {
+    if (!validateFilename(customName)) {
       showErrorMessage("Please enter a valid dataset name.", 3000);
       return false; // Exit if the dataset name is empty
     }
+   
     if (isNaN(totalMarksInput.value) || totalMarksInput.value <= 0) {
       showErrorMessage("Please enter a valid Mark to find Total", 4000);
       return false; // Exit if the dataset name is empty
@@ -803,12 +811,23 @@ function fetchAndDisplayData(datasetNameFromTable, isArchive) {
                   const marks = parseFloat(newValue);
                   if (!isNaN(marks)) {
                     if (marks > totalMarks) {
-                      hotForExists.setCellMeta(row, 1, "className", "error");
+                    hotForExists.setDataAtCell(row, 1, oldValue);
+
                       showErrorMessage(
                         "Marks cannot exceed total marks.",
                         2000
                       );
-                    } else {
+                    } 
+                    else if(marks<0){
+                      hotForExists.setDataAtCell(row, 1, oldValue);
+
+                      showErrorMessage(
+                        "Marks cannot be negative.",
+                        2000
+                      );
+                    }
+                    
+                    else  {
                       hotForExists.setCellMeta(row, 1, "className", null);
                       const percentage = (marks / totalMarks) * 100;
                       hotForExists.setDataAtCell(row, 2, percentage.toFixed(2));
