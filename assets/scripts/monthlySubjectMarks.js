@@ -470,42 +470,48 @@ async function showNewMarkTable() {
       return cellProperties;
     },
     afterChange: (changes, source) => {
-      createChart();
       if (source === "edit") {
-        changes.forEach(([row, prop]) => {
+        changes.forEach(([row, prop, oldValue, newValue]) => {
           if (prop === 1) {
-            // Only trigger when "Marks" column is edited
-            const marks = hot.getDataAtCell(row, 1);
-            if (marks > totalMarks) {
-              hot.setCellMeta(row, 1, "className", "error");
-            }
+            const marks = parseFloat(newValue);
+            if (!isNaN(marks)) {
+              if (marks > totalMarks) {
+              hotForExists.setDataAtCell(row, 1, oldValue);
 
-            // Check if the input is "A" or "a" for absent
-            if (marks === "A" || marks === "a") {
-              hot.setDataAtCell(row, 2, "Absent"); // Display "Absent" in the average column
-              hot.setCellMeta(row, 2, "className", "absent"); // Optional: Apply a style for "Absent"
-            } else {
-              const marksNumeric = parseFloat(marks);
-              if (!isNaN(marksNumeric) && marksNumeric <= totalMarks) {
-                hot.setCellMeta(row, 1, "className", "");
-                const average = (marksNumeric / totalMarks) * 100;
-                hot.setDataAtCell(row, 2, average.toFixed(2));
+                showErrorMessage(
+                  "Marks cannot exceed total marks.",
+                  2000
+                );
+              } 
+              else if(marks<0){
+                hotForExists.setDataAtCell(row, 1, oldValue);
 
-                // Set the cell color based on the average value
-                if (average <= 50) {
-                  hot.setCellMeta(row, 2, "className", "red"); // Class for average < 50
-                } else if (average > 50 && average < 81) {
-                  hot.setCellMeta(row, 2, "className", "yellow"); // Class for 50 <= average < 81
-                } else {
-                  hot.setCellMeta(row, 2, "className", "green"); // Class for average >= 81
-                }
-              } else {
-                hot.setDataAtCell(row, 2, ""); // Clear average if marks are invalid
+                showErrorMessage(
+                  "Marks cannot be negative.",
+                  2000
+                );
               }
+              
+              else   {
+                hotForExists.setCellMeta(row, 1, "className", null);
+                const percentage = (marks / totalMarks) * 100;
+                hotForExists.setDataAtCell(row, 2, percentage.toFixed(2));
+                updateCellColor(row, percentage.toFixed(2)); // Apply color
+              }
+            } else if (newValue === "A" || newValue === "a") {
+              hotForExists.setDataAtCell(row, 2, "Absent");
+              hotForExists.setCellMeta(row, 2, "className", "absent");
+            } else {
+              showErrorMessage(
+                "Invalid input. Enter a number or 'A' for absent.",
+                3000
+              );
+              hotForExists.setDataAtCell(row, 1, oldValue);
             }
           }
-          hot.render();
         });
+        hotForExists.render(); // Re-render table to apply changes
+        createChartForExist();
       }
     },
   });
@@ -549,11 +555,17 @@ async function showNewMarkTable() {
     try {
       const snapshot = await get(ref(db, dataPath));
       const tableData = hot.getData(); // Table data as an array of arrays [[name, marks, avg, remark], ...]
+      let isValid=true;
 
       // Transform the tableData into the desired structure
       const transformedStudents = {};
       tableData.forEach(([name, marks, avg, remark]) => {
         if (name) {
+          if(isNaN(marks)&&marks!="a"||isNaN(marks)&&marks!="A"){
+            showErrorMessage(`Enter valid mark for ${name}`,3000)
+            isValid=false;
+            return
+          }
           // Ensure name is not empty or undefined
           transformedStudents[name] = {
             mark: !isNaN(marks) ? Number(marks) : 0,
@@ -569,6 +581,11 @@ async function showNewMarkTable() {
         timestamp: new Date().toISOString(),
         isArchive: isArchive,
       };
+
+
+      if(!isValid){
+        return
+      }
 
       if (snapshot.exists()) {
         if (newMarkFile) {
@@ -827,7 +844,7 @@ function fetchAndDisplayData(datasetNameFromTable, isArchive) {
                       );
                     }
                     
-                    else  {
+                    else   {
                       hotForExists.setCellMeta(row, 1, "className", null);
                       const percentage = (marks / totalMarks) * 100;
                       hotForExists.setDataAtCell(row, 2, percentage.toFixed(2));
