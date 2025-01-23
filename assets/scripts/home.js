@@ -29,7 +29,14 @@ const classes = ["ClassA", "ClassB", "ClassC"];
 const chartInstances = {}; 
 const userName = localStorage.getItem("userName");
 
+
 window.onload = async () => {
+  
+  if (screen.width<1000) {
+    alert('Please open in Laptop / Computer ')
+    window.location.href="https://fssamanagement.netlify.app/index.html"
+    return;
+  }
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userDoc = await getUserData(user.email);

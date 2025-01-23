@@ -15,7 +15,15 @@ const db = getFirestore();
 const provider = new GoogleAuthProvider();
 
 
+
 window.onload = function () {
+  if (screen.width<1000) {
+    alert('Please open in Laptop / Computer ')
+    document.body.innerHTML=`<div class="phoneView">
+      <p>Please open with Laptop / Computer </p>
+    </div>`
+    return;
+  }
   onAuthStateChanged(auth,async (user) => {
     if (user) {const docRef = doc(db, "FSSA/users/teachers", user.email);
       const docSnap = await getDoc(docRef);
@@ -43,6 +51,13 @@ window.onload = function () {
 
 // Handle login form submission
 document.getElementById("login").addEventListener("click",async function (event) {
+  if (screen.width<1000) {
+    alert('Please open in Laptop / Computer ')
+    document.body.innerHTML=`<div class="phoneView">
+      <p>Please open with Laptop / Computer </p>
+    </div>`
+    return;
+  }
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
