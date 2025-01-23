@@ -117,6 +117,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.onload = function () {
+  if (screen.width<1000) {
+    alert('Please open in Laptop / Computer ')
+    window.location.href="https://fssamanagement.netlify.app/index.html"
+    return;
+  }
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const docRef = doc(db, "FSSA/users/teachers", user.email);

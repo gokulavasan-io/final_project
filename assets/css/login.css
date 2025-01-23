@@ -182,3 +182,13 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+.phoneView{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: red;
+    font-weight: bold;
+    font-family: var(--font);
+}
