@@ -48,20 +48,26 @@ const database = getDatabase(app);
 
 let studentData;
 let studentNames;
+let teacherNames ;
 let month = localStorage.getItem("month");
 let section = localStorage.getItem("section");
 let index = 0;
-let year = new Date().getFullYear();
+let year = month==="December"? new Date().getFullYear()-1:new Date().getFullYear();
 let hasProject = false;
 let hasPET=false;
-let teacherNames =
-  section == "ClassA"
-    ? "Miss Sreekala && Miss Haripriya"
-    : section == "ClassB"
-    ? "Mr Bharatwaj && Miss Sukirthi"
-    : "Mr Surya && Miss Niroshini";
 
-async function fetchStudentNames() {
+
+
+async function fetchTeachersName(section) {
+  const teachersPath = `/FSSA/teachersName/${section}/`;
+  const teachersSnapShot = await get(ref(database, teachersPath));
+
+  console.log(teachersSnapShot.val());
+  let teachersArray=teachersSnapShot.val()
+  teacherNames=teachersArray.join(" & ")
+}
+
+async function fetchStudentNames(section) {
   const attendancePath = `/FSSA/${section}/${month}/Result/Attendance`;
   const attendanceSnapshot = await get(ref(database, attendancePath));
 
@@ -84,6 +90,7 @@ async function fetchStudentMarks(month) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchStudentNames(section);
+  await fetchTeachersName(section);
   studentData = await fetchStudentMarks(month);
   console.log(studentData);
 
