@@ -1,18 +1,18 @@
 const studentName = document.getElementById("student-name");
 const studentName1 = document.getElementById("student-name1");
 const teacherName = document.getElementById("teachers-name");
-const Rpsection = document.getElementById("rpsection");
-const RPmonth = document.getElementById("rpmonth");
-const RPyear = document.getElementById("rpyear");
-const english = document.getElementById("rpenglish");
-const life_skills = document.getElementById("rplifeSkills");
-const tech = document.getElementById("rptech");
-const problem_solving = document.getElementById("rpproblemSolving");
+const rpSection = document.getElementById("rpSection");
+const rpMonth = document.getElementById("rpMonth");
+const rpYear = document.getElementById("rpYear");
+const english = document.getElementById("rpEnglish");
+const life_skills = document.getElementById("rpLifeSkills");
+const tech = document.getElementById("rpTech");
+const problem_solving = document.getElementById("rpProblemSolving");
 const project = document.getElementById("rpProject");
 const PET = document.getElementById("rpPET");
-const attendance = document.getElementById("rpattendance");
-const behavior = document.getElementById("rpbehavior");
-const overall = document.getElementById("rpoverall");
+const attendance = document.getElementById("rpAttendance");
+const behavior = document.getElementById("rpBehavior");
+const overall = document.getElementById("rpOverall");
 const class_eng = document.getElementById("classEng");
 const class_els = document.getElementById("classLS");
 const class_tech = document.getElementById("classTech");
@@ -26,7 +26,6 @@ const next = document.getElementById("next");
 const downloadAll = document.getElementById("downloadAll");
 const card = document.getElementById("report-card");
 const remarks = document.getElementById("remark");
-import * as constValues from "../scripts/constValues.js"
 
 // // .................... variables end ............ //
 
@@ -39,6 +38,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 
 import firebaseConfig from "../../config.js"
+import * as constValues from "../scripts/constValues.js"
 
 
 
@@ -59,7 +59,7 @@ let teacherNames =
     ? "Miss Sreekala && Miss Haripriya"
     : section == "ClassB"
     ? "Mr Bharatwaj && Miss Sukirthi"
-    : "Mr Kanagalingam && Miss Niroshini";
+    : "Mr Surya && Miss Niroshini";
 
 async function fetchStudentNames() {
   const attendancePath = `/FSSA/${section}/${month}/Result/Attendance`;
@@ -94,25 +94,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     hasPET = true;
   }
   if (!hasProject) {
-    changeToNotProject();
+    changeToNotProjectOrPET("Project")
   }
   if(!hasPET){
-      changeToNotPET();
+    changeToNotProjectOrPET("PET")
   }
   displayStudentData(studentNames[index]);
   document.getElementById("loading").style.display = "none";
 });
 
 function displayStudentData(studentName) {
-  console.log(studentData);
-
-  let classEnglish = studentData["Class Average"]["English"];
-  let classLS = studentData["Class Average"]["LifeSkills"];
-  let classTech = studentData["Class Average"]["Tech"];
-  let classPS = studentData["Class Average"]["ProblemSolving"];
-  let classOverall = studentData["Class Average"]["Academic Overall"];
-  let classProject = studentData["Class Average"]["Project"]||0;
-  let classPET = studentData["Class Average"]["PET"]||0;
+  let classAverage=studentData["Class Average"];
+  let classEnglish = classAverage["English"];
+  let classLS = classAverage["LifeSkills"];
+  let classTech = classAverage["Tech"];
+  let classPS = classAverage["ProblemSolving"];
+  let classOverall = classAverage["Academic Overall"];
+  let classProject = classAverage["Project"]||0;
+  let classPET = classAverage["PET"]||0;
 
   const student = studentData[studentName];
 
@@ -149,20 +148,21 @@ function displayStudentData(studentName) {
 }
 
 // change the score in page and color via function
-function score_fun(sub, score) {
-  sub.innerText = Math.round(score);
-  color_change(sub);
+function score_fun(subject, score) {
+  score=Math.round(score)
+  subject.innerText = score;
+  color_change(subject,score);
 }
 
 // background color change for scores
-function color_change(sub) {
-  sub.parentElement.style.backgroundColor = scores_color(Number(sub.innerText));
-  if (Number(sub.innerText) < 51) {
-    sub.parentElement.style.color = "white";
-  } else if (Number(sub.innerText) >= 51 && Number(sub.innerText) < 81) {
-    sub.parentElement.style.color = "black";
+function color_change(subject,score) {
+  subject.parentElement.style.backgroundColor = scores_color(score);
+  if (score < 51) {
+    subject.parentElement.style.color = "white";
+  } else if (score >= 51 && score < 81) {
+    subject.parentElement.style.color = "black";
   } else {
-    sub.parentElement.style.color = "black";
+    subject.parentElement.style.color = "black";
   }
 }
 
@@ -181,7 +181,7 @@ function scores_color(score) {
 function name_change(student_name, teach_name) {
   let temp = student_name;
 
-  if (student_name.length < 3) {
+  if (student_name.length < 2) {
     student_name = prompt(
       `Please Enter a valid name for this student " ${temp} "`
     );
@@ -193,9 +193,9 @@ function name_change(student_name, teach_name) {
 
 // change section,month and year
 function smy_change(sec, mon, yr) {
-  Rpsection.innerText = sec;
-  RPmonth.innerText = mon;
-  RPyear.innerText = yr;
+  rpSection.innerText = sec;
+  rpMonth.innerText = mon;
+  rpYear.innerText = yr;
 }
 
 
@@ -250,38 +250,7 @@ downloadAll.addEventListener("click", () => {
   studentNames
     .reduce((promise, studentName, i) => {
       return promise.then(() => {
-        let classEnglish = studentData.classAverage.English;
-        let classLS = studentData.classAverage.LifeSkills;
-        let classTech = studentData.classAverage.Tech;
-        let classPS = studentData.classAverage.ProblemSolving;
-        let classOverall = studentData.classAverage.AcademicOverall;
-        let classProject = studentData.classAverage.Project;
-
-        const student = studentData[studentName];
-
-        if (student) {
-          name_change(studentName, teacherNames);
-          smy_change(section.slice(-1), month.slice(0, 3), year);
-
-          // Update scores
-          score_fun(english, student.English);
-          score_fun(tech, student.Tech);
-          score_fun(life_skills, student.LifeSkills);
-          score_fun(problem_solving, student.ProblemSolving);
-          score_fun(overall, student.AcademicOverall);
-          score_fun(attendance, student.Attendance);
-          score_fun(behavior, student.Behavior);
-          score_fun(project, student.Project);
-
-          // For class average
-          score_fun(class_eng, classEnglish);
-          score_fun(class_els, classLS);
-          score_fun(class_tech, classTech);
-          score_fun(class_pb, classPS);
-          score_fun(class_overall, classOverall);
-          score_fun(class_project, classProject);
-        }
-
+        displayStudentData(studentName)
         return download_all_student(section.slice(-1));
       });
     }, Promise.resolve())
@@ -341,10 +310,18 @@ next.addEventListener("click", () => {
   }
 });
 
-function changeToNotProject() {
-  document.getElementById("projectLable").style.display = "none";
-  project.parentElement.style.display = "none";
+function changeToNotProjectOrPET(subject) {
+  if(subject=="Project"){
+    document.getElementById("projectLabel").style.display = "none";
+    project.parentElement.style.display = "none";
   class_project.parentElement.style.display = "none";
+
+  }
+  else{
+    document.getElementById("petLabel").style.display = "none";
+    PET.parentElement.style.display = "none";
+    class_PET.parentElement.style.display = "none";
+  }
   document.querySelector(".labels").style.gap = ".5rem";
   document.querySelector(".scores").style.gap = ".4rem";
   document.querySelector(".class-scores").style.gap = ".4rem";
@@ -353,18 +330,7 @@ function changeToNotProject() {
     x.style.gap = ".4rem";
   });
 }
-function changeToNotPET() {
-  document.getElementById("petLabel").style.display = "none";
-  PET.parentElement.style.display = "none";
-  class_PET.parentElement.style.display = "none";
-  document.querySelector(".labels").style.gap = ".5rem";
-  document.querySelector(".scores").style.gap = ".4rem";
-  document.querySelector(".class-scores").style.gap = ".4rem";
-  document.querySelector(".left-side").style.gap = ".6rem";
-  document.querySelectorAll(".scores-bottom div").forEach((x) => {
-    x.style.gap = ".4rem";
-  });
-}
+
 
 window.addEventListener("keydown", function (e) {
   if (e.keyCode == 37) {
