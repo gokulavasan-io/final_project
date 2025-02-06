@@ -33,7 +33,7 @@ const orderedMonths = [
   "December",
 ];
 let subject = localStorage.getItem("subject");
-document.getElementById("subject").textContent = subject;
+document.getElementById("subject").textContent = splitByUpperCase(subject);
 
 // Function to get all existing months from Firebase and render them
 function getAllData() {
@@ -84,7 +84,10 @@ function appendMonthToUI(monthName, container) {
   div.addEventListener("click", function (event) {
     event.stopPropagation();
     localStorage.setItem("month", div.textContent.trim());
-    if (subject == "Attendance") {
+    if (subject.toLowerCase().includes("level")) {
+      window.location.href="../../pages/levelMark.html";
+    }
+    else if (subject == "Attendance") {
       window.location.href = constValues.attendancePath;
     }
     else {
@@ -92,6 +95,9 @@ function appendMonthToUI(monthName, container) {
     }
   });
   container.appendChild(div);
+}
+function splitByUpperCase(str) {
+  return str.replace(/([A-Z])/g, ' $1').trim();
 }
 
 document.addEventListener("DOMContentLoaded",()=>{

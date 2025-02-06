@@ -10,6 +10,7 @@ const tech = document.getElementById("rpTech");
 const problem_solving = document.getElementById("rpProblemSolving");
 const project = document.getElementById("rpProject");
 const PET = document.getElementById("rpPET");
+const psLevel = document.getElementById("rpPsLevel");
 const attendance = document.getElementById("rpAttendance");
 const behavior = document.getElementById("rpBehavior");
 const overall = document.getElementById("rpOverall");
@@ -36,15 +37,20 @@ import {
   ref,
   get,
 } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
 
 import firebaseConfig from "../../config.js"
 import * as constValues from "../scripts/constValues.js"
 
 
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const firestore = getFirestore(app);
 
 let studentData;
 let studentNames;
@@ -55,6 +61,7 @@ let index = 0;
 let year = month==="December"? new Date().getFullYear()-1:new Date().getFullYear();
 let hasProject = false;
 let hasPET=false;
+let hasPsLevel=false;
 
 
 
@@ -68,13 +75,25 @@ async function fetchTeachersName(section) {
 }
 
 async function fetchStudentNames(section) {
-  const attendancePath = `/FSSA/${section}/${month}/Result/Attendance`;
-  const attendanceSnapshot = await get(ref(database, attendancePath));
+  try {
+    const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`);
+    const docSnap = await getDocs(docRef);
 
-  studentNames = attendanceSnapshot.exists()
-    ? Object.keys(attendanceSnapshot.val())
-    : [];
+    if (docSnap.empty) {
+      console.error("No student names found for the selected class.");
+      showErrorMessage("No student names found for the selected class.", 3000);
+      return [];
+    }
+
+    studentNames = docSnap.docs.map((doc) => doc.id);
+  
+  } catch (error) {
+    console.error("Error fetching student names:", error);
+    alert("Error fetching student names.");
+    return [];
+  }
 }
+
 
 async function fetchStudentMarks(month) {
   const dbRef = ref(database, `/FSSA/${section}/${month}/Result/finalResult`);
@@ -100,6 +119,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   if ("PET" in studentData["Class Average"]) {
     hasPET = true;
   }
+  if ('PSlevel' in studentData["Class Average"]) {
+    hasPsLevel=true
+  }
+
+  if (hasPsLevel) {
+    changeToNoPsLevel(true)
+  }
+  else{
+    changeToNoPsLevel(false)
+  }
+
   if (!hasProject) {
     changeToNotProjectOrPET("Project")
   }
@@ -134,14 +164,18 @@ function displayStudentData(studentName) {
     score_fun(overall, student["Academic Overall"]);
     score_fun(attendance, student.Attendance);
     score_fun(behavior, student.Behavior);
-
+    
     // for class average
     score_fun(class_eng, classEnglish);
     score_fun(class_els, classLS);
     score_fun(class_tech, classTech);
     score_fun(class_pb, classPS);
     score_fun(class_overall, classOverall);
-
+    
+    if (hasPsLevel) {
+      level_fun(student.PSlevel)
+    }
+    
     if(hasProject){
       score_fun(project, student.Project||0);
       score_fun(class_project, classProject);
@@ -166,9 +200,7 @@ function color_change(subject,score) {
   subject.parentElement.style.backgroundColor = scores_color(score);
   if (score < 51) {
     subject.parentElement.style.color = "white";
-  } else if (score >= 51 && score < 81) {
-    subject.parentElement.style.color = "black";
-  } else {
+  }  else {
     subject.parentElement.style.color = "black";
   }
 }
@@ -183,6 +215,22 @@ function scores_color(score) {
     return "#ff5757";
   }
 }
+
+
+function level_fun(score) {
+    psLevel.innerText=score;
+    if(score>=1 && score<3){
+      psLevel.parentElement.style.color='white'
+      psLevel.parentElement.style.backgroundColor='#ff5757'
+    }
+    else if(score>=3 && score<5){
+      psLevel.parentElement.style.backgroundColor="#ffde59"
+    }
+    else{
+      psLevel.parentElement.style.backgroundColor="#7ed957"
+    }
+}
+
 
 // change student and teachers name
 function name_change(student_name, teach_name) {
@@ -375,3 +423,19 @@ document.getElementById("addRemark").addEventListener("click",()=>{
   }
   remarks.innerText=remarkValue;
 })
+
+
+function changeToNoPsLevel(isLevel) {
+  if (!isLevel) {
+    document.getElementById('psLevelLabel').style.display='none'
+    document.getElementById("rpPsLevel").parentElement.style.display='none'
+    document.getElementById("classPsLevel").parentElement.style.display='none'
+  }
+  else{
+    document.getElementById('psLabel').style.display='none'
+    document.getElementById("rpProblemSolving").parentElement.style.display='none'
+    document.getElementById("classPS").parentElement.style.display='none'
+
+  }
+
+}

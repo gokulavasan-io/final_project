@@ -1,28 +1,52 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
-
 import firebaseConfig from "../../config.js"
+import {
+  getFirestore,
+  collection,
+  getDocs,
+} from "https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js";
+
 import * as constValues from "../scripts/constValues.js"
-
-
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const firestore = getFirestore(app);
 
 let hot;
-const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving", "PET", "Project", "Attendance", "Behavior"];
+const subjects = ["English", "LifeSkills", "Tech", "ProblemSolving","PSlevel", "PET", "Project", "Attendance", "Behavior"];
 const section=localStorage.getItem("section");
 const month=localStorage.getItem("month");
 document.getElementById("month").innerText=month;
 
 
+
+
+// Fetch student names from Firestore based on section
+async function fetchStudentNames() {
+  try {
+    const docRef = collection(firestore, `FSSA/studentsBaseData/${section}`);
+    const docSnap = await getDocs(docRef);
+
+    if (docSnap.empty) {
+      console.error("No student names found for the selected class.");
+      showErrorMessage("No student names found for the selected class.", 3000);
+      return [];
+    }
+
+    const studentNames = docSnap.docs.map((doc) => doc.id);
+    return studentNames;
+  } catch (error) {
+    console.error("Error fetching student names:", error);
+    alert("Error fetching student names.");
+    return [];
+  }
+}
+
 async function fetchData() {
   const data = {};
 
-  const attendancePath = `/FSSA/${section}/${month}/Result/Attendance`;
-  const attendanceSnapshot = await get(ref(database, attendancePath));
-
-  const studentNames = attendanceSnapshot.exists() ? Object.keys(attendanceSnapshot.val()) : [];
+  const studentNames =await fetchStudentNames();
   console.log(studentNames);
   
   if (studentNames.length === 0) {
@@ -208,6 +232,8 @@ document.getElementById('saveResult').addEventListener('click', async () => {
 
   const includePET = document.getElementById('includePET').checked;
   const includeProject = document.getElementById('includeProject').checked;
+  const includePSlevel=document.getElementById("includePSlevel").checked;
+
 
   const tableData = hot.getData(); // Get all table rows
   const colHeaders = hot.getColHeader(); // Get column headers
@@ -221,6 +247,7 @@ document.getElementById('saveResult').addEventListener('click', async () => {
     colHeaders.forEach((header, index) => {
       if (header === "PET" && !includePET) return; 
       if (header === "Project" && !includeProject) return; 
+      if (header === "PSlevel" && !includePSlevel) return; 
       if (header !== "Name") {
         studentData[header] = Math.round(row[index] || 0);
       }
