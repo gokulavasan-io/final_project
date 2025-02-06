@@ -1,5 +1,3 @@
-// section month
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
 import {
   getDatabase,
@@ -37,9 +35,15 @@ const validateFilename = (filename) => {
   return regex.test(filename);
 };
 
+
+function splitByUpperCase(str) {
+  return str.replace(/([A-Z])/g, ' $1').trim();
+}
+
+
 // Fetch dataset names and marks, then display in Handsontable
 async function fetchDataAndDisplay() {
-  document.getElementById("subjectOfTheTable").innerText = `${subject}-`;
+  document.getElementById("subjectOfTheTable").innerText = `${splitByUpperCase(subject)}-`;
   document.getElementById("monOfTheSubject").innerText = month;
   const datasetPath = `/FSSA/${section}/${month}/${subject}`;
   const tableContainer = document.getElementById("table");
@@ -1155,26 +1159,6 @@ document.getElementById("closeBtnForExist").addEventListener("click", () => {
   fetchArchiveFiles();
 });
 
-// document
-//   .getElementById("removeFromMonth")
-//   .addEventListener("click", function () {
-//     document.getElementById("delete-warning").style.display = "block";
-//   });
-
-// document
-//   .getElementById("yesForRemoveMark")
-//   .addEventListener("click", function () {
-//     removeFromMonth(section, subject, month, datasetName);
-//     showSuccessMessage("successfully removed from the month");
-//     fetchDataAndDisplay();
-//     document.getElementById("delete-warning").style.display = "none";
-//   });
-
-// document
-//   .getElementById("noForRemoveMark")
-//   .addEventListener("click", function () {
-//     document.getElementById("delete-warning").style.display = "none";
-//   });
 
 function showErrorMessage(str, time) {
   const errorPopup = document.getElementById("error-message");
